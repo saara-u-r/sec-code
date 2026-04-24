@@ -1,0 +1,43 @@
+project:
+  name: sec_code
+  version: "1.0.0"
+
+generator:
+  output_dir: "data/raw"
+  sources: ["github", "exploitdb", "cvefixes"]
+
+analyzer:
+  rules_dir: "configs/rules"
+  vuln_types:
+    - sql_injection
+    - command_injection
+    - path_traversal
+    - insecure_deserialization
+  output_dir: "data/labeled"
+
+labeler:
+  severity_levels: ["low", "medium", "high", "critical"]
+  cwe_mapping:
+    sql_injection: "CWE-89"
+    command_injection: "CWE-78"
+    path_traversal: "CWE-22"
+    insecure_deserialization: "CWE-502"
+  cvss_mapping:
+    # Default CVSS v3.1 base scores for vulnerability types
+    sql_injection: 9.8
+    command_injection: 9.8
+    path_traversal: 7.5
+    insecure_deserialization: 8.1
+  output_dir: "data/labeled"
+
+cvss_gradient:
+  enabled: true
+  schema_version: "1.0"
+  metric: "CVSS_V3.1"
+  output_file: "data/vulnerability_gradient.json"
+
+mongodb:
+  enabled: true
+  database: "sec_code"
+  collection: "vulnerability_samples"
+  # URI is read from MONGODB_URI in .env — never hardcode here
