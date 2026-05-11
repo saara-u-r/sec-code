@@ -24,13 +24,13 @@ Rate limits: 30 req/min authenticated. Set GITHUB_TOKEN in .env.
 import os
 import re
 import time
-from datetime import datetime, timezone
 
 import requests
 from dotenv import load_dotenv
 
+from src.utils.cwe_taxonomy import BLOCKED_SOURCE_CWE, CWE_VULN_MAP
 from src.utils.file_utils import (
-    build_meta, detect_framework, hash_code, is_web_code,
+    build_meta, detect_framework, has_cwe_sink, hash_code,
     parse_cvss_vector, save_code_sample,
 )
 from src.utils.logger import get_logger
@@ -40,13 +40,6 @@ logger = get_logger(__name__)
 
 GITHUB_API = "https://api.github.com"
 TOKEN = os.getenv("GITHUB_TOKEN", "")
-
-CWE_VULN_MAP = {
-    "CWE-89":  "sql_injection",
-    "CWE-78":  "command_injection",
-    "CWE-22":  "path_traversal",
-    "CWE-502": "insecure_deserialization",
-}
 
 _COMMIT_RE = re.compile(
     r"https://github\.com/([^/]+/[^/]+)/commit/([0-9a-f]{7,40})",
@@ -220,6 +213,8 @@ def run(output_dir: str = "data/raw") -> int:
             cwe = _extract_cwe(advisory)
             if not cwe:
                 continue
+            if ("ghsa", cwe) in BLOCKED_SOURCE_CWE:
+                continue
 
             vuln_type = CWE_VULN_MAP[cwe]
             cvss_score, cvss_vector = _extract_cvss(advisory)
@@ -252,7 +247,11 @@ def run(output_dir: str = "data/raw") -> int:
                     if not code_before or not code_before.strip():
                         continue
 
-                    if not is_web_code(code_before):
+                    # Phase 2B: replaced is_web_code() filter with sink-presence
+                    # gate so non-web Python CWEs (798, 611, 330, 400, etc.)
+                    # aren't silently dropped.
+                    sink_ok, _ = has_cwe_sink(code_before, cwe, file_path=file_path)
+                    if not sink_ok:
                         continue
 
                     code_after = _fetch_file_at_ref(owner_repo, file_path, fix_sha) or ""

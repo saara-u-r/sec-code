@@ -9,10 +9,20 @@ generator:
 analyzer:
   rules_dir: "configs/rules"
   vuln_types:
+    # Phase 1 originals (web-focused)
     - sql_injection
     - command_injection
     - path_traversal
+    - cross_site_scripting
+    - code_injection
+    - ssrf
     - insecure_deserialization
+    # Phase 2B additions (MITRE Top 25 2025, Python-relevant)
+    - hardcoded_credentials
+    - xml_external_entity
+    - command_injection_generic
+    - weak_randomness
+    - resource_exhaustion
   output_dir: "data/labeled"
 
 labeler:
@@ -21,13 +31,29 @@ labeler:
     sql_injection: "CWE-89"
     command_injection: "CWE-78"
     path_traversal: "CWE-22"
+    cross_site_scripting: "CWE-79"
+    code_injection: "CWE-94"
+    ssrf: "CWE-918"
     insecure_deserialization: "CWE-502"
+    hardcoded_credentials: "CWE-798"
+    xml_external_entity: "CWE-611"
+    command_injection_generic: "CWE-77"
+    weak_randomness: "CWE-330"
+    resource_exhaustion: "CWE-400"
   cvss_mapping:
-    # Default CVSS v3.1 base scores for vulnerability types
+    # Default CVSS v3.1 base scores — used only as fallback; NVD per-CVE scores override these
     sql_injection: 9.8
     command_injection: 9.8
     path_traversal: 7.5
+    cross_site_scripting: 6.1
+    code_injection: 9.8
+    ssrf: 7.5
     insecure_deserialization: 8.1
+    hardcoded_credentials: 9.8
+    xml_external_entity: 7.5
+    command_injection_generic: 9.8
+    weak_randomness: 5.3
+    resource_exhaustion: 7.5
   output_dir: "data/labeled"
 
 cvss_gradient:

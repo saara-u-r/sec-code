@@ -20,12 +20,12 @@ import shutil
 import sqlite3
 import subprocess
 import zipfile
-from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 
-from src.utils.file_utils import build_meta, detect_framework, hash_code, save_code_sample
+from src.utils.cwe_taxonomy import BLOCKED_SOURCE_CWE, CWE_VULN_MAP, TARGET_CWES
+from src.utils.file_utils import build_meta, detect_framework, has_cwe_sink, hash_code, save_code_sample
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -38,16 +38,6 @@ CVEFIXES_LOCAL = "data/cvefixes/CVEfixes.db"
 # Path of the SQL dump inside the ZIP
 _SQL_GZ_MEMBER = "CVEfixes_v1.0.7/Data/CVEfixes_v1.0.7.sql.gz"
 
-# Only load rows whose cwe_id is one of our four targets
-CWE_VULN_MAP: dict[str, str] = {
-    "CWE-89": "sql_injection",
-    "CWE-78": "command_injection",
-    "CWE-22": "path_traversal",
-    "CWE-502": "insecure_deserialization",
-}
-
-TARGET_CWES = set(CWE_VULN_MAP.keys())
-
 # SQL query: join file_change → commits → fixes → cwe_classification
 # code_before/code_after live in file_change; CWE is in cwe_classification.
 # Filters: Python files only, target CWEs only, both before/after must exist.
@@ -59,7 +49,7 @@ _QUERY = """
         fx.cve_id,
         cc.cwe_id,
         cm.repo_url,
-        cm.message AS commit_message
+        cm.msg AS commit_message
     FROM file_change       f
     JOIN commits           cm ON f.hash      = cm.hash
     JOIN fixes             fx ON cm.hash     = fx.hash
@@ -124,7 +114,7 @@ def download_cvefixes(db_dest: str = CVEFIXES_LOCAL) -> bool:
         logger.error("sqlite3 CLI not found — install it and re-run")
         return False
 
-    logger.info(f"Building CVEfixes.db from SQL dump (streaming, may take several minutes)…")
+    logger.info("Building CVEfixes.db from SQL dump (streaming, may take several minutes)…")
     proc = None
     try:
         proc = subprocess.Popen(
@@ -178,15 +168,26 @@ def run(output_dir: str = "data/raw", db_path: str = CVEFIXES_LOCAL) -> int:
         logger.info(f"CVEfixes: {len(rows)} Python method-change rows matched")
 
         seen: set[str] = set()
+        rejected_sink = 0
+        rejected_blocked = 0
 
         for row in rows:
             cwe = row["cwe_id"]
+            if ("cvefixes", cwe) in BLOCKED_SOURCE_CWE:
+                rejected_blocked += 1
+                continue
             vuln_type = CWE_VULN_MAP[cwe]
-            now = datetime.now(timezone.utc).isoformat()
 
             code_before = (row["code_before"] or "").strip()
             code_after  = (row["code_after"]  or "").strip()
             if not code_before:
+                continue
+
+            # Phase 2B sink-presence filter — reject samples without a
+            # category-defining sink token (see PHASE_2B_DESIGN.md §2.2).
+            sink_ok, _ = has_cwe_sink(code_before, cwe, file_path=row["filename"])
+            if not sink_ok:
+                rejected_sink += 1
                 continue
 
             h = hash_code(code_before)
@@ -222,5 +223,8 @@ def run(output_dir: str = "data/raw", db_path: str = CVEFIXES_LOCAL) -> int:
     finally:
         conn.close()
 
-    logger.info(f"cvefixes_loader finished — {total} samples saved to {output_dir}")
+    logger.info(
+        f"cvefixes_loader finished — {total} samples saved to {output_dir} "
+        f"(rejected: sink={rejected_sink}, blocked_source={rejected_blocked})"
+    )
     return total

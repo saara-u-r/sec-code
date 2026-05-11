@@ -5,19 +5,17 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-SCHEMA_VERSION = "2.0"
+from src.utils.cwe_taxonomy import (
+    CWE_NAMES,
+    CWES_REQUIRING_SECURITY_CONTEXT,
+    CWES_REQUIRING_TEST_EXCLUSION,
+    SINK_PATTERNS,
+)
 
-# Human-readable names for the CWEs we track
-CWE_NAMES: dict[str, str] = {
-    "CWE-89":  "SQL Injection",
-    "CWE-78":  "OS Command Injection",
-    "CWE-22":  "Path Traversal",
-    "CWE-502": "Deserialization of Untrusted Data",
-    "CWE-327": "Use of Broken or Risky Cryptographic Algorithm",
-    "CWE-330": "Use of Insufficiently Random Values",
-    "CWE-295": "Improper Certificate Validation",
-    "CWE-798": "Use of Hard-coded Credentials",
-}
+# Schema 2.1 (2026-05-11): adds has_cwe_sink + sink_pattern auto-computed
+# fields used by Phase 2B's pre-ingest quality filter. Earlier samples on
+# disk lack these fields; readers should default to None.
+SCHEMA_VERSION = "2.1"
 
 # CVSS vector component expansion maps
 _AV  = {"N": "NETWORK", "A": "ADJACENT", "L": "LOCAL", "P": "PHYSICAL"}
@@ -181,6 +179,93 @@ def has_taint_source(snippet: str) -> bool:
     return bool(_TAINT_SOURCE.search(snippet))
 
 
+# ---------------------------------------------------------------------------
+# Phase 2B — sink-presence quality filter (pre-ingest)
+# ---------------------------------------------------------------------------
+
+# Security-context keywords used by has_security_context() — the file must
+# mention at least one of these for CWE-798 / CWE-330 to count as labeled.
+# No \b anchor so the keywords can appear embedded in identifiers like
+# session_token, DATABASE_PASSWORD, etc. (in regex, `_` is a word char, so
+# \b doesn't fire between a letter and `_`).
+_SECURITY_CONTEXT = re.compile(
+    r"(auth|authn|authz|password|passwd|credential|session|token|"
+    r"login|logout|signin|signup|secret|sign|verify|hmac|jwt|"
+    r"oauth|saml|ldap|api[_-]?key|csrf|nonce|salt|hash|encrypt|"
+    r"decrypt|cipher|secure|permission|role|account)",
+    re.IGNORECASE,
+)
+
+# Test/example file detector — paths that should never count as production
+# credential leaks (CWE-798). Matches typical Python test/example layouts.
+_TEST_PATH = re.compile(
+    r"(^|/)(tests?|test_[^/]+|[^/]+_test|examples?|docs?|fixtures?|"
+    r"benchmarks?|samples?|demo|conftest\.py$)/",
+    re.IGNORECASE,
+)
+
+
+def is_test_file(file_path: str | None) -> bool:
+    """Return True if file_path looks like a test fixture / example / doc.
+    Used to exclude false-positive credential leaks for CWE-798."""
+    if not file_path:
+        return False
+    return bool(_TEST_PATH.search(file_path)) or (
+        Path(file_path).name.startswith("test_")
+        or Path(file_path).name.endswith("_test.py")
+        or Path(file_path).name == "conftest.py"
+    )
+
+
+def has_security_context(code: str) -> bool:
+    """Return True if the file mentions any auth/security keyword.
+    Used as a secondary filter for CWE-798 and CWE-330 where a raw sink
+    match alone is too noisy (e.g. random.choice in a game)."""
+    return bool(_SECURITY_CONTEXT.search(code))
+
+
+def has_cwe_sink(
+    code: str,
+    cwe: str,
+    *,
+    file_path: str | None = None,
+) -> tuple[bool, str | None]:
+    """
+    Return (passes_filter, matched_pattern_or_none).
+
+    A sample passes the sink-presence filter if:
+      1. At least one pattern in SINK_PATTERNS[cwe] matches `code`.
+      2. For CWE-798 only: file_path does NOT look like a test/example file.
+      3. For CWE-798 / CWE-330: `code` also has a security-context keyword.
+
+    If `cwe` has no defined sink patterns (e.g. unknown CWE), returns
+    (True, None) — i.e. we don't filter what we can't validate.
+    """
+    patterns = SINK_PATTERNS.get(cwe)
+    if not patterns:
+        return True, None
+
+    if cwe in CWES_REQUIRING_TEST_EXCLUSION and is_test_file(file_path):
+        return False, None
+
+    matched = None
+    for p in patterns:
+        m = p.search(code)
+        if m:
+            matched = p.pattern
+            break
+
+    if not matched:
+        return False, None
+
+    if cwe in CWES_REQUIRING_SECURITY_CONTEXT and not has_security_context(code):
+        return False, None
+
+    return True, matched
+
+
+# ---------------------------------------------------------------------------
+
 def is_secure_sample(snippet: str, vuln_type: str) -> bool:
     """
     Return True if the snippet shows the SAFE pattern for vuln_type AND
@@ -239,10 +324,16 @@ def parse_cvss_vector(vector: str | None) -> dict:
 # Code quality signals
 # ---------------------------------------------------------------------------
 
-def compute_code_signals(code_before: str, code_after: str = "") -> dict:
+def compute_code_signals(
+    code_before: str,
+    code_after: str = "",
+    *,
+    cwe: str | None = None,
+    file_path: str | None = None,
+) -> dict:
     """Compute quality and structural signals from code_before/code_after."""
     def _loc(code: str) -> int:
-        return len([l for l in code.splitlines() if l.strip()])
+        return len([line for line in code.splitlines() if line.strip()])
 
     try:
         ast.parse(code_before)
@@ -250,12 +341,18 @@ def compute_code_signals(code_before: str, code_after: str = "") -> dict:
     except SyntaxError:
         syntax_valid = False
 
+    sink_ok, sink_pat = (None, None)
+    if cwe:
+        sink_ok, sink_pat = has_cwe_sink(code_before, cwe, file_path=file_path)
+
     return {
         "loc_before":       _loc(code_before),
         "loc_after":        _loc(code_after) if code_after else 0,
         "syntax_valid":     syntax_valid,
         "has_taint_source": has_taint_source(code_before),
         "is_web_code":      is_web_code(code_before),
+        "has_cwe_sink":     sink_ok,
+        "sink_pattern":     sink_pat,
     }
 
 
@@ -272,7 +369,12 @@ def build_meta(fields: dict, code_before: str, code_after: str = "") -> dict:
     Scrapers pass what they know in `fields`; everything else gets a typed default.
     """
     cwe = fields.get("cwe", "")
-    signals = compute_code_signals(code_before, code_after)
+    signals = compute_code_signals(
+        code_before,
+        code_after,
+        cwe=cwe or None,
+        file_path=fields.get("file_path"),
+    )
 
     return {
         # ── Identity ──────────────────────────────────────────────────────
@@ -330,6 +432,8 @@ def build_meta(fields: dict, code_before: str, code_after: str = "") -> dict:
         "syntax_valid":     signals["syntax_valid"],
         "has_taint_source": signals["has_taint_source"],
         "is_web_code":      signals["is_web_code"],
+        "has_cwe_sink":     signals["has_cwe_sink"],
+        "sink_pattern":     signals["sink_pattern"],
 
         # ── Dataset management ────────────────────────────────────────────
         "content_hash": hash_code(code_before),
@@ -340,6 +444,11 @@ def build_meta(fields: dict, code_before: str, code_after: str = "") -> dict:
         "classifier_confidence": None,    # Phase 2
         "nvd_enriched":          False,   # Phase 3
         "split":                 None,    # Phase 4
+
+        # ── Phase 2.5 — hard-negative provenance ─────────────────────────
+        "is_hard_negative":        fields.get("is_hard_negative", False),
+        "parent_sample_id":        fields.get("parent_sample_id"),
+        "sanitization_transform":  fields.get("sanitization_transform"),
     }
 
 

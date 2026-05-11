@@ -24,12 +24,12 @@ GitHub API limits: 30 req/min authenticated, set GITHUB_TOKEN in .env.
 import os
 import re
 import time
-from datetime import datetime, timezone
 
 import requests
 from dotenv import load_dotenv
 
-from src.utils.file_utils import build_meta, detect_framework, hash_code, is_web_code, save_code_sample
+from src.utils.cwe_taxonomy import BLOCKED_SOURCE_CWE, CWE_VULN_MAP
+from src.utils.file_utils import build_meta, detect_framework, has_cwe_sink, hash_code, save_code_sample
 from src.utils.logger import get_logger
 
 load_dotenv()
@@ -38,17 +38,6 @@ logger = get_logger(__name__)
 OSV_API = "https://api.osv.dev/v1"
 GITHUB_API = "https://api.github.com"
 TOKEN = os.getenv("GITHUB_TOKEN", "")
-
-# ---------------------------------------------------------------------------
-# Target CWE → vulnerability type mapping
-# ---------------------------------------------------------------------------
-
-CWE_VULN_MAP = {
-    "CWE-89":  "sql_injection",
-    "CWE-78":  "command_injection",
-    "CWE-22":  "path_traversal",
-    "CWE-502": "insecure_deserialization",
-}
 
 # Expanded from Flask-only to all Python web frameworks.
 # Includes framework packages (Flask, Django, FastAPI, etc.) and common
@@ -255,6 +244,8 @@ def run(output_dir: str = "data/raw") -> int:
             cwe = _extract_cwe(vuln)
             if not cwe:
                 continue  # Not one of our target CWEs
+            if ("osv", cwe) in BLOCKED_SOURCE_CWE:
+                continue
 
             vuln_type = CWE_VULN_MAP[cwe]
 
@@ -296,10 +287,12 @@ def run(output_dir: str = "data/raw") -> int:
                     if not code_before or not code_before.strip():
                         continue
 
-                    # Skip library internals — must look like web application code
-                    if not is_web_code(code_before):
+                    # Phase 2B: replaced is_web_code() with sink-presence filter
+                    # so non-web Python CWEs (798, 611, 330, 400) can be ingested.
+                    sink_ok, _ = has_cwe_sink(code_before, cwe, file_path=file_path)
+                    if not sink_ok:
                         logger.debug(
-                            f"  Skipping non-web file: {owner_repo}/{file_path}"
+                            f"  Skipping sink-less {cwe}: {owner_repo}/{file_path}"
                         )
                         continue
 

@@ -21,17 +21,16 @@ Pipeline:
 
 import os
 import re
-import shutil
 import subprocess
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 import yaml
 from dotenv import load_dotenv
 
-from src.utils.file_utils import build_meta, detect_framework, hash_code, is_web_code, save_code_sample
+from src.utils.cwe_taxonomy import BLOCKED_SOURCE_CWE, CWE_VULN_MAP
+from src.utils.file_utils import build_meta, detect_framework, has_cwe_sink, hash_code, save_code_sample
 from src.utils.logger import get_logger
 
 load_dotenv()
@@ -42,13 +41,6 @@ TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 PYPA_REPO_URL = "https://github.com/pypa/advisory-database"
 PYPA_LOCAL_DIR = "data/pypa_advisory_db"
-
-CWE_VULN_MAP = {
-    "CWE-89":  "sql_injection",
-    "CWE-78":  "command_injection",
-    "CWE-22":  "path_traversal",
-    "CWE-502": "insecure_deserialization",
-}
 
 _COMMIT_RE = re.compile(
     r"https://github\.com/([^/]+/[^/]+)/commit/([0-9a-f]{7,40})",
@@ -225,6 +217,8 @@ def run(output_dir: str = "data/raw") -> int:
         cwe = _extract_cwe_from_advisory(data)
         if not cwe:
             continue
+        if ("pypa", cwe) in BLOCKED_SOURCE_CWE:
+            continue
 
         vuln_type = CWE_VULN_MAP[cwe]
         pysec_id = data.get("id", str(yaml_path.stem))
@@ -258,7 +252,9 @@ def run(output_dir: str = "data/raw") -> int:
                 if not code_before or not code_before.strip():
                     continue
 
-                if not is_web_code(code_before):
+                # Phase 2B: sink-presence gate replaces is_web_code()
+                sink_ok, _ = has_cwe_sink(code_before, cwe, file_path=file_path)
+                if not sink_ok:
                     continue
 
                 code_after = _fetch_file_at_ref(owner_repo, file_path, fix_sha) or ""
