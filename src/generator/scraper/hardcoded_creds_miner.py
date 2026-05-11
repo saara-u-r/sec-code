@@ -67,24 +67,37 @@ TARGET_REPOS: list[str] = [
     "https://github.com/saleor/saleor",
     "https://github.com/wagtail/bakerydemo",
     "https://github.com/django-oscar/django-oscar",
+    "https://github.com/django-cms/django-cms",
+
+    # ── Deliberately vulnerable / security-training apps (high yield) ─
+    "https://github.com/we45/DVPWA",
+    "https://github.com/adeyosemanputra/pygoat",
+
+    # ── OpenStack ecosystem (config-heavy, credentials common) ──────
+    "https://github.com/openstack/cinder",
+    "https://github.com/openstack/keystone",
+    "https://github.com/openstack/nova",
+    "https://github.com/openstack/glance",
 
     # ── Devops / CLI tooling ────────────────────────────────────────
     "https://github.com/ansible-community/molecule",
     "https://github.com/getsentry/sentry-python",
     "https://github.com/fabric/fabric",
     "https://github.com/paramiko/paramiko",
+    "https://github.com/celery/celery",
 
     # ── ML / data examples (not libraries) ──────────────────────────
     "https://github.com/huggingface/notebooks",
     "https://github.com/mlflow/mlflow-example",
+    "https://github.com/apache/superset",
 
     # ── Auth / OAuth implementations ────────────────────────────────
     "https://github.com/authlib/example-oauth2-server",
     "https://github.com/lepture/example-oauth2-server",
 
-    # ── Misc small projects with config-heavy code ──────────────────
-    "https://github.com/openstack/cinder",
-    "https://github.com/openstack/keystone",
+    # ── Mozilla and educational platforms ───────────────────────────
+    "https://github.com/mozilla/kuma",
+    "https://github.com/python-discord/site",
 ]
 
 
