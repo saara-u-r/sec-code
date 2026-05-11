@@ -71,32 +71,10 @@ _PY_HINT_RE = re.compile(
     re.IGNORECASE,
 )
 
-# CWE-specific code signatures — used in place of is_web_code() for CWEs
-# whose vulnerabilities don't require a web framework (deserialization
-# happens in workers, CLIs, ML pipelines, etc.). The signature must appear
-# in the vulnerable code for the sample to be useful for training.
-_CWE_CODE_SIGNATURES = {
-    "CWE-502": re.compile(
-        r"(\bpickle\.loads?\s*\(|\bcPickle\.loads?\s*\(|"
-        r"\byaml\.(load|full_load|unsafe_load)\s*\(|"
-        r"\bmarshal\.loads?\s*\(|\bdill\.loads?\s*\(|"
-        r"\bshelve\.open\s*\(|\bjsonpickle\.decode\s*\(|"
-        r"\b__reduce__\b|\bpyyaml\b)",
-        re.IGNORECASE,
-    ),
-}
-
-
-def _passes_code_filter(code: str, cwe: str) -> bool:
-    """
-    Apply the right code-quality filter for the given CWE.
-    Web-related CWEs (XSS, SQLi, SSRF, etc.) require web-framework markers.
-    Deserialization (CWE-502) lives in non-web code too — use signature match.
-    """
-    sig = _CWE_CODE_SIGNATURES.get(cwe)
-    if sig is not None:
-        return bool(sig.search(code))
-    return is_web_code(code)
+# Phase 2B (2026-05-11): removed _passes_code_filter and its legacy
+# is_web_code fallback — the per-CWE has_cwe_sink check above already
+# enforces the right category-defining tokens for all 12 CWEs and lets
+# non-web CWEs (798, 611, 330, 400) through cleanly.
 
 
 # ---------------------------------------------------------------------------
@@ -372,13 +350,11 @@ def run(
                     code_before = _fetch_file_at_ref(owner_repo, file_path, parent_sha)
                     if not code_before or not code_before.strip():
                         continue
-                    # Phase 2B sink-presence gate (replaces _passes_code_filter
-                    # for the cwe-specific check; combined with the existing
-                    # is_web_code heuristic upstream where applicable).
+                    # Phase 2B sink-presence gate — replaces the legacy
+                    # _passes_code_filter helper. Enforces the same
+                    # category-defining sink check used at training time.
                     sink_ok, _ = has_cwe_sink(code_before, cwe, file_path=file_path)
                     if not sink_ok:
-                        continue
-                    if not _passes_code_filter(code_before, cwe):
                         continue
 
                     code_after = _fetch_file_at_ref(owner_repo, file_path, fix_sha) or ""

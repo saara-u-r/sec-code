@@ -166,18 +166,70 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bimportlib\.import_module\b", re.IGNORECASE),
     ],
     "CWE-798": [
-        # Literal credential assignment — value of 6+ chars (passwords) up to
-        # 20+ chars (tokens). Caller must also pass has_security_context() AND
-        # not be a test file.
-        # NOTE: no \b prefix on the keyword — that would miss DATABASE_PASSWORD
-        # (since `_` is a regex word char, \b between `_` and `P` doesn't fire).
-        re.compile(r"password\s*=\s*['\"][^'\"\s]{6,}['\"]", re.IGNORECASE),
-        re.compile(r"api[_-]?key\s*=\s*['\"][A-Za-z0-9_\-\.]{16,}['\"]", re.IGNORECASE),
-        re.compile(r"secret(?:_key)?\s*=\s*['\"][A-Za-z0-9_\-\.]{12,}['\"]", re.IGNORECASE),
-        re.compile(r"(?:access|auth|bearer|refresh)[_-]?token\s*=\s*['\"][A-Za-z0-9_\-\.]{20,}['\"]", re.IGNORECASE),
-        re.compile(r"AWS_(SECRET|ACCESS)[_-]?KEY", re.IGNORECASE),
-        re.compile(r"private[_-]?key\s*=\s*['\"]-----BEGIN", re.IGNORECASE),
-        re.compile(r"client[_-]?secret\s*=\s*['\"][A-Za-z0-9_\-\.]{12,}['\"]", re.IGNORECASE),
+        # All patterns require:
+        #   1. Assignment form (`keyword = 'literal'`) — not just a bare
+        #      variable name.  Old pattern matched `AWS_SECRET_ACCESS_KEY`
+        #      anywhere in the file even when the assignment was to
+        #      `os.environ.get(...)` (the secure pattern).
+        #   2. Literal value in quotes — function calls like
+        #      `os.environ.get(...)` don't start with `'` or `"`, so they
+        #      can't match the quoted-value pattern.
+        #   3. Sufficient character variety. Audit (2026-05-11) found that
+        #      enum constants like `INVALID_PASSWORD = "invalid_password"`
+        #      and config keys like `VMAX_PASSWORD = 'san_password'` were
+        #      passing the old length-only check. Real credentials have at
+        #      least one of: digit, uppercase letter, or special char.
+        # The (?i:...) inline flag keeps the keyword case-insensitive while
+        # leaving the variety check case-sensitive.
+        # NOTE: no \b prefix on the keyword — `_` is a regex word char, so
+        # \b between `_` and `P` doesn't fire (would miss DATABASE_PASSWORD).
+
+        # password / passwd — 10+ chars with variety.
+        # The 10-char minimum (up from 8) eliminates `PASSWORD = "Password"`
+        # style UI-label false positives without losing real hardcoded
+        # production secrets (which are almost always 10+ chars).
+        re.compile(
+            r"(?i:password|passwd)\s*=\s*"
+            r"(['\"])"
+            r"(?=[^'\"\s]{10,})"                         # value: 10+ chars, no quotes/ws
+            r"(?=[^'\"\s]*[A-Z0-9!@#$%^&*+\-./()])"      # value contains variety
+            r"[^'\"\s]+\1"
+        ),
+        # api_key — 16+ chars (real API keys are long)
+        re.compile(
+            r"(?i:api[_-]?key)\s*=\s*"
+            r"['\"][A-Za-z0-9_\-\.]{16,}['\"]"
+        ),
+        # secret / secret_key — 12+ chars with variety
+        re.compile(
+            r"(?i:secret(?:_key)?)\s*=\s*"
+            r"(['\"])"
+            r"(?=[^'\"\s]{12,})"
+            r"(?=[^'\"\s]*[A-Z0-9!@#$%^&*+\-./()])"
+            r"[^'\"\s]+\1"
+        ),
+        # access/auth/bearer/refresh tokens — 20+ chars
+        re.compile(
+            r"(?i:(?:access|auth|bearer|refresh)[_-]?token)\s*=\s*"
+            r"['\"][A-Za-z0-9_\-\.]{20,}['\"]"
+        ),
+        # AWS keys — literal value, 16+ credential-shaped chars
+        re.compile(
+            r"(?i:AWS_(?:SECRET|ACCESS)[_-]?KEY(?:_ID)?)\s*=\s*"
+            r"['\"][A-Za-z0-9/+=]{16,}['\"]"
+        ),
+        # PEM private key — always real if literal
+        re.compile(
+            r"(?i:private[_-]?key)\s*=\s*['\"]-----BEGIN"
+        ),
+        # client_secret — 12+ chars with variety
+        re.compile(
+            r"(?i:client[_-]?secret)\s*=\s*"
+            r"(['\"])"
+            r"(?=[^'\"\s]{12,})"
+            r"(?=[^'\"\s]*[A-Z0-9!@#$%^&*+\-./()])"
+            r"[^'\"\s]+\1"
+        ),
     ],
     "CWE-611": [
         re.compile(r"\bresolve_entities\s*=\s*True", re.IGNORECASE),
