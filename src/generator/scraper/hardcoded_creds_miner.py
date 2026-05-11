@@ -98,6 +98,49 @@ TARGET_REPOS: list[str] = [
     # ── Mozilla and educational platforms ───────────────────────────
     "https://github.com/mozilla/kuma",
     "https://github.com/python-discord/site",
+
+    # ── Phase 2B Day 3 expansion (2026-05-11) ───────────────────────
+    # Goal: lift CWE-798 from 8 → 30+ by adding deliberately-vulnerable
+    # apps, larger OpenStack projects, CMS/blog apps, IaC tooling,
+    # and tutorial codebases. Each line is a confidence guess at a
+    # publicly-accessible repo; failed clones are logged and skipped.
+
+    # Deliberately vulnerable / security training (highest yield)
+    "https://github.com/anxolerd/dvpwa",                   # Damn Vulnerable Python Web App
+    "https://github.com/nVisium/django.nV",                # Vulnerable Django
+
+    # OpenStack ecosystem (config-heavy)
+    "https://github.com/openstack/neutron",
+    "https://github.com/openstack/swift",
+    "https://github.com/openstack/magnum",
+    "https://github.com/openstack/ironic",
+    "https://github.com/openstack/heat",
+    "https://github.com/openstack/horizon",
+
+    # CMS / blog / content platforms
+    "https://github.com/stephenmcd/mezzanine",
+    "https://github.com/lektor/lektor",
+    "https://github.com/getpelican/pelican",
+    "https://github.com/nephila/djangocms-blog",
+
+    # DevOps / IaC
+    "https://github.com/saltstack/salt",
+    "https://github.com/ansible/awx",
+    "https://github.com/StackStorm/st2",
+
+    # Production Python apps with non-trivial config
+    "https://github.com/pretix/pretix",
+    "https://github.com/frappe/frappe",
+    "https://github.com/mailman/mailman",
+    "https://github.com/PrefectHQ/prefect",
+
+    # Tutorials / book companion code
+    "https://github.com/pydanny/cookiecutter-django",
+    "https://github.com/realpython/materials",
+    "https://github.com/cosmicpython/code",
+    "https://github.com/miguelgrinberg/REST-tutorial-files",
+    "https://github.com/tiangolo/full-stack-fastapi-postgresql",
+    "https://github.com/pallets/flask",
 ]
 
 
