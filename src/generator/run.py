@@ -8,7 +8,11 @@ Import and call run() from scripts/run_generator.py, or run directly:
     python -m src.generator.run               # all sources
 
 Sources: cvefixes (Zenodo CVE DB), osv (OSV.dev API),
-         ghsa (GitHub Security Advisories), pypa (PyPA Advisory DB)
+         ghsa (GitHub Security Advisories GraphQL),
+         ghsa_db (GitHub Advisory Database full clone — github-reviewed, PyPI),
+         pypa (PyPA Advisory DB),
+         vudenc (HuggingFace DetectVul/Vudenc — Python security commit functions),
+         pysecdb (HuggingFace sunlab/PySecDB — gated, requires HF_TOKEN)
 
 Removed: repo (deliberate vuln apps), github (keyword search),
          exploitdb (attacker PoCs) — none are CVE-confirmed real-world code.
@@ -20,22 +24,35 @@ from src.generator import cleaner
 from src.generator.scraper import (
     cvefixes_loader,
     ghsa_scraper,
+    github_advisory_db_scraper,
+    hardcoded_creds_miner,
+    nvd_targeted_scraper,
     osv_scraper,
     pypa_scraper,
+    pysecdb_loader,
+    vudenc_loader,
 )
 from src.utils.config_loader import load_config
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-ALL_SOURCES = ["cvefixes", "osv", "ghsa", "pypa"]
+ALL_SOURCES = [
+    "cvefixes", "osv", "ghsa", "ghsa_db", "pypa", "vudenc", "pysecdb",
+    "nvd_targeted", "hardcoded_creds",
+]
 
 # Maps source name → scraper module
 SCRAPERS = {
-    "cvefixes": cvefixes_loader,
-    "osv": osv_scraper,
-    "ghsa": ghsa_scraper,
-    "pypa": pypa_scraper,
+    "cvefixes":          cvefixes_loader,
+    "osv":               osv_scraper,
+    "ghsa":              ghsa_scraper,
+    "ghsa_db":           github_advisory_db_scraper,
+    "pypa":              pypa_scraper,
+    "vudenc":            vudenc_loader,
+    "pysecdb":           pysecdb_loader,
+    "nvd_targeted":      nvd_targeted_scraper,
+    "hardcoded_creds":   hardcoded_creds_miner,
 }
 
 

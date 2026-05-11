@@ -39,20 +39,43 @@ OSV_API = "https://api.osv.dev/v1"
 GITHUB_API = "https://api.github.com"
 TOKEN = os.getenv("GITHUB_TOKEN", "")
 
-# Expanded from Flask-only to all Python web frameworks.
-# Includes framework packages (Flask, Django, FastAPI, etc.) and common
-# Python packages where CVEs manifest as application-level vulnerabilities.
+# Phase 2B (2026-05-11): expanded from web-only to broader Python coverage —
+# CLI/devops, ML/scientific, stdlib-adjacent, crypto/auth. Adding packages
+# here unlocks OSV advisories for CWEs that don't live in web code (798,
+# 611, 330, 400, 77).
 TARGET_PACKAGES = [
-    # Flask ecosystem
+    # ── Web frameworks ───────────────────────────────────────────────
     "flask", "flask-login", "flask-sqlalchemy", "flask-restful", "flask-wtf",
-    # Django ecosystem
     "django", "djangorestframework", "django-filter", "django-debug-toolbar",
-    # FastAPI / Starlette ecosystem
-    "fastapi", "starlette",
-    # Other Python web frameworks
-    "aiohttp", "tornado", "bottle", "quart",
-    # Common packages whose vulns appear in app-level code
-    "pyyaml", "pillow", "paramiko", "werkzeug",
+    "fastapi", "starlette", "aiohttp", "tornado", "bottle", "quart",
+    "werkzeug",
+
+    # ── CLI / devops / sysadmin (CWE-78/77/798 targets) ──────────────
+    "ansible", "ansible-core", "salt", "saltstack",
+    "paramiko", "fabric", "invoke", "click", "typer",
+    "supervisor", "celery", "psutil",
+
+    # ── ML / scientific (CWE-502 via pickle, CWE-94 via eval) ────────
+    "transformers", "torch", "tensorflow", "mlflow", "ray", "datasets",
+    "huggingface-hub", "scikit-learn", "joblib",
+    "numpy", "scipy", "pandas", "jupyter", "ipython", "notebook",
+
+    # ── XML / serialization (CWE-611, CWE-502) ───────────────────────
+    "lxml", "defusedxml", "xmltodict", "pyyaml", "ruamel.yaml",
+    "msgpack", "pickle5",
+
+    # ── Crypto / auth (CWE-798, CWE-330, CWE-295) ────────────────────
+    "cryptography", "pycryptodome", "pyjwt", "authlib", "passlib",
+    "python-jose", "oauthlib", "requests-oauthlib",
+
+    # ── HTTP / SSRF surface (CWE-918, CWE-400) ───────────────────────
+    "requests", "urllib3", "httpx", "httplib2", "feedparser",
+
+    # ── Image / media (historic CVE hotspots) ────────────────────────
+    "pillow", "imageio",
+
+    # ── Cloud SDKs (often touch credentials) ─────────────────────────
+    "boto3", "botocore", "google-cloud-storage", "azure-storage-blob",
 ]
 
 # ---------------------------------------------------------------------------
