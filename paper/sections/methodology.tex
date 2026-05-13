@@ -1,21 +1,295 @@
-\section{Methodology}
+\section{Adversarial Robustness Methodology}
 \label{sec:methodology}
 
-\subsection{Model architecture}
-\label{sec:method:arch}
-% TODO: GraphCodeBERT backbone, dual-task head (CWE classification + binary
-% vulnerable/safe), reference src/model/graphcodebert_dualtask.py.
+To go beyond ``did the tool detect this vulnerability'' we generate
+four adversarial variants of every test sample. Each variant rewrites
+the code in a way that keeps its runtime behavior intact but breaks a
+specific shortcut that pattern-matching detectors rely on. If a tool's
+F1 score drops sharply on a given mutator's output, that tool was
+using the shortcut the mutator targets.
 
-\subsection{Loss and optimization}
-\label{sec:method:loss}
-% TODO: class-weighted loss, SAM optimizer, schedule (warmup + phase A + B).
+This section describes the four mutators, the AST-level invariants
+that keep them semantics-preserving, and the way they are composed at
+evaluation time. The mutators live in
+\texttt{src/red\_team/mutators/} and are deterministic given a sample
+identifier and a random seed, so the resulting evaluation is fully
+reproducible.
 
-\subsection{Hard negatives and augmentation}
-\label{sec:method:augmentation}
-% TODO: Phase 2.5 hard-negative mining (sanitizer-transformed positives) and
-% red-team mutators. Cite PHASE2_5_AUGMENTATION_DESIGN.md material.
+\subsection{Design principles}
+\label{sec:method:principles}
 
-\subsection{Training protocol}
-\label{sec:method:training}
-% TODO: stratified split, seeds, hardware (V100), runtime, reproducibility
-% knobs.
+Every mutator follows three rules.
+
+\paragraph{Semantics-preserving.} The mutated code must produce the
+same runtime behavior as the original. The mutators work on the Python
+AST rather than on text. A function that reads a query string and
+calls \texttt{cursor.execute} on it must still read the same string
+and call the same function after mutation. When the mutator cannot
+prove a particular transformation is safe (for example, an identifier
+rename that might collide with an imported name), it skips that node
+and leaves it unchanged.
+
+\paragraph{Targeted.} Each mutator attacks one specific shortcut. We
+did not build a generic code obfuscator. Mixing the shortcuts together
+would make the per-mutator F1 drop uninterpretable: a detector that
+fails on a generic obfuscation tells us nothing useful, but a detector
+that fails on string splitting and passes the other three is giving us
+diagnostic information.
+
+\paragraph{Realistic.} The output should look like code a real
+developer might write. Identifiers are replaced with synonyms rather
+than random strings. Dead code reads like ordinary scaffolding (loop
+counters, unused locals) rather than obvious filler. The point is to
+fool detectors that have learned the shape of typical vulnerable code,
+not detectors that have learned to recognize adversarial inputs.
+
+\subsection{Mutator 1: dead code injection}
+\label{sec:method:deadcode}
+
+The first mutator inserts no-op statements at random points inside the
+function body. The example in Listing~\ref{lst:deadcode} shows the
+effect on a SQL injection sample.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return cursor.execute(query)
+
+# After
+def get_user(user_id):
+    _unused_var = sum([])
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    if False:
+        pass
+    return cursor.execute(query)
+\end{verbatim}
+\caption{Dead code injection. Two statements are added; runtime
+behavior is unchanged.}
+\label{lst:deadcode}
+\end{figure}
+
+The shortcut this attacks is positional reasoning. A model that has
+learned ``the dangerous line is usually near the top of the function''
+or ``the unsafe \texttt{execute} call is two lines after the
+\texttt{query} assignment'' will see those distances change after
+injection.
+
+We use three constructs: an assignment to an unused name
+(\texttt{\_unused\_var = sum([])}), an \texttt{if False: pass}
+statement (statically unreachable), and a \texttt{for \_ in range(0):
+pass} loop (also unreachable, no iterations). All three are
+side-effect free under any Python implementation, so the function's
+runtime behavior cannot change.
+
+\subsection{Mutator 2: string literal splitting}
+\label{sec:method:stringsplit}
+
+The second mutator takes a string literal and splits it into two or
+more pieces joined with \texttt{+}. The runtime value is identical;
+the surface text is not.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+return cursor.execute(f"SELECT * FROM users WHERE id = {uid}")
+
+# After
+return cursor.execute(
+    "SEL" + "ECT * FROM" + " users WHERE id = " + f"{uid}"
+)
+\end{verbatim}
+\caption{String literal splitting. The substring \texttt{"SELECT"} no
+longer appears anywhere in the source, but the runtime SQL string is
+byte-identical.}
+\label{lst:stringsplit}
+\end{figure}
+
+The shortcut this attacks is substring matching. Many static analyzers
+flag a file the moment it contains a literal substring like
+\texttt{"SELECT "}, \texttt{"DELETE FROM"}, or \texttt{"<script>"}.
+After splitting, none of those substrings exist as a contiguous token
+in the source.
+
+Three details matter for correctness. Docstrings are not split because
+splitting them would mangle the output of \texttt{help()}. Type-hint
+strings are not split because some libraries parse them with
+\texttt{typing.get\_type\_hints} at runtime, and altering the string
+content would change the parse result. F-string interpolation
+expressions are not split either; only the literal text between the
+\texttt{\{...\}} substitutions is eligible.
+
+\subsection{Mutator 3: identifier rename}
+\label{sec:method:rename}
+
+The third mutator replaces local variable and parameter names with
+synonyms drawn from a curated thesaurus. \texttt{user} becomes
+\texttt{account}, \texttt{query} becomes \texttt{sql},
+\texttt{result} becomes \texttt{outcome}. Every reference to the
+renamed identifier inside the same scope is updated consistently.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return cursor.execute(query)
+
+# After
+def get_user(account_pk):
+    sql = f"SELECT * FROM users WHERE id = {account_pk}"
+    return cursor.execute(sql)
+\end{verbatim}
+\caption{Identifier rename. Two locals renamed in all their
+references.}
+\label{lst:rename}
+\end{figure}
+
+The shortcut this attacks is identifier memorization. A classifier
+trained on labeled data can latch onto specific names: if eighty
+percent of the training-set SQL injection examples use a parameter
+named \texttt{user\_id}, the model can shortcut on the name itself
+--- \emph{see \texttt{user\_id} flow into \texttt{execute}, predict
+CWE-89}. A real attacker, or any developer with a different style,
+might call that parameter \texttt{pk}, \texttt{customer\_id}, or
+\texttt{target}, and the shortcut breaks.
+
+Several identifiers are never renamed because doing so would change
+semantics. The mutator skips \texttt{self} and \texttt{cls} (would
+break method dispatch), Python builtins (\texttt{len},
+\texttt{range}, \texttt{eval}, etc.), names imported from other
+modules, names declared \texttt{global} or \texttt{nonlocal}, the
+function's own name (would break recursion), and any token that
+appears literally inside a string. The last exception matters
+because string contents are data, not code: a literal
+\texttt{"Looking up user\_id: \%d"} stays as written even if the
+\texttt{user\_id} parameter is renamed.
+
+The mutator also takes an intensity parameter (between 50\% and 100\%
+of eligible identifiers in the function are renamed per pass). At
+intensity 50\% the mutation is mild, comparable to a developer
+refactor. At intensity 100\% the lexical disruption is total and
+only a detector that is genuinely tracking data flow rather than
+identifier patterns can survive.
+
+\subsection{Mutator 4: wrapper extraction}
+\label{sec:method:wrapper}
+
+The fourth mutator is the most aggressive. It takes a
+vulnerability-relevant function call (the sink) and hides it inside
+a one-line nested helper. The outer function no longer contains a
+direct reference to the sink; it contains a call to a freshly-defined
+helper that in turn calls the sink.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return cursor.execute(query)
+
+# After
+def get_user(user_id):
+    def _wrapped_execute_138(*_a, **_kw):
+        return cursor.execute(*_a, **_kw)
+
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return _wrapped_execute_138(query)
+\end{verbatim}
+\caption{Wrapper extraction. The dangerous call is moved into a
+one-line nested helper.}
+\label{lst:wrapper}
+\end{figure}
+
+The shortcut this attacks is single-function analysis. Many detectors
+work one function at a time: they enumerate the function calls
+inside the function under analysis, check each callee against a
+danger list, and decide based on the result. Wrapper extraction
+moves the danger call inside a nested function. A detector that
+only inspects the outer function sees a call to
+\texttt{\_wrapped\_execute\_138}, a name not on any danger list,
+and concludes the function is safe. Finding the real sink requires
+following the call into the wrapper, which is interprocedural data
+flow analysis. Many file-level static analyzers do not perform
+this analysis, and at least some transformer architectures struggle
+with it because of attention cost.
+
+Several details ensure correctness. The wrapper uses
+\texttt{*\_a, **\_kw} argument forwarding, so any call to the
+original sink --- positional, keyword, defaults, or starred
+unpacking --- is forwarded unchanged. If the original call is
+\texttt{await db.execute(...)}, the wrapper is generated as
+\texttt{async def} with \texttt{return await ...}. The wrapper
+name carries a random four-digit suffix so it cannot collide with
+any existing local. If the function has a docstring, the wrapper
+is inserted as \texttt{body[1]} rather than \texttt{body[0]},
+keeping the docstring in its \texttt{help()}-visible position.
+
+A small curated list of sink names guides which call to wrap when
+the function contains more than one candidate. The list covers
+about thirty names spanning the seven CWE classes:
+\texttt{execute}, \texttt{system}, \texttt{eval}, \texttt{loads},
+\texttt{open}, \texttt{get}, \texttt{Markup}, and so on. Given a
+function with both \texttt{len(items)} and
+\texttt{cursor.execute(query)} the mutator wraps the
+security-relevant call, not the harmless one. If a function has no
+eligible sink the mutator returns it unchanged.
+
+\subsection{Composition}
+\label{sec:method:composition}
+
+At evaluation time we apply between two and three mutators to each
+test sample. Two is the lower bound because a single mutator probes
+one shortcut at a time, and the aggregate robustness number is more
+informative when at least two shortcuts are in play. Three is the
+upper bound because applying all four at once over-mangles the code:
+even valid mutations stop being instructive, and the result is no
+longer plausibly a thing a real developer would write.
+
+Mutator selection and application order are randomized per sample
+but seeded by the sample identifier, so re-running the evaluation
+produces identical adversarial variants. The seed is published with
+the dataset.
+
+For the headline robustness table (Section~\ref{sec:evaluation}) we
+also report each mutator applied in isolation, producing four
+single-mutator test sets in addition to the composed one. The
+single-mutator numbers tell us which shortcut breaks which tool: a
+tool whose F1 collapses on string-split but holds steady on the
+other three is doing substring matching, and the table makes that
+visible.
+
+\subsection{Semantic equivalence}
+\label{sec:method:equivalence}
+
+The argument that mutations preserve behavior rests on AST-level
+invariants. Two checks back this up.
+
+First, every mutated sample is required to parse: a mutation that
+produces unparseable source is rejected and the sample is left
+unchanged in the evaluation set. This catches construction bugs in
+the mutators themselves rather than letting them silently corrupt
+the test set.
+
+Second, for each mutator the implementation enumerates the AST node
+types it can touch and the transformations it can apply to each.
+Those transformations are individually provably semantics-preserving
+under the Python evaluation rules: \texttt{if False: pass} is
+statically unreachable; argument forwarding with
+\texttt{*\_a, **\_kw} is the documented forwarding contract;
+splitting a string literal with \texttt{+} produces an equal string.
+We do not perform dynamic equivalence testing (running the original
+and the mutated code to compare their outputs) because most samples
+are fragments of larger applications and cannot be executed
+standalone.
+
+A residual concern is reflection and metaprogramming. A function
+that uses \texttt{locals()} introspection or
+\texttt{inspect.getsource} to read its own variable names will
+behave differently after identifier rename. A function whose
+control flow depends on the source-level presence of a specific
+substring (vanishingly rare in practice) will behave differently
+after string splitting. The audit samples we reviewed contained no
+such cases, but downstream users who care can filter the test set
+with a static metaprogramming check.
