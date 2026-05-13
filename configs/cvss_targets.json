@@ -1,17 +1,17 @@
 {
   "_schema_version": 1,
   "_summary": {
-    "total": 1285,
-    "score_coverage": 424,
-    "subvector_coverage": 411,
+    "total": 1471,
+    "score_coverage": 578,
+    "subvector_coverage": 558,
     "score_sources": {
-      "missing": 861,
-      "advisory": 411,
-      "advisory_score_only": 13
+      "missing": 893,
+      "advisory": 558,
+      "advisory_score_only": 20
     },
     "label_confidence": {
-      "low": 861,
-      "high": 424
+      "low": 893,
+      "high": 578
     }
   },
   "_subvector_codes": {
@@ -14038,6 +14038,2817 @@
       "score_source": "missing",
       "label_confidence": "low",
       "loss_weight": 0.0
+    },
+    "e7580923410221ca": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "815d39060c0ac9a5": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "7393c9b90c2f4728": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0d11dd5a4fa20b62": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0ebde36061b0c50c": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "ca187093e104e3c0": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "a2c72b7bf3292a24": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1fd66724ca295c45": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "d1ab91a5adf664b3": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "51c9c084f583ac94": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "edaa1a6a78b7c20f": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "a8dd66f52d980f80": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "f90903b6368c4c30": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "8c96bfa74e99afb9": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "e2bcff016cd6099f": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "bb3af59484db41f4": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "c60015ea4d957455": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "c31d8e6b0518bcfb": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "72ff7c449ab3333c": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "df1c46d9981c2981": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "017bcf34c579e68d": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "cf876322fd5c66b4": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "494092ed9e1c1727": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "c1ecaec994677bc9": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "01c8c1c1fef27729": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "f3867c38f3890879": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "7af9fca994dd1d84": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "29b3483cbb4f2547": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "d44d5ac1e2eae713": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "5bba9bb9679f0027": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "3e3cbfd2d05fe9dc": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "65baef166d5cacf7": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "a221484d9aea1590": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "f19ce11511488ca3": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "f61fb075d63317ac": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "af78235c4e091bef": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "f637ef20b963de1d": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "375e4228a0043eea": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "54a9a4dce3cc101f": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "f5f47e1e1129544f": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "e251a5ee13ae1948": {
+      "cvss_score": 7.4,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:C/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "H",
+        "PR": "L",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0f30d9fb36978698": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5bb305a935ab35ac": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "3a68136246d41b92": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1380767e00065d83": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "b6b82fbee5df3a9f": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "b20b0645c1f7fdb8": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c677326c762df7fc": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "15390d335afe8e9f": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5c199d294baca7c9": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "333daa7de1e4dad8": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "4a5790622a9f9074": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "03ff942e2f5bda44": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "9f354bc2b820fa87": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "aa04a0a86670dc1a": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "a588c58787a9a286": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "b095e20c0ff43889": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "8c17f9bff1fac223": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "7adc51db1069dab6": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "88fcd9b62c5e66a9": {
+      "cvss_score": 9.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:N",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "b821367782f148df": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5a1393f76896efb7": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "8fd3634458f30d74": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "86f8d845256bc14b": {
+      "cvss_score": 8.1,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "3e30fad22c87138d": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "3a867a788c6a63a5": {
+      "cvss_score": 9.0,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "adc3b347ff75e77c": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "75896b0effc15a2b": {
+      "cvss_score": 9.9,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "dea83fdd123ebb08": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "64a8d84a5248c18d": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c02e0359154c0067": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1c3818dae3303a7a": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "53d6a3029a62d01b": {
+      "cvss_score": 8.6,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1b2e003af80352d6": {
+      "cvss_score": 6.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "H",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "b82cc3f93da5a291": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "e86d98b4e16aa83c": {
+      "cvss_score": 2.5,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "H",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "L",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "39194e29e90e3955": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1cc0d527d8e0bdbe": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5db1b6b4777f294d": {
+      "cvss_score": 6.4,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0f3b77e33c16831a": {
+      "cvss_score": 6.4,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "05ba4d6c4bacd030": {
+      "cvss_score": 6.4,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "24207d69a1016c4c": {
+      "cvss_score": 6.4,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "fff538c065cd440c": {
+      "cvss_score": 6.4,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "be9892035ff170a8": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "3579fc2321ad7f28": {
+      "cvss_score": 4.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "L",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0c68ff178659cc36": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "b42c8c4dd45108ff": {
+      "cvss_score": null,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "missing",
+      "label_confidence": "low",
+      "loss_weight": 0.0
+    },
+    "70943b2af1d24fae": {
+      "cvss_score": 9.9,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:H/A:L",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "L",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "64cb070ee0d922b3": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "e1ddf825a245fadc": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "a156f398f748384f": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5bcb53b471df1d00": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "431eccb8b5828877": {
+      "cvss_score": 9.0,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "ae5bcc07977e7999": {
+      "cvss_score": 9.0,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "38b4f0c423a37af0": {
+      "cvss_score": 9.0,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "bedd9ff73a51eb8e": {
+      "cvss_score": 6.7,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "19b453fcc1d331bc": {
+      "cvss_score": 5.5,
+      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+      "sub_vectors": {
+        "AV": "A",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "L",
+        "I": "L",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "698703652e80f562": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "71c8897d94963984": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "070045d1e4156c3d": {
+      "cvss_score": 7.4,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "59acc2a93c73a79a": {
+      "cvss_score": 7.4,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "472d0d0c667764c1": {
+      "cvss_score": 3.4,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:C/C:N/I:N/A:L",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "N",
+        "I": "N",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "6370b37df5a0e867": {
+      "cvss_score": 6.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "L",
+        "I": "L",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "925853f13a99a99b": {
+      "cvss_score": 8.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "14b81770edb0bfe4": {
+      "cvss_score": 8.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "7031b72135827c68": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "2f8c29cde2cf1b76": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "34b296214315bfbf": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "b8cbcfb48e694216": {
+      "cvss_score": 7.5,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "N",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "6e228cba01a99644": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5b604b8b19cd4da5": {
+      "cvss_score": 8.5,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "eae128a12b0d8f31": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "a1117128dac40dad": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "bf572f178a754c94": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5911b81b8b3ead96": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "6a6d07cbfc0c760c": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "f243bb9ec5cea0fe": {
+      "cvss_score": 5.2,
+      "cvss_vector": "CVSS:3.1/AV:P/AC:L/PR:L/UI:R/S:U/C:H/I:L/A:L",
+      "sub_vectors": {
+        "AV": "P",
+        "AC": "L",
+        "PR": "L",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "L",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "d4e20ce237c48b52": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1b8777730d8b04a7": {
+      "cvss_score": 8.1,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "28dd18b7c67b4d93": {
+      "cvss_score": 9.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "ca8feb4541e20fb5": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "e687aee91a63ace7": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c5ebce326cb86685": {
+      "cvss_score": 7.5,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "f73662a5b48e14d6": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "ba31272e1f9563f0": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c7a873428d723c8b": {
+      "cvss_score": 9.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "e6cbc0aee3fbf653": {
+      "cvss_score": 4.5,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:L",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "H",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "L",
+        "I": "L",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "cebdf4f30381c0c6": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "d0f8ec9233989c9c": {
+      "cvss_score": 7.2,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "779df72ec2dc7469": {
+      "cvss_score": 7.2,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "e7f2e8bf93f80540": {
+      "cvss_score": 7.2,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "24957e3290c4752b": {
+      "cvss_score": 7.2,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "f65e6d726dcfed78": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c80cfaedc6c2c08b": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "56e1f757cd75550a": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "095d7b97a9b6ad13": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5d9b7f877a0f38ee": {
+      "cvss_score": 9.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "496139209d95463a": {
+      "cvss_score": 9.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "68fead03fd4240d5": {
+      "cvss_score": 9.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "ffbc660d775b8e6f": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "03b7aaad750f088d": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0dbc5089a9ebdf35": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "79f4a25b61eeed8d": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c02b0bc6c3fdf81a": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "08b6995f6b380de9": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "8d188bcda4c88d8e": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "2e395f0e15448ecb": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "ae7c5f9a4543e05c": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "13680991eb145aa6": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "d667789a175f472e": {
+      "cvss_score": 7.5,
+      "cvss_vector": null,
+      "sub_vectors": null,
+      "score_source": "advisory_score_only",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "82be00d8b9f711bb": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "31e852c5f696cd7d": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "fbe083681810f0c6": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "dde52b3f26762206": {
+      "cvss_score": 8.1,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "f3545ac94c523ea9": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "941a9a10fbea7d24": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "dc49c1cec328d178": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "d1ff8bf8f72a4c0b": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "d7c8e125a39b15ec": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "8a71f9548f32b334": {
+      "cvss_score": 9.6,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "98491feaf43ba42e": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "fa895d09249dd759": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "2f1891d7828c3cb3": {
+      "cvss_score": 5.0,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "L",
+        "I": "L",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "8d3baf3ea8ecf8f3": {
+      "cvss_score": 7.3,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:C/C:H/I:L/A:L",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "L",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5ab57b429b30631b": {
+      "cvss_score": 7.3,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:C/C:H/I:L/A:L",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "H",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "L",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "324e5fa2d455ad00": {
+      "cvss_score": 7.1,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "53a0e6b1b9a4e465": {
+      "cvss_score": 7.1,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "2f0c8685da883810": {
+      "cvss_score": 7.1,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "822c6bede487801c": {
+      "cvss_score": 7.1,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "1b526fee0c355425": {
+      "cvss_score": 7.1,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c1a5e7217fc6923f": {
+      "cvss_score": 7.1,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "L",
+        "UI": "N",
+        "S": "U",
+        "C": "N",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "431309138d37318b": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "3026c3a29912a196": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5430a87b975b8bec": {
+      "cvss_score": 8.4,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "9c93add203c65556": {
+      "cvss_score": 8.4,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:L",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "H",
+        "PR": "L",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "L"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "6928fa517c88fac8": {
+      "cvss_score": 8.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c2473f4617c596c4": {
+      "cvss_score": 9.3,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "5582d179240e7f5f": {
+      "cvss_score": 9.3,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0a13bea7dcb5ed76": {
+      "cvss_score": 9.3,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "c347a05ae274c72a": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "79944d2f1b3df900": {
+      "cvss_score": 7.8,
+      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "L",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "85420597544c8fd5": {
+      "cvss_score": 9.3,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:N",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "R",
+        "S": "C",
+        "C": "H",
+        "I": "H",
+        "A": "N"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "cb9896947d24f22f": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "0e39609207c8a114": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "fe21a71eeb2aad32": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
+    },
+    "51c0d92d7cfd95f6": {
+      "cvss_score": 9.8,
+      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "sub_vectors": {
+        "AV": "N",
+        "AC": "L",
+        "PR": "N",
+        "UI": "N",
+        "S": "U",
+        "C": "H",
+        "I": "H",
+        "A": "H"
+      },
+      "score_source": "advisory",
+      "label_confidence": "high",
+      "loss_weight": 1.0
     }
   }
 }

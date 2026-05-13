@@ -10,15 +10,21 @@ exactly 10 labels (9 sink-shaped + safe) for the evaluation benchmark.
 See PHASE_2B_DESIGN.md §1 and the Top-25 taxonomy analysis for rationale.
 
 Sink-shaped Top-25 Python CWEs (active, the benchmark label set):
-  CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-434, CWE-502, CWE-918, CWE-77
+  CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-434, CWE-502, CWE-918
 
-Dropped 2026-05-13 (reversible via data/raw_rejected/ manifests):
+Dropped 2026-05-13 (reversible via data/raw_rejected/ manifests + git):
   CWE-611 (XXE), CWE-330 (weak rand), CWE-400 (resource exhaustion)
     → not in MITRE Top-25.
   CWE-798 (hardcoded credentials)
     → Top-25 but yields only a 2-bucket alphabet (remove literal / move
       to vault), and all 29 samples came from a single static miner
       (single-source bias). Dropped to fit the 10-label evaluation cap.
+  CWE-77 (improper neutralization of special elements — command inj)
+    → MITRE parent of CWE-78. For Python the distinction is bureaucratic;
+      both fire on the same sink set (os.system / subprocess shell=True /
+      Popen). Merged into CWE-78 on 2026-05-13 via
+      scripts/merge_cwe77_into_cwe78.py — all 9 prior CWE-77 samples
+      relabeled in place.
   All retained in CWE_NAMES / SINK_PATTERNS for back-compat with already-
   saved samples; CWE_VULN_MAP entries removed so scrapers won't write
   new ones.
@@ -56,7 +62,6 @@ CWE_VULN_MAP: dict[str, str] = {
     "CWE-502": "insecure_deserialization",
 
     # Sink-shaped Top-25 Python CWEs — Phase 2B additions
-    "CWE-77":  "command_injection_generic",
     "CWE-434": "unrestricted_file_upload",
 }
 
@@ -64,7 +69,9 @@ TARGET_CWES: set[str] = set(CWE_VULN_MAP.keys())
 
 # Dropped 2026-05-13 — see header comment. Kept as a constant so future
 # Phase 2C work can re-enable selectively without re-deriving the list.
-DEPRECATED_CWES: set[str] = {"CWE-611", "CWE-330", "CWE-400", "CWE-798"}
+# CWE-77 was merged into CWE-78 (not orphaned) — samples relabeled in
+# place rather than discarded.
+DEPRECATED_CWES: set[str] = {"CWE-611", "CWE-330", "CWE-400", "CWE-798", "CWE-77"}
 
 # ---------------------------------------------------------------------------
 # CWE → human-readable name (used by build_meta and reports)

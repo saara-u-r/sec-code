@@ -1,9 +1,15 @@
-# Phase 2B Re-scope — 9 sink-shaped Top-25 Python CWE benchmark
+# Phase 2B Re-scope — 8 sink-shaped Top-25 Python CWE benchmark
 
 **Date:** 2026-05-13
-**Status:** FINAL — 10 labels (9 sink-shaped CWEs + safe). Ready for evaluation.
+**Status:** FINAL — 9 labels (8 sink-shaped CWEs + safe). Ready for evaluation.
 **Trigger:** Top-25 taxonomy analysis (*"the alphabet closes when there is a sink"*)
-+ evaluation-benchmark scope decision (CASTLE-style table; 10-label cap from professors).
++ evaluation-benchmark scope decision (CASTLE-style table; ≤10-label cap from professors).
+
+**End-of-day refinements (2026-05-13 evening pass):**
+1. Dropped CWE-798 (single-source bias, 2-bucket alphabet outside the 5-bucket framing)
+2. Merged CWE-77 into CWE-78 (parent/child in MITRE; identical sink set in Python — kept as one "command injection" class with 60 samples)
+3. Scraped 192 additional rare-CWE samples via GHSA-DB (CWE-94: 21→91, CWE-502: 21→101, CWE-78: 16→60)
+4. Added 28 hand-curated canonical samples (textbook OWASP/SANS examples) tagged `source=canonical` as calibration points
 
 ---
 
@@ -111,27 +117,31 @@ These two have *partial* sink-shape:
 ## 4. Final dataset state (end of 2026-05-13)
 
 ```
-Label        Total  Train   Val  Test    Class
--------------------------------------------------------
-CWE-89        282    208    45    44     SQL Injection
-CWE-79        229    160    34    35     XSS
-CWE-22        174    139    30    29     Path Traversal
-CWE-918        63     44     9    10     SSRF
-CWE-94         21     15     3     3     Code Injection
-CWE-502        21     15     3     4     Insecure Deserialization
-CWE-78         16     13     3     2     OS Command Injection
-CWE-434         7      3     0     1     Unrestricted File Upload
-CWE-77          4      3     1     0     Generic Cmd Injection
-safe          429    319    55    55     hard negatives
--------------------------------------------------------
-Total       1,246    880   182   181     (3 NONE: CWE-434 content-hash dupes)
+Label       Total  Train   Val  Test    Class
+------------------------------------------------------
+CWE-89       297    208    45    44     SQL Injection
+CWE-79       229    160    34    35     XSS
+CWE-22       195    136    29    30     Path Traversal
+CWE-502      96     67    14    15     Insecure Deserialization
+CWE-94       87     61    13    13     Code Injection
+CWE-918      63     44     9    10     SSRF
+CWE-78       60     42     9     9     OS Command Injection (now incl. CWE-77)
+CWE-434      15     11     2     2     Unrestricted File Upload
+safe         429    311    59    59     hard negatives
+------------------------------------------------------
+Total      1,471  1,040   214   217     (+ 11 NONE: content-hash dupes)
 ```
 
 **Repo-leakage check:** ✓ 0 overlap across train/val/test (verified by `run_phase2.py`).
 
-**Below the 20-sample audit threshold for per-class F1 stability:**
-CWE-77 (4 total), CWE-434 (7 total), CWE-78 (16 total).
-Plan for the eval table: report per-class F1 with confidence intervals; flag small-N classes with `*` and report aggregated "rare-CWE F1" as a single bucket.
+**Above the 20-sample audit threshold for stable per-class F1:** all 8 CWE classes except CWE-434 (15 total). The eval table will report CWE-434 with a small-N caveat; every other class has ≥9 test samples.
+
+**Source distribution (after the evening scrape):**
+- CWE-502: nvd_targeted=18, cvefixes=9, ghsa_db=63, canonical=6
+- CWE-94: nvd_targeted=11, cvefixes=11, ghsa_db=56, osv=1, canonical=6 (others)
+- CWE-78: cvefixes=10, ghsa_db=35, vudenc=3, canonical=8 (others)
+- CWE-434: ghsa_db=6, cvefixes=1, canonical=8
+- The merged CWE-77 contribution: 9 samples now under CWE-78
 
 ---
 

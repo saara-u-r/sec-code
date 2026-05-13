@@ -18,7 +18,6 @@ analyzer:
     - ssrf
     - insecure_deserialization
     # Sink-shaped Top-25 Python CWEs — Phase 2B additions
-    - command_injection_generic
     - unrestricted_file_upload
   output_dir: "data/labeled"
 
@@ -32,7 +31,6 @@ labeler:
     code_injection: "CWE-94"
     ssrf: "CWE-918"
     insecure_deserialization: "CWE-502"
-    command_injection_generic: "CWE-77"
     unrestricted_file_upload: "CWE-434"
   cvss_mapping:
     # Default CVSS v3.1 base scores — used only as fallback; NVD per-CVE scores override these
@@ -43,7 +41,6 @@ labeler:
     code_injection: 9.8
     ssrf: 7.5
     insecure_deserialization: 8.1
-    command_injection_generic: 9.8
     unrestricted_file_upload: 8.8
   output_dir: "data/labeled"
 

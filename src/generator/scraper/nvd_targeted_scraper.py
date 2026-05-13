@@ -52,7 +52,7 @@ GH_TOKEN = os.getenv("GITHUB_TOKEN", "")
 # CWE-434 added (file upload). CWE-611/330/400/798 removed (see
 # cwe_taxonomy.py DEPRECATED_CWES).
 TARGET_CWES_DEFAULT = [
-    "CWE-502", "CWE-918", "CWE-94", "CWE-77", "CWE-434",
+    "CWE-502", "CWE-918", "CWE-94", "CWE-78", "CWE-434",
 ]
 
 _CVSS_BASE_SCORES = {
