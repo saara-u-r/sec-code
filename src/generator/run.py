@@ -25,7 +25,6 @@ from src.generator.scraper import (
     cvefixes_loader,
     ghsa_scraper,
     github_advisory_db_scraper,
-    hardcoded_creds_miner,
     nvd_targeted_scraper,
     osv_scraper,
     pypa_scraper,
@@ -37,13 +36,15 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# weak_random_miner was deregistered 2026-05-13 with the CWE-330 deprecation
-# (see cwe_taxonomy.DEPRECATED_CWES). The module file remains in the tree
-# for reference / Phase 2C revival.
+# weak_random_miner (CWE-330) was deregistered 2026-05-13 morning.
+# hardcoded_creds_miner (CWE-798) was deregistered 2026-05-13 evening
+# when the benchmark scope narrowed to 10 labels. Both module files
+# remain in the tree for reference / Phase 2C revival; see
+# cwe_taxonomy.DEPRECATED_CWES.
 
 ALL_SOURCES = [
     "cvefixes", "osv", "ghsa", "ghsa_db", "pypa", "vudenc", "pysecdb",
-    "nvd_targeted", "hardcoded_creds",
+    "nvd_targeted",
 ]
 
 # Maps source name → scraper module
@@ -56,7 +57,6 @@ SCRAPERS = {
     "vudenc":            vudenc_loader,
     "pysecdb":           pysecdb_loader,
     "nvd_targeted":      nvd_targeted_scraper,
-    "hardcoded_creds":   hardcoded_creds_miner,
 }
 
 

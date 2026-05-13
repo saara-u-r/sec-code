@@ -41,9 +41,11 @@ _logger = get_logger(__name__)
 # CWE → class index. Hard negatives carry cwe="safe" (last index).
 #
 # Indices 0-6 preserve the v1/v2 ordering. Phase 2B re-scope (2026-05-13)
-# appended CWE-77, CWE-434, CWE-798 — matching the order of CWE_VULN_MAP
-# in src/utils/cwe_taxonomy.py — and shifted "safe" to the last slot.
-# v1/v2 checkpoints would need a head re-init to load against this vocab.
+# appended CWE-77, CWE-434 — matching the order of CWE_VULN_MAP in
+# src/utils/cwe_taxonomy.py — and shifted "safe" to the last slot.
+# CWE-798 was added then removed (same day) when the benchmark scope
+# narrowed to 10 labels (9 sink-shaped + safe). v1/v2 checkpoints would
+# need a head re-init to load against this 10-class vocab.
 CWE_TO_INDEX: dict[str, int] = {
     "CWE-89":  0,
     "CWE-78":  1,
@@ -54,13 +56,12 @@ CWE_TO_INDEX: dict[str, int] = {
     "CWE-502": 6,
     "CWE-77":  7,
     "CWE-434": 8,
-    "CWE-798": 9,
-    "safe":    10,
+    "safe":    9,
 }
 INDEX_TO_CWE: list[str] = [
     "CWE-89", "CWE-78", "CWE-22", "CWE-79",
     "CWE-94", "CWE-918", "CWE-502",
-    "CWE-77", "CWE-434", "CWE-798",
+    "CWE-77", "CWE-434",
     "safe",
 ]
 

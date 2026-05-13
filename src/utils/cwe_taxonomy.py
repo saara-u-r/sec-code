@@ -5,17 +5,23 @@ and per-CWE knowledge shared across all scrapers and the labeler.
 Phase 2B (2026-05-11): extended from 7 web-skewed CWEs to 12.
 Phase 2B re-scope (2026-05-13): narrowed to the 9 *sink-shaped Top-25
 Python CWEs* — the set where a closed fix-pattern alphabet exists.
+Phase 2B finalize (2026-05-13, evening): dropped CWE-798 to land at
+exactly 10 labels (9 sink-shaped + safe) for the evaluation benchmark.
 See PHASE_2B_DESIGN.md §1 and the Top-25 taxonomy analysis for rationale.
 
-Sink-shaped Top-25 Python CWEs (active):
+Sink-shaped Top-25 Python CWEs (active, the benchmark label set):
   CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-434, CWE-502, CWE-918, CWE-77
-  + CWE-798 (Top-25, sink-shaped but yields a 2-bucket alphabet — kept
-    because the static miner produces high-precision samples)
 
-Dropped 2026-05-13 (not Top-25; reversible via data/raw_rejected/ manifest):
+Dropped 2026-05-13 (reversible via data/raw_rejected/ manifests):
   CWE-611 (XXE), CWE-330 (weak rand), CWE-400 (resource exhaustion)
-  → SINK_PATTERNS and CWE_NAMES kept for back-compat with already-saved
-    samples; CWE_VULN_MAP entry removed so scrapers won't write new ones.
+    → not in MITRE Top-25.
+  CWE-798 (hardcoded credentials)
+    → Top-25 but yields only a 2-bucket alphabet (remove literal / move
+      to vault), and all 29 samples came from a single static miner
+      (single-source bias). Dropped to fit the 10-label evaluation cap.
+  All retained in CWE_NAMES / SINK_PATTERNS for back-compat with already-
+  saved samples; CWE_VULN_MAP entries removed so scrapers won't write
+  new ones.
 
 Structural Top-25 Python CWEs (deferred to Phase 2C):
   CWE-352, CWE-862, CWE-863, CWE-284, CWE-306, CWE-639, CWE-200
@@ -52,14 +58,13 @@ CWE_VULN_MAP: dict[str, str] = {
     # Sink-shaped Top-25 Python CWEs — Phase 2B additions
     "CWE-77":  "command_injection_generic",
     "CWE-434": "unrestricted_file_upload",
-    "CWE-798": "hardcoded_credentials",
 }
 
 TARGET_CWES: set[str] = set(CWE_VULN_MAP.keys())
 
 # Dropped 2026-05-13 — see header comment. Kept as a constant so future
 # Phase 2C work can re-enable selectively without re-deriving the list.
-DEPRECATED_CWES: set[str] = {"CWE-611", "CWE-330", "CWE-400"}
+DEPRECATED_CWES: set[str] = {"CWE-611", "CWE-330", "CWE-400", "CWE-798"}
 
 # ---------------------------------------------------------------------------
 # CWE → human-readable name (used by build_meta and reports)
@@ -76,9 +81,9 @@ CWE_NAMES: dict[str, str] = {
     "CWE-502": "Deserialization of Untrusted Data",
     "CWE-77":  "Improper Neutralization of Special Elements (Command Injection)",
     "CWE-434": "Unrestricted Upload of File with Dangerous Type",
-    "CWE-798": "Use of Hard-coded Credentials",
     # Kept for backward-compat with prior schema / already-saved samples;
     # not active targets (see DEPRECATED_CWES above and prior schema entries).
+    "CWE-798": "Use of Hard-coded Credentials",
     "CWE-611": "Improper Restriction of XML External Entity Reference",
     "CWE-330": "Use of Insufficiently Random Values",
     "CWE-400": "Uncontrolled Resource Consumption",
@@ -283,15 +288,15 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
 # ---------------------------------------------------------------------------
 # CWEs that require a security-context co-occurrence check (not just a sink)
 # ---------------------------------------------------------------------------
-# For these CWEs, the sink alone is too noisy — e.g. `password = "x"` in
-# a test fixture is not CWE-798. The caller must also verify a security
-# keyword appears within ±10 lines of the sink (see
+# For these CWEs, the sink alone is too noisy — the caller must also
+# verify a security keyword appears within ±10 lines of the sink (see
 # file_utils.has_security_context_near).
 #
-# CWE-330 was previously in this set; removed 2026-05-13 alongside the
-# deprecation of the CWE itself (not Top-25).
+# Currently empty: CWE-798 and CWE-330 both used this gate but were
+# deprecated 2026-05-13. The has_security_context_near() helper is kept
+# in file_utils for Phase 2C revival.
 
-CWES_REQUIRING_SECURITY_CONTEXT: set[str] = {"CWE-798"}
+CWES_REQUIRING_SECURITY_CONTEXT: set[str] = set()
 
 # ---------------------------------------------------------------------------
 # CWEs where test/fixture files are common false positives
@@ -302,7 +307,7 @@ CWES_REQUIRING_SECURITY_CONTEXT: set[str] = {"CWE-798"}
 #   * CWE-79:  Django/pytest XSS test cases import `request` and use template
 #              rendering as part of the test scaffolding, not as a vuln site.
 
-CWES_REQUIRING_TEST_EXCLUSION: set[str] = {"CWE-798", "CWE-79"}
+CWES_REQUIRING_TEST_EXCLUSION: set[str] = {"CWE-79"}
 
 # ---------------------------------------------------------------------------
 # Sources known to produce commit-level mislabels — dropped at the loader.

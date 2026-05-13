@@ -48,11 +48,11 @@ NVD_KEY = os.getenv("NVD_API_KEY", "")
 GH_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 # Phase 2B: prioritize the under-represented + newly-added rare CWEs.
-# Re-scoped 2026-05-13 to the sink-shaped Top-25 Python CWE set.
-# CWE-434 added (file upload). CWE-611/330/400 removed (not Top-25; see
+# Re-scoped 2026-05-13 to the 9 sink-shaped Top-25 Python CWE set.
+# CWE-434 added (file upload). CWE-611/330/400/798 removed (see
 # cwe_taxonomy.py DEPRECATED_CWES).
 TARGET_CWES_DEFAULT = [
-    "CWE-502", "CWE-918", "CWE-94", "CWE-77", "CWE-434", "CWE-798",
+    "CWE-502", "CWE-918", "CWE-94", "CWE-77", "CWE-434",
 ]
 
 _CVSS_BASE_SCORES = {

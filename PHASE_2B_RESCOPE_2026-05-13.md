@@ -1,8 +1,9 @@
-# Phase 2B Re-scope — Top-25 sink-shaped Python CWE alphabet
+# Phase 2B Re-scope — 9 sink-shaped Top-25 Python CWE benchmark
 
 **Date:** 2026-05-13
-**Status:** Re-scope landing. Dataset narrowed from 12 → 10 active CWEs.
-**Trigger:** Top-25 taxonomy analysis — *"the alphabet closes when there is a sink"*.
+**Status:** FINAL — 10 labels (9 sink-shaped CWEs + safe). Ready for evaluation.
+**Trigger:** Top-25 taxonomy analysis (*"the alphabet closes when there is a sink"*)
++ evaluation-benchmark scope decision (CASTLE-style table; 10-label cap from professors).
 
 ---
 
@@ -49,14 +50,17 @@ Sink patterns (`src/utils/cwe_taxonomy.py:SINK_PATTERNS["CWE-434"]`):
 
 **Why no static miner for CWE-434:** the vulnerability is the *absence* of an allowlist / mime-type / magic-byte check around the sink. Without taint tracking we can't reliably tell "sink + no defense" from "sink + defense N lines away." Restricted to CVE-confirmed sources (cvefixes, ghsa_db, osv, pypa, nvd_targeted).
 
-### 2.3 CWE-798 retained, but flagged as a special case
+### 2.3 CWE-798 also dropped (evening pass, 2026-05-13)
 
-CWE-798 (Hardcoded Credentials) is sink-shaped but yields a *2-bucket* fix alphabet (`remove the literal` / `move to env-var or vault`) rather than the 5-bucket SQLi-style alphabet. Kept because:
-  * In MITRE Top-25 (#22)
-  * The static miner produces high-precision samples post-2026-05-12 line-proximity audit
-  * 29 verified samples already on disk
+After the morning's narrowing to 10 active CWEs, an evaluation-scope review found that CWE-798 should also be dropped:
 
-If the writeup wants the cleanest "sink → alphabet" story, CWE-798 can be presented as a *secondary* class with its own "remove-literal" alphabet.
+| Reason | Detail |
+|---|---|
+| Alphabet mismatch | CWE-798's 2-bucket fix alphabet (remove literal / move to vault) doesn't fit the 5-bucket SQLi-style framing of the other 9 sink-shaped CWEs |
+| Single-source bias | All 29 CWE-798 samples are from `hardcoded_creds_miner`; for an evaluation benchmark this biases tool-detectability comparisons toward what the miner happened to find |
+| Professor 10-label cap | Dropping CWE-798 lands at exactly 10 labels (9 sink-shaped + safe), matching the evaluation-benchmark guidance |
+
+The 29 samples are at `data/raw_rejected/` (manifest `manifest_drop_cwe798_*.json`). `hardcoded_creds_miner` is deregistered from `ALL_SOURCES`/`SCRAPERS` in `src/generator/run.py`. Code retained for Phase 2C revival.
 
 ---
 
@@ -104,25 +108,30 @@ These two have *partial* sink-shape:
 
 ---
 
-## 4. Dataset state at end of re-scope
+## 4. Final dataset state (end of 2026-05-13)
 
 ```
-CWE-22:  174   Path Traversal           (sink-shaped, Phase 1)
-CWE-78:   16   OS Command Injection     (sink-shaped, Phase 1)
-CWE-79:  229   XSS                      (sink-shaped, Phase 1)
-CWE-89:  282   SQL Injection            (sink-shaped, Phase 1)
-CWE-94:   21   Code Injection           (sink-shaped, Phase 1)
-CWE-918:  63   SSRF                     (sink-shaped, Phase 1)
-CWE-502:  21   Insecure Deserialization (sink-shaped, Phase 1)
-CWE-77:    4   Generic Cmd Injection    (sink-shaped, Phase 2B)
-CWE-434:   1+  Unrestricted Upload      (sink-shaped, Phase 2B re-scope; +N from running ghsa_db scrape)
-CWE-798:  29   Hardcoded Credentials    (2-bucket alphabet; Top-25)
-safe:    429   hard negatives
-----
-Total:  1268 + new CWE-434 from ghsa_db
+Label        Total  Train   Val  Test    Class
+-------------------------------------------------------
+CWE-89        282    208    45    44     SQL Injection
+CWE-79        229    160    34    35     XSS
+CWE-22        174    139    30    29     Path Traversal
+CWE-918        63     44     9    10     SSRF
+CWE-94         21     15     3     3     Code Injection
+CWE-502        21     15     3     4     Insecure Deserialization
+CWE-78         16     13     3     2     OS Command Injection
+CWE-434         7      3     0     1     Unrestricted File Upload
+CWE-77          4      3     1     0     Generic Cmd Injection
+safe          429    319    55    55     hard negatives
+-------------------------------------------------------
+Total       1,246    880   182   181     (3 NONE: CWE-434 content-hash dupes)
 ```
 
-CWE-77 (4) and CWE-434 (1 + pending) are below the audit threshold of "≥20 real samples per class." Acceptable for the writeup (small classes report N/A on per-class F1) but should be expanded in Phase 2C.
+**Repo-leakage check:** ✓ 0 overlap across train/val/test (verified by `run_phase2.py`).
+
+**Below the 20-sample audit threshold for per-class F1 stability:**
+CWE-77 (4 total), CWE-434 (7 total), CWE-78 (16 total).
+Plan for the eval table: report per-class F1 with confidence intervals; flag small-N classes with `*` and report aggregated "rare-CWE F1" as a single bucket.
 
 ---
 
@@ -142,8 +151,24 @@ CWE-77 (4) and CWE-434 (1 + pending) are below the audit threshold of "≥20 rea
 
 ## 6. Open items for the next session
 
-1. **Wait for the background `ghsa_db` CWE-434 scrape to complete.** Tail `logs/cwe434_ghsa_db_*.log`. Expected: 5-20 verified samples.
-2. **Re-run `scripts/run_phase2.py`** for the new stratified split with the 10-CWE taxonomy.
-3. **Update `configs/class_weights.json` and `configs/cvss_targets.json`** — both were generated from the pre-re-scope dataset and contain entries for the dropped CWEs.
-4. **Day 4 GraphCodeBERT training (`runs/phase3_v4/`)** — unblocked once split + configs regen.
-5. **`FIELD_JUSTIFICATION.md`** — still untouched. Pure writing task, can parallelize with training.
+**Now on the evaluation-benchmark track** (training demoted to one row in the
+eval table — see `PROGRESS_REPORT_2026-05-13_eval_pivot.md` / chat log).
+
+1. **Stage-1 sample audit** — manual spot-check across the 9 CWEs to surface
+   any remaining mislabels. ~30 random samples for big classes (22/79/89/918)
+   + full audit for small classes (77/434/78/502/94).
+2. **Tool harness** — Bandit + Semgrep runners first, then 2-3 LLMs
+   (Claude Sonnet, Claude Opus, GPT-4o) via API. CodeQL deferred.
+3. **Robustness eval columns** — apply each of the 4 mutators
+   (`dead_code_injection`, `string_split`, `variable_rename`,
+   `wrapper_extraction`) to every test sample, run every tool again,
+   report per-tool F1-drop per mutator.
+4. **Headline tables** — TP/TN/FP/FN per (tool, CWE); macro/per-CWE F1;
+   robustness-drop composite.
+5. **Train the GraphCodeBERT model as one eval row** — `runs/phase3_v4/` on
+   a GPU box. Same schedule, ten output classes now (`src/model/dataset.INDEX_TO_CWE`).
+6. **`FIELD_JUSTIFICATION.md`** — still untouched. Update needed:
+   add 5 Phase 2B fields (`has_cwe_sink`, `sink_pattern`,
+   `is_hard_negative`, `parent_sample_id`, `sanitization_transform`),
+   update field count, swap "4 target CWE classes" section for "9
+   sink-shaped Top-25 Python CWEs."
