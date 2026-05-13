@@ -40,10 +40,10 @@ _logger = get_logger(__name__)
 
 # CWE → class index. Hard negatives carry cwe="safe" (last index).
 #
-# Indices 0-6 preserve the v1/v2 ordering. Phase 2B (2026-05-13) appended
-# CWE-434 and dropped CWE-77 (merged into CWE-78 — they share Python's
-# command-injection sink set). Final benchmark vocabulary: 8 sink-shaped
-# Top-25 Python CWEs + safe = 9 classes.
+# Indices 0-6 preserve the v1/v2 ordering. Phase 2B (2026-05-13) made
+# multiple narrowings: dropped CWE-77 (merged into CWE-78), then dropped
+# CWE-434 after the Stage-1 audit found its sink patterns produced 100% FPs.
+# Final benchmark vocabulary: 7 sink-shaped Top-25 Python CWEs + safe = 8 classes.
 CWE_TO_INDEX: dict[str, int] = {
     "CWE-89":  0,
     "CWE-78":  1,
@@ -52,13 +52,11 @@ CWE_TO_INDEX: dict[str, int] = {
     "CWE-94":  4,
     "CWE-918": 5,
     "CWE-502": 6,
-    "CWE-434": 7,
-    "safe":    8,
+    "safe":    7,
 }
 INDEX_TO_CWE: list[str] = [
     "CWE-89", "CWE-78", "CWE-22", "CWE-79",
     "CWE-94", "CWE-918", "CWE-502",
-    "CWE-434",
     "safe",
 ]
 

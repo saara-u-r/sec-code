@@ -1,17 +1,17 @@
 {
   "_schema_version": 1,
   "_summary": {
-    "total": 1471,
-    "score_coverage": 578,
-    "subvector_coverage": 558,
+    "total": 1203,
+    "score_coverage": 403,
+    "subvector_coverage": 394,
     "score_sources": {
-      "missing": 893,
-      "advisory": 558,
-      "advisory_score_only": 20
+      "missing": 800,
+      "advisory": 394,
+      "advisory_score_only": 9
     },
     "label_confidence": {
-      "low": 893,
-      "high": 578
+      "low": 800,
+      "high": 403
     }
   },
   "_subvector_codes": {
@@ -172,30 +172,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "1b73a49a26b63ae5": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "2fe73ef7e2bb5bcf": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "4b031cf821d2add7": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "56222e3c8dd0118a": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -204,127 +180,7 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "568d1ecdec0771c7": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "68a1341915c5af81": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "6e22882450553ee5": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "71a76f8cd03528a0": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "76e1833367678548": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "7e96e9d7f9f9b0e3": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "847e9253c120af36": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a6ce1e676ad447e4": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a102fd804b174d66": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "ab629a4c04a764ad": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "b33556b233db84b2": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "eefbea71699a790b": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "c7a9c8d39490ef01": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "d3d6562689a23a99": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "d759019193a3c2dc": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "e1f237553a36b341": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -388,57 +244,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "03b277ba7eb0a7bd": {
-      "cvss_score": 5.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "3305b30cd4e481bb": {
-      "cvss_score": 5.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "6668c208f1d12e87": {
-      "cvss_score": 5.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "6bd85ec7dd577584": {
       "cvss_score": 7.7,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
@@ -456,209 +261,7 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "6c70b4d6cbe96471": {
-      "cvss_score": 5.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "6f7bd918bea08c9d": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7cc3caa5ebf23019": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "915715c773b9d698": {
-      "cvss_score": 5.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a20215d6a3542f33": {
-      "cvss_score": 5.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "c5a8c95ec4cfef2c": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "dadc67d349505431": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "ec985bbbe59ff0ea": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "ed63cc65f959c030": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "fe55c828133a8551": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0432d712dc2c948c": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "3ec956791b5fe4f5": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "f75e1943c4d1dc07": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "4dc7918087b98091": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "0a6ad85e9beb8667": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -675,14 +278,6 @@
       "loss_weight": 0.0
     },
     "b3ad0bf015c89e82": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a4e56a3be98c00a8": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -722,78 +317,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "563a0216022ca187": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "362ec5dfbdd99b2a": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "48f1f3255b4f5bf8": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "9a4f518dd6c898a8": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "81f55ea6af269eeb": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "fb545881f3c9f26b": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "81d85312d43d4795": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "c2271f9600963d8c": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "c814d9d95cdc767c": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "3c78e62064b754e9": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -802,71 +325,7 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "613b77080766f495": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "adfb37d66aae6133": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "8259ba8bf590e879": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "41cf1a2481a349fb": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a8a3a2ee4cceb7da": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "0cbf595f11194c0a": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "58c5a034858b8188": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "4bc2a174cf2af905": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "2ef0ed0780c63ce2": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -883,14 +342,6 @@
       "loss_weight": 0.0
     },
     "55961e4a9661595f": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "35549959da394a19": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -923,14 +374,6 @@
       "loss_weight": 0.0
     },
     "90339195112f2c44": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "833262ee4ee58914": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -1018,14 +461,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "5cea2fbdebd6a535": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "6b09665e2013e2e9": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -1043,14 +478,6 @@
       "loss_weight": 0.0
     },
     "4fd56658254e3b69": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "2cf49f6ce23d8d4d": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -1227,22 +654,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "187821cbb62330b8": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a537420943f70854": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "e41687b8235020c5": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -1279,23 +690,6 @@
         "S": "U",
         "C": "L",
         "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "de9d6e478af41a06": {
-      "cvss_score": 4.9,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
         "A": "N"
       },
       "score_source": "advisory",
@@ -1353,14 +747,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "84f97dfdc50ebe0b": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "30a05a5a5d78eff6": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -1369,31 +755,7 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "9f4d22f441630a01": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "4aaa842bb1fe9d82": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "16631be9fe1b263d": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "b39d97377c37b06b": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -1410,80 +772,6 @@
       "loss_weight": 0.0
     },
     "cc482719fddf6981": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "092a0458e112ffb7": {
-      "cvss_score": 5.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "d4b9d87b63298af2": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "3b95fd3d513a77b6": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a02337468f8397f5": {
-      "cvss_score": 5.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "fc0e9b154366c262": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "d325599239fd979b": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a7ff54bfc51efb46": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -1593,48 +881,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "77365c0b539614c2": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a1192012ab6fc506": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "b6b73c8862ee7150": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "61b1e55150c5ed5f": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -1642,23 +888,6 @@
       "score_source": "missing",
       "label_confidence": "low",
       "loss_weight": 0.0
-    },
-    "380675ff8d6eb452": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
     },
     "70c61065121668cc": {
       "cvss_score": null,
@@ -1668,32 +897,7 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "09d91b158e01adec": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "ee99c9af78fd4fa7": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "8430b026ec92ae6c": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -1750,22 +954,6 @@
       "score_source": "missing",
       "label_confidence": "low",
       "loss_weight": 0.0
-    },
-    "e711c18391e948f4": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "debcaed593a972ae": {
-      "cvss_score": 2.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
     },
     "57cd5fb204e2f1e2": {
       "cvss_score": null,
@@ -1935,23 +1123,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "e8ed95bac52c841f": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "f4d80b6b633a38b0": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -1998,23 +1169,6 @@
         "C": "L",
         "I": "L",
         "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "3eadbdbbfd57e029": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -2172,14 +1326,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "0e99de415dfa54e7": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "cafe9de4d1578aa1": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -2228,14 +1374,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "bdf5dd0dbf3b0532": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "4b029267d4012788": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -2245,14 +1383,6 @@
       "loss_weight": 0.0
     },
     "4e5ccc689e61f0d7": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "0df623ffab25bf58": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -2356,22 +1486,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "c4d4f819b2110d24": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "8fd03788afb0a9a1": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "b792c35dc9e7b2f6": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -2379,23 +1493,6 @@
       "score_source": "missing",
       "label_confidence": "low",
       "loss_weight": 0.0
-    },
-    "f8766c696cf4976c": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
     },
     "e2dce48f25cbd520": {
       "cvss_score": 8.6,
@@ -2409,23 +1506,6 @@
         "C": "H",
         "I": "N",
         "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "66f247bb488bc347": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -2482,108 +1562,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "5786cd1501d00be1": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "68c4c469d3906bcd": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "36e6f9ed82d74e84": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "1308cfcd8a4349fe": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "b9fcbf798eef7107": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "05ed0ddea2088545": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "889963e7b5164981": {
       "cvss_score": 9.8,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -2596,23 +1574,6 @@
         "C": "H",
         "I": "H",
         "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "f9612df27d9675ff": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -2720,40 +1681,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "2827ef4e05f4e18f": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "03a23c6353ee1324": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "d7e3663e10a0bdec": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
@@ -2805,23 +1732,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "235817dafbc9f9c7": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "5947a51fa3cc2d98": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -2833,23 +1743,6 @@
         "S": "C",
         "C": "L",
         "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "87e973737689d29f": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
         "A": "N"
       },
       "score_source": "advisory",
@@ -3128,57 +2021,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "33c9c2cd59a8fc04": {
-      "cvss_score": 9.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0a0bead76a9665cd": {
-      "cvss_score": 9.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "57603e96716987db": {
-      "cvss_score": 9.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "b29d8c9ae9ce6c75": {
       "cvss_score": 9.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:L",
@@ -3191,23 +2033,6 @@
         "C": "H",
         "I": "N",
         "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "ab3b23df82f4f90f": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -3298,23 +2123,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "1f6da7e392bbc093": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "e17be4061de81eac": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
@@ -3357,32 +2165,7 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "db5f5b3500b8c6ac": {
-      "cvss_score": 2.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "56610103c00fbb05": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0a1106e888368a43": {
       "cvss_score": 9.1,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
       "sub_vectors": {
@@ -3416,23 +2199,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "58d7c1707c2aa7ed": {
-      "cvss_score": 8.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "ba44db771752bd6a": {
       "cvss_score": 9.9,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
@@ -3451,14 +2217,6 @@
       "loss_weight": 1.0
     },
     "698d7f17d8131875": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "9bc08dc9df04454d": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -3576,23 +2334,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "64b17294fc5112d0": {
-      "cvss_score": 8.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "24435effd48a01d2": {
       "cvss_score": 8.1,
       "cvss_vector": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -3643,31 +2384,6 @@
       "score_source": "advisory",
       "label_confidence": "high",
       "loss_weight": 1.0
-    },
-    "3fd96b1411db2c15": {
-      "cvss_score": 7.6,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "4002e8364136aabe": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
     },
     "60be6c4298b4be0d": {
       "cvss_score": 7.1,
@@ -3720,30 +2436,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "d755adabdcad9288": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0fa5b04026e7cf3c": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "ef3e33ef85daed7e": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "1ed5a24f87906225": {
       "cvss_score": 6.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:H/A:H",
@@ -3778,23 +2470,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "9e3b0586b055c943": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "04c9ba5c50b5aef9": {
       "cvss_score": 6.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:H/A:H",
@@ -3812,41 +2487,7 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "310c2529c193cb4f": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "ce3eac6d47900bb9": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "3660592a90f10f21": {
       "cvss_score": 6.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:N/I:H/A:H",
       "sub_vectors": {
@@ -4228,22 +2869,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "ad70a869ce043a97": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "5092975cdb12a466": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "201d5f6737127c31": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -4300,23 +2925,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "54962295501ebe19": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "c32aae7cc498c651": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -4334,14 +2942,6 @@
       "loss_weight": 0.0
     },
     "5ea7bae930fceba4": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "ccfffa3d648574cf": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -4677,23 +3277,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "5de5809b833f0db9": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "a25e237362a55a8e": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -4717,23 +3300,6 @@
       "score_source": "missing",
       "label_confidence": "low",
       "loss_weight": 0.0
-    },
-    "d62f1abbc97ac766": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
     },
     "01d400eb90f11108": {
       "cvss_score": null,
@@ -4775,32 +3341,7 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "85d74fce8709d7f6": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "15355cf902f4aeb1": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "c2b36c5fef72c58c": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -4865,14 +3406,6 @@
       "loss_weight": 0.0
     },
     "078189db61eeb71a": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "4d7388148ec0b8c4": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -5024,23 +3557,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "c1f04ff66b18456f": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "55f5e9569b89c8ea": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -5121,22 +3637,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "084148e4c78e34aa": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "ce3148613c88e993": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "fd320690dc9d0a47": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -5146,14 +3646,6 @@
       "loss_weight": 0.0
     },
     "57c238d1c23820b0": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "8868013a7276d9e1": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -5273,23 +3765,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "280f24eb4aff7913": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "7991f19367f1d57c": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -5339,14 +3814,6 @@
       "loss_weight": 0.0
     },
     "91fd28aea1f44f4a": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "8a0294179a03cfc4": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -5506,14 +3973,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "a4fdb74a3cd6535a": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "cb8e712ab63903e9": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -5634,14 +4093,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "5baba0d42fe36dd6": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "9026a52074d204a4": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -5714,14 +4165,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "4d429d918be8a6f0": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "374d09f3cf19fa74": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -5779,14 +4222,6 @@
       "loss_weight": 0.0
     },
     "373b091e2f5ba431": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "e80646a795e82e16": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -5952,40 +4387,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "4fe17e20556dd967": {
-      "cvss_score": 8.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "48a623905f6cab4c": {
-      "cvss_score": 8.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "efa36fcae33b1fe0": {
       "cvss_score": 6.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:N",
@@ -6105,23 +4506,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "78dc0c18d5a51f9e": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "2aab7ccc3335af48": {
       "cvss_score": 8.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:H/A:H",
@@ -6134,23 +4518,6 @@
         "C": "H",
         "I": "H",
         "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "bd30ab9065b939fd": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -6184,23 +4551,6 @@
         "S": "U",
         "C": "L",
         "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "310685b8d3df0bab": {
-      "cvss_score": 8.2,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
         "A": "L"
       },
       "score_source": "advisory",
@@ -6275,23 +4625,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "c0165fa15a55d172": {
-      "cvss_score": 7.4,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "0cbe0590a386a6ec": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:C/C:L/I:H/A:L",
@@ -6320,91 +4653,6 @@
         "S": "C",
         "C": "L",
         "I": "H",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a1e8aefd3675eb61": {
-      "cvss_score": 8.2,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "9b1259a8e43c0e52": {
-      "cvss_score": 8.2,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "db4a18d5b2285cc1": {
-      "cvss_score": 8.2,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "afa7f1d40dd0d66c": {
-      "cvss_score": 8.2,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "07ede29a8a1b14d1": {
-      "cvss_score": 8.2,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "L",
         "A": "L"
       },
       "score_source": "advisory",
@@ -6462,23 +4710,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "3d6a9f33637f88e6": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "f2a2207f4a57ba11": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
@@ -6530,23 +4761,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "f40062fddfc48cad": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "08b8e0bf62ac42ef": {
       "cvss_score": 9.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
@@ -6559,74 +4773,6 @@
         "C": "H",
         "I": "H",
         "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "2453d694cfde4ad0": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "05c475ca50ebc673": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "eedc42723bb547a8": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "775b74c5c45826fd": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -6666,40 +4812,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "c9012a08a2fddabd": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "07d2d15c8c966d59": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "43a88f2e0b08d344": {
       "cvss_score": 5.4,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
@@ -6718,23 +4830,6 @@
       "loss_weight": 1.0
     },
     "ed5b19d765e8b982": {
-      "cvss_score": 8.6,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "f1c56b63192dda19": {
       "cvss_score": 8.6,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:L/A:L",
       "sub_vectors": {
@@ -6785,40 +4880,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "c2847733c173051f": {
-      "cvss_score": 4.8,
-      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "A",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0d2e0050381f52cd": {
-      "cvss_score": 4.8,
-      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "A",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "3a0af0b50cf6b616": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -6836,23 +4897,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "846aa2b49e19b621": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "11f5b29515730844": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -6864,23 +4908,6 @@
         "S": "C",
         "C": "L",
         "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "52ba312f0047cf29": {
-      "cvss_score": 6.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "N",
         "A": "N"
       },
       "score_source": "advisory",
@@ -6920,31 +4947,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "ee05b6ab34822551": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "d9fdeec43b0b633b": {
-      "cvss_score": 5.9,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "89b02a7617988c6e": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
@@ -6980,23 +4982,6 @@
       "loss_weight": 1.0
     },
     "49a3ab8235fcaf7f": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:L/I:H/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "H",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "fca667f2b932f938": {
       "cvss_score": 7.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:L/I:H/A:L",
       "sub_vectors": {
@@ -7064,23 +5049,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "29a500384fa2f115": {
-      "cvss_score": 7.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "6d5eacf1b5e0b5ee": {
       "cvss_score": 5.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
@@ -7110,40 +5078,6 @@
         "C": "H",
         "I": "H",
         "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a185d2da7314e004": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "e74efffcbd9a5321": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -7183,40 +5117,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "1e57653ced4a9814": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7910acadb6136a69": {
-      "cvss_score": 9.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "b45bfcc83823fb71": {
       "cvss_score": 6.4,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
@@ -7234,23 +5134,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "aefbe4f32841db87": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "5314c6cf3220a280": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:N",
@@ -7261,57 +5144,6 @@
         "UI": "R",
         "S": "U",
         "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "6154202d1eade7ef": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "d4373e784019479e": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7c3e097fdbc04b2c": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
         "I": "H",
         "A": "N"
       },
@@ -7337,23 +5169,6 @@
       "loss_weight": 1.0
     },
     "fc0fd5bdc814d00d": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "c7b8944048f91b6c": {
       "cvss_score": 6.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
       "sub_vectors": {
@@ -7404,57 +5219,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "f570c0b00eceb6ae": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a00c045837334a5c": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a5db0965de9e1002": {
-      "cvss_score": 4.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "377113cf2a663224": {
       "cvss_score": 6.4,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:H/UI:R/S:U/C:H/I:H/A:H",
@@ -7480,40 +5244,6 @@
         "AC": "H",
         "PR": "H",
         "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "c37a50878ecfebb6": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "eed7635a7b6812b7": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "N",
         "S": "U",
         "C": "H",
         "I": "H",
@@ -7897,23 +5627,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "e9da6e4ab0e720c1": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:L/I:H/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "H",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "df625b2a80e7fca1": {
       "cvss_score": 7.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:L/I:H/A:L",
@@ -8237,23 +5950,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "6b1d985b372324ec": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "41aaf7613bdd81fe": {
       "cvss_score": 8.8,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
@@ -8339,108 +6035,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "76fc22408aab3b9b": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a8f787aba9d0a4dd": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "a8bcedfab60fad25": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "d94ba787b0079ed0": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "bb9937eb676f3160": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "dad2abea626a9260": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "eeb1f66fe8f0af4b": {
       "cvss_score": 4.6,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:N",
@@ -8458,41 +6052,7 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "156a36c8a98a4248": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "af841e9920a21914": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "63a8ab794b79c6ee": {
       "cvss_score": 6.5,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
       "sub_vectors": {
@@ -8577,40 +6137,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "8ce2d455648c4d88": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0b9e1442573c32a3": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "bc96b6c1fdf956db": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -8628,90 +6154,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "94d0c756b80f8dc0": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "072809ef17d7a46d": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "727075d408604df6": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "fdccef34f42e1e75": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0e7da6d8ed2f8172": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "ccc564f677be186c": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "6feb3bfb8cf537f2": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -8723,40 +6165,6 @@
         "S": "C",
         "C": "L",
         "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "2e94147bd8064620": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7c7b42de10e921bd": {
-      "cvss_score": 4.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "N",
         "A": "N"
       },
       "score_source": "advisory",
@@ -8781,23 +6189,6 @@
       "loss_weight": 1.0
     },
     "981204e6a61dd1e8": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "59622ba4e8c1f9b8": {
       "cvss_score": 7.7,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
       "sub_vectors": {
@@ -8950,14 +6341,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "bdab0fdd7da9d350": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "f038abd4a670dec3": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
@@ -9009,14 +6392,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "562cdf1085230c41": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "fe49594f7574a983": {
       "cvss_score": 5.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H",
@@ -9028,23 +6403,6 @@
         "S": "U",
         "C": "N",
         "I": "N",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "cb6228cbef26bf13": {
-      "cvss_score": 10.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "H",
         "A": "H"
       },
       "score_source": "advisory",
@@ -9102,23 +6460,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "19d9858c4927acb1": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "bb3fef0116b25bb6": {
       "cvss_score": 6.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
@@ -9130,23 +6471,6 @@
         "S": "U",
         "C": "L",
         "I": "L",
-        "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "049c2a7d6f7d2821": {
-      "cvss_score": 5.4,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:L",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "N",
         "A": "L"
       },
       "score_source": "advisory",
@@ -9187,23 +6511,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "3e679b340c7565a8": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "0f30c55624a32565": {
       "cvss_score": 3.7,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -9222,57 +6529,6 @@
       "loss_weight": 1.0
     },
     "71442a6de4333a88": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "828bf62b55a67f6a": {
-      "cvss_score": 8.6,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "d260c96369e1d923": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "274ef009b5eb9918": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
       "sub_vectors": {
@@ -9391,40 +6647,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "67c6bfa9d27ce65f": {
-      "cvss_score": 8.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "cd1599bcf3a99704": {
-      "cvss_score": 8.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "a66bb45d243e332f": {
       "cvss_score": 9.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:N",
@@ -9442,23 +6664,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "c722c897a585209a": {
-      "cvss_score": 7.4,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "406438802f95186f": {
       "cvss_score": 7.4,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:N/A:N",
@@ -9467,23 +6672,6 @@
         "AC": "L",
         "PR": "N",
         "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "6dc7b97c20c56d86": {
-      "cvss_score": 7.7,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
         "S": "C",
         "C": "H",
         "I": "N",
@@ -9526,23 +6714,6 @@
         "AC": "L",
         "PR": "H",
         "UI": "N",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "8a855c16553994ae": {
-      "cvss_score": 4.8,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:H/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
         "S": "C",
         "C": "L",
         "I": "L",
@@ -9644,40 +6815,6 @@
         "AV": "N",
         "AC": "L",
         "PR": "L",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7517d3b7bc14701f": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7e84bf5fb494a423": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
         "UI": "R",
         "S": "C",
         "C": "L",
@@ -9807,109 +6944,7 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "3deb83f62cb64109": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "4e44627fc189ca6a": {
-      "cvss_score": 8.6,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "93e7f590a4e02f1b": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "2af19707f4e549b8": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "e468278db29ef830": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "71454806b32f9750": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "1ac5313b9feaa34e": {
       "cvss_score": 6.1,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
       "sub_vectors": {
@@ -9994,48 +7029,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "5934fcc2b10d6591": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "12163ed05572c396": {
-      "cvss_score": 6.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "N",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "e805b1b024d53618": {
-      "cvss_score": 6.1,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "L",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "194fc5357fea652b": {
       "cvss_score": 7.8,
       "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
@@ -10082,23 +7075,6 @@
         "C": "H",
         "I": "H",
         "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "8ba9f2da72be670d": {
-      "cvss_score": 5.3,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "L"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -10172,23 +7148,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "b16537c9982e2244": {
-      "cvss_score": 4.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "L",
-        "I": "N",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "4ab4bf0aaf4b4f5a": {
       "cvss_score": 9.8,
       "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -10198,23 +7157,6 @@
         "PR": "N",
         "UI": "N",
         "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "b99844ee9e019cf2": {
-      "cvss_score": 8.4,
-      "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "A",
-        "AC": "L",
-        "PR": "H",
-        "UI": "N",
-        "S": "C",
         "C": "H",
         "I": "H",
         "A": "H"
@@ -10292,23 +7234,6 @@
       "loss_weight": 1.0
     },
     "e9d0da790ccce0de": {
-      "cvss_score": 7.5,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "fa2da6dbd341ccb2": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
       "sub_vectors": {
@@ -10404,31 +7329,6 @@
         "S": "U",
         "C": "H",
         "I": "H",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "76c5f08163bd4e25": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "c0589e06ec6175e4": {
-      "cvss_score": 3.7,
-      "cvss_vector": "CVSS:3.0/AV:N/AC:H/PR:L/UI:R/S:U/C:L/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "L",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
         "A": "N"
       },
       "score_source": "advisory",
@@ -11107,14 +8007,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "03e22d4657b21299": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "f7b0dd8e6366de90": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -11154,23 +8046,6 @@
       "score_source": "missing",
       "label_confidence": "low",
       "loss_weight": 0.0
-    },
-    "a5e51c570dc1116d": {
-      "cvss_score": 6.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:R/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "H",
-        "UI": "R",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
     },
     "85504c5eb75ab97d": {
       "cvss_score": null,
@@ -11375,14 +8250,6 @@
       "loss_weight": 0.0
     },
     "e23cd1d0aba69b27": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "df6afbc15f03e3e2": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -13103,14 +9970,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "62278dc165da29d2": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
     "8f37e6bad560a653": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -14056,57 +10915,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "815d39060c0ac9a5": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "7393c9b90c2f4728": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "0d11dd5a4fa20b62": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "0ebde36061b0c50c": {
       "cvss_score": 9.8,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -14191,70 +10999,6 @@
       "score_source": "advisory",
       "label_confidence": "high",
       "loss_weight": 1.0
-    },
-    "51c9c084f583ac94": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "edaa1a6a78b7c20f": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "a8dd66f52d980f80": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "f90903b6368c4c30": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "8c96bfa74e99afb9": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "e2bcff016cd6099f": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "bb3af59484db41f4": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "c60015ea4d957455": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
     },
     "c31d8e6b0518bcfb": {
       "cvss_score": null,
@@ -14409,14 +11153,6 @@
       "loss_weight": 0.0
     },
     "f637ef20b963de1d": {
-      "cvss_score": null,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "missing",
-      "label_confidence": "low",
-      "loss_weight": 0.0
-    },
-    "375e4228a0043eea": {
       "cvss_score": null,
       "cvss_vector": null,
       "sub_vectors": null,
@@ -14840,23 +11576,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "86f8d845256bc14b": {
-      "cvss_score": 8.1,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "3e30fad22c87138d": {
       "cvss_score": 7.5,
       "cvss_vector": null,
@@ -15043,23 +11762,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "39194e29e90e3955": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "1cc0d527d8e0bdbe": {
       "cvss_score": 9.8,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -15170,23 +11872,6 @@
       "label_confidence": "low",
       "loss_weight": 0.0
     },
-    "3579fc2321ad7f28": {
-      "cvss_score": 4.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "L",
-        "A": "N"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "0c68ff178659cc36": {
       "cvss_score": null,
       "cvss_vector": null,
@@ -15271,23 +11956,6 @@
         "PR": "L",
         "UI": "N",
         "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "431eccb8b5828877": {
-      "cvss_score": 9.0,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "N",
-        "UI": "N",
-        "S": "C",
         "C": "H",
         "I": "H",
         "A": "H"
@@ -15466,23 +12134,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "925853f13a99a99b": {
-      "cvss_score": 8.3,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "H",
-        "PR": "N",
-        "UI": "R",
-        "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "14b81770edb0bfe4": {
       "cvss_score": 8.3,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:H/I:H/A:H",
@@ -15568,23 +12219,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "6e228cba01a99644": {
-      "cvss_score": 8.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "5b604b8b19cd4da5": {
       "cvss_score": 8.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
@@ -15594,23 +12228,6 @@
         "PR": "L",
         "UI": "N",
         "S": "C",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "eae128a12b0d8f31": {
-      "cvss_score": 8.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
         "C": "H",
         "I": "H",
         "A": "H"
@@ -15772,23 +12389,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "e687aee91a63ace7": {
-      "cvss_score": 8.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "c5ebce326cb86685": {
       "cvss_score": 7.5,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
@@ -15852,23 +12452,6 @@
         "C": "H",
         "I": "H",
         "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "e6cbc0aee3fbf653": {
-      "cvss_score": 4.5,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:L",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "H",
-        "PR": "N",
-        "UI": "R",
-        "S": "U",
-        "C": "L",
-        "I": "L",
-        "A": "L"
       },
       "score_source": "advisory",
       "label_confidence": "high",
@@ -16112,23 +12695,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "0dbc5089a9ebdf35": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "79f4a25b61eeed8d": {
       "cvss_score": 9.8,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -16222,39 +12788,6 @@
       "label_confidence": "high",
       "loss_weight": 1.0
     },
-    "13680991eb145aa6": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "d667789a175f472e": {
-      "cvss_score": 7.5,
-      "cvss_vector": null,
-      "sub_vectors": null,
-      "score_source": "advisory_score_only",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "82be00d8b9f711bb": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
     "31e852c5f696cd7d": {
       "cvss_score": 9.8,
       "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -16297,23 +12830,6 @@
         "AC": "H",
         "PR": "N",
         "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "f3545ac94c523ea9": {
-      "cvss_score": 8.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "R",
         "S": "U",
         "C": "H",
         "I": "H",
@@ -16488,142 +13004,6 @@
         "C": "H",
         "I": "L",
         "A": "L"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "324e5fa2d455ad00": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "53a0e6b1b9a4e465": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "2f0c8685da883810": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "822c6bede487801c": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "1b526fee0c355425": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "c1a5e7217fc6923f": {
-      "cvss_score": 7.1,
-      "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H",
-      "sub_vectors": {
-        "AV": "L",
-        "AC": "L",
-        "PR": "L",
-        "UI": "N",
-        "S": "U",
-        "C": "N",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "431309138d37318b": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
-      },
-      "score_source": "advisory",
-      "label_confidence": "high",
-      "loss_weight": 1.0
-    },
-    "3026c3a29912a196": {
-      "cvss_score": 9.8,
-      "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-      "sub_vectors": {
-        "AV": "N",
-        "AC": "L",
-        "PR": "N",
-        "UI": "N",
-        "S": "U",
-        "C": "H",
-        "I": "H",
-        "A": "H"
       },
       "score_source": "advisory",
       "label_confidence": "high",

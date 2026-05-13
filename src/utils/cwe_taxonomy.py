@@ -10,7 +10,7 @@ exactly 10 labels (9 sink-shaped + safe) for the evaluation benchmark.
 See PHASE_2B_DESIGN.md §1 and the Top-25 taxonomy analysis for rationale.
 
 Sink-shaped Top-25 Python CWEs (active, the benchmark label set):
-  CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-434, CWE-502, CWE-918
+  CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-502, CWE-918
 
 Dropped 2026-05-13 (reversible via data/raw_rejected/ manifests + git):
   CWE-611 (XXE), CWE-330 (weak rand), CWE-400 (resource exhaustion)
@@ -21,10 +21,19 @@ Dropped 2026-05-13 (reversible via data/raw_rejected/ manifests + git):
       (single-source bias). Dropped to fit the 10-label evaluation cap.
   CWE-77 (improper neutralization of special elements — command inj)
     → MITRE parent of CWE-78. For Python the distinction is bureaucratic;
-      both fire on the same sink set (os.system / subprocess shell=True /
-      Popen). Merged into CWE-78 on 2026-05-13 via
-      scripts/merge_cwe77_into_cwe78.py — all 9 prior CWE-77 samples
-      relabeled in place.
+      both fire on the same sink set. Merged into CWE-78; samples
+      relabeled in place by scripts/merge_cwe77_into_cwe78.py.
+  CWE-434 (unrestricted file upload)
+    → Sink patterns matched framework source (Django FileField), imports,
+      docstrings, and form field declarations rather than actual upload
+      handlers. Stage-1 audit (2026-05-13) found 0/7 audited samples
+      valid (100% FP rate). The vulnerability is the *absence* of
+      validation around an upload sink, which is fundamentally a
+      structural problem (like the deferred Top-25 CWEs in
+      STRUCTURAL_CWES_DEFERRED.md). Detection requires taint tracking
+      across upload→validation→save, not file-level sink matching.
+      Dropped from the benchmark. May revisit in Phase 2C with a
+      proximity-filtered scraper.
   All retained in CWE_NAMES / SINK_PATTERNS for back-compat with already-
   saved samples; CWE_VULN_MAP entries removed so scrapers won't write
   new ones.
@@ -61,8 +70,6 @@ CWE_VULN_MAP: dict[str, str] = {
     "CWE-918": "ssrf",
     "CWE-502": "insecure_deserialization",
 
-    # Sink-shaped Top-25 Python CWEs — Phase 2B additions
-    "CWE-434": "unrestricted_file_upload",
 }
 
 TARGET_CWES: set[str] = set(CWE_VULN_MAP.keys())
@@ -70,8 +77,12 @@ TARGET_CWES: set[str] = set(CWE_VULN_MAP.keys())
 # Dropped 2026-05-13 — see header comment. Kept as a constant so future
 # Phase 2C work can re-enable selectively without re-deriving the list.
 # CWE-77 was merged into CWE-78 (not orphaned) — samples relabeled in
-# place rather than discarded.
-DEPRECATED_CWES: set[str] = {"CWE-611", "CWE-330", "CWE-400", "CWE-798", "CWE-77"}
+# place rather than discarded. CWE-434 was dropped after the Stage-1
+# audit revealed 100% FP rate (sink patterns too broad for a structural
+# problem).
+DEPRECATED_CWES: set[str] = {
+    "CWE-611", "CWE-330", "CWE-400", "CWE-798", "CWE-77", "CWE-434",
+}
 
 # ---------------------------------------------------------------------------
 # CWE → human-readable name (used by build_meta and reports)
@@ -127,29 +138,27 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bdb\.\w+\s*\(", re.IGNORECASE),            # db.method() — custom wrappers (e.g. trape's db.sentences_victim)
     ],
     "CWE-79": [
-        # Explicit escape-bypass sinks (high precision)
+        # Phase 2B audit tightening (2026-05-13): the original CWE-79 set
+        # was 60% FP. Most failures came from the broad bucket of "web
+        # framework + request data" patterns — they fired on backend
+        # file-validation handlers, type annotations, and imports that
+        # never emit HTML. Restrict to **explicit escape-bypass sinks**
+        # and template-render entry points. The framework-import line
+        # (`from twisted ...`) is dropped — too coarse.
+        # Explicit escape-bypass sinks (high precision):
         re.compile(r"\|\s*safe\b"),
         re.compile(r"\bmark_safe\s*\(", re.IGNORECASE),
         re.compile(r"\bMarkup\s*\(", re.IGNORECASE),
         re.compile(r"\brender_template_string\s*\(", re.IGNORECASE),
         re.compile(r"\bautoescape\s*=\s*False", re.IGNORECASE),
         re.compile(r"\.innerHTML\b"),
-        # Web framework + user input — XSS sinks are typically the *absence*
-        # of escape(), so any web file touching request data is plausibly
-        # involved in XSS. Spot-check of 5 rejected samples (2026-05-11)
-        # showed 4 were real CVE-confirmed XSS the strict patterns missed.
-        # Pair with CWES_REQUIRING_TEST_EXCLUSION to drop fixture noise.
-        # Flask/Django request attrs:
-        re.compile(r"\brequest\.(args|form|data|json|values|files|cookies|GET|POST)", re.IGNORECASE),
-        # Starlette/FastAPI request attrs:
-        re.compile(r"\brequest\.(query_params|path_params|headers|body)", re.IGNORECASE),
+        # Template rendering entry points (must be a *call*, not a route):
         re.compile(r"\brender_template\s*\(", re.IGNORECASE),
         re.compile(r"\brender\s*\(\s*request", re.IGNORECASE),    # Django render(request, ...)
+        # Response-construction sinks (require call form):
         re.compile(r"\bHttpResponse\s*\(", re.IGNORECASE),
-        re.compile(r"\bself\.write\s*\(", re.IGNORECASE),         # Tornado RequestHandler
+        re.compile(r"\bself\.write\s*\(", re.IGNORECASE),         # Tornado RequestHandler.write
         re.compile(r"\bweb\.Response\s*\(", re.IGNORECASE),       # aiohttp
-        re.compile(r"\bfrom\s+twisted\b", re.IGNORECASE),         # Twisted web apps (any html sink)
-        re.compile(r"\bhtml\.escape\s*\(", re.IGNORECASE),        # HTML escape calls indicate HTML rendering
     ],
     "CWE-78": [
         re.compile(r"\bos\.(system|popen|spawn[lpvP])\s*\(", re.IGNORECASE),
@@ -166,6 +175,14 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\bexecute_command\s*\(", re.IGNORECASE),
     ],
     "CWE-22": [
+        # Phase 2B audit tightening (2026-05-13): the original CWE-22 set
+        # was too broad — bare `open(` and `os.path.join(` matched test
+        # fixtures with hardcoded paths and static-string code that had
+        # no taint flow (80% FP rate). The audited samples that passed
+        # all involved an HTTP request data reference in the same file
+        # AND a file-access sink. Restrict to file-serving / file-write
+        # sinks; the proximity-to-request check fires via has_cwe_sink
+        # via CWES_REQUIRING_REQUEST_PROXIMITY below.
         re.compile(r"\bopen\s*\(", re.IGNORECASE),
         re.compile(r"\bsend_file\s*\(", re.IGNORECASE),
         re.compile(r"\bsend_from_directory\s*\(", re.IGNORECASE),
@@ -174,27 +191,41 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\.\./\.\.", re.IGNORECASE),
     ],
     "CWE-918": [
+        # Phase 2B audit tightening (2026-05-13): ClientSession constructor
+        # dropped — it's the session object, not the request itself, and
+        # was matching type annotations (`x: ClientSession | None = None`)
+        # which produced 3 of 5 CWE-918 FPs.
         re.compile(r"\brequests\.(get|post|put|delete|head|options|patch|request)\s*\(", re.IGNORECASE),
         re.compile(r"\burllib\.request\.urlopen\s*\(", re.IGNORECASE),
         re.compile(r"\burlopen\s*\(", re.IGNORECASE),
         re.compile(r"\bhttpx\.\w+\s*\(", re.IGNORECASE),
-        re.compile(r"\baiohttp\.\w+", re.IGNORECASE),
-        re.compile(r"\bClientSession\s*\(", re.IGNORECASE),
+        re.compile(r"\baiohttp\.\w+\s*\(", re.IGNORECASE),  # require a call form, not just a type ref
     ],
     "CWE-502": [
+        # Phase 2B audit tightening (2026-05-13):
+        # * jsonpickle narrowed to (decode|loads) — `jsonpickle.encode(`
+        #   is serialization (safe). Original pattern matched both.
+        # * __reduce__ narrowed to method-definition form (`def __reduce__`)
+        #   — bare `__reduce__` mention was a type-inspection check, not
+        #   a deserialization sink.
+        # * Comments stripped before matching (handled by
+        #   _strip_comments_for_sink_match in file_utils).
         re.compile(r"\bpickle\.loads?\s*\(", re.IGNORECASE),
         re.compile(r"\bcPickle\.loads?\s*\(", re.IGNORECASE),
         re.compile(r"\byaml\.load\s*\((?!.*safe_load)", re.IGNORECASE),
         re.compile(r"\byaml\.unsafe_load\s*\(", re.IGNORECASE),
         re.compile(r"\bmarshal\.loads?\s*\(", re.IGNORECASE),
-        re.compile(r"\b__reduce__\b", re.IGNORECASE),
-        re.compile(r"\bshelve\.", re.IGNORECASE),
-        re.compile(r"\bjsonpickle\.", re.IGNORECASE),
+        re.compile(r"\bdef\s+__reduce__\s*\("),                            # narrowed to method def
+        re.compile(r"\bshelve\.(open|load)\s*\(", re.IGNORECASE),          # require a call
+        re.compile(r"\bjsonpickle\.(decode|loads)\s*\(", re.IGNORECASE),   # narrowed to decode/loads
     ],
     "CWE-94": [
+        # Phase 2B audit tightening (2026-05-13): bare `compile(` dropped
+        # because it was matching `re.compile(...)` (regex compilation,
+        # not Python code compilation) in 3 of 4 CWE-94 FPs. The remaining
+        # eval / exec / __import__ / importlib patterns are precise enough.
         re.compile(r"\beval\s*\(", re.IGNORECASE),
         re.compile(r"\bexec\s*\(", re.IGNORECASE),
-        re.compile(r"\bcompile\s*\(", re.IGNORECASE),
         re.compile(r"\b__import__\s*\(", re.IGNORECASE),
         re.compile(r"\bimportlib\.import_module\b", re.IGNORECASE),
     ],
@@ -304,6 +335,19 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
 # in file_utils for Phase 2C revival.
 
 CWES_REQUIRING_SECURITY_CONTEXT: set[str] = set()
+
+# ---------------------------------------------------------------------------
+# CWEs that require an HTTP-request reference within proximity of the sink
+# ---------------------------------------------------------------------------
+# CWE-22 audit (2026-05-13) found that 8 of 10 audited samples were test
+# fixtures or static-string code with no user-input flow. Restrict CWE-22
+# to samples where the sink lives near a request.* / HttpRequest / similar
+# tainted-data reference (±20 lines, default window in has_request_near).
+#
+# This is conceptually identical to the CWE-330/798 security-context check
+# we built earlier, just with a different keyword set.
+
+CWES_REQUIRING_REQUEST_PROXIMITY: set[str] = {"CWE-22"}
 
 # ---------------------------------------------------------------------------
 # CWEs where test/fixture files are common false positives

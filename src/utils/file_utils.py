@@ -7,6 +7,7 @@ from pathlib import Path
 
 from src.utils.cwe_taxonomy import (
     CWE_NAMES,
+    CWES_REQUIRING_REQUEST_PROXIMITY,
     CWES_REQUIRING_SECURITY_CONTEXT,
     CWES_REQUIRING_TEST_EXCLUSION,
     SINK_PATTERNS,
@@ -272,6 +273,84 @@ def is_test_file(file_path: str | None) -> bool:
     )
 
 
+# HTTP-request taint sources used by has_request_near() — for CWE-22 the
+# sink must be in the same neighborhood as a tainted-input reference,
+# not just anywhere in the file. Test fixtures with hardcoded paths and
+# static-string code don't have these references and so won't pass.
+_REQUEST_TAINT_NEAR = re.compile(
+    r"\brequest\.(args|form|data|json|values|files|cookies|headers|GET|POST"
+    r"|query_params|path_params|body)\b"
+    r"|\bHttpRequest\b|\bweb\.Request\b|\bself\.request\b"
+    r"|\bawait\s+\w+\.read\s*\(",
+    re.IGNORECASE,
+)
+
+
+def has_request_near(
+    code: str, sink_offset: int, window: int = 20
+) -> bool:
+    """Return True if a tainted-request reference appears within `window`
+    lines of the sink offset. Comments and docstrings are stripped before
+    the check so prose mentioning `request.args` doesn't count as a real
+    taint flow.
+
+    Window of 20 lines (vs 10 for security-context) reflects that
+    file-access vulnerabilities often have intermediate utility logic
+    between the request read and the sink (validation, normalization,
+    path construction)."""
+    code = _TRIPLE_QUOTED.sub(lambda m: _blank_keep_newlines(m.group(0)), code)
+    sink_line = code.count("\n", 0, sink_offset) + 1
+    lines = code.splitlines()
+    start = max(0, sink_line - window - 1)
+    end = min(len(lines), sink_line + window)
+    cleaned = []
+    for ln in lines[start:end]:
+        ln = _LINE_COMMENT.sub("", ln)
+        cleaned.append(ln)
+    return bool(_REQUEST_TAINT_NEAR.search("\n".join(cleaned)))
+
+
+def _strip_comments_for_match(code: str) -> str:
+    """Blank out line comments and triple-quoted docstrings so sink regex
+    doesn't match prose. Keep newlines so character offsets / line
+    positions in returned matches remain valid against the original code.
+
+    Used by has_cwe_sink to suppress documentation-style FPs surfaced in
+    the 2026-05-13 audit (e.g. `# pickle.loads is unsafe`,
+    `# Use it like this: requests.get(...)`, jsonpickle docs)."""
+    code = _TRIPLE_QUOTED.sub(lambda m: _blank_keep_newlines(m.group(0)), code)
+    lines = code.splitlines(keepends=True)
+    out = []
+    for ln in lines:
+        # Strip everything from the first # not inside a string literal.
+        # Approximation: drop content after # at the end of any line that
+        # isn't inside a string. Simple heuristic; misses # inside strings
+        # but that's acceptable — sink regexes don't typically match #-
+        # prefixed prose anyway when string literals stay intact.
+        idx = -1
+        in_str = None
+        i = 0
+        while i < len(ln):
+            c = ln[i]
+            if in_str:
+                if c == "\\":
+                    i += 2; continue
+                if c == in_str:
+                    in_str = None
+            elif c in "\"'":
+                in_str = c
+            elif c == "#":
+                idx = i; break
+            i += 1
+        if idx >= 0:
+            # Replace the comment portion with spaces, preserve newline
+            keep_newline = "\n" if ln.endswith("\n") else ""
+            out.append(ln[:idx] + " " * (len(ln) - idx - len(keep_newline)) + keep_newline)
+        else:
+            out.append(ln)
+    return "".join(out)
+
+
 def has_security_context_near(
     code: str, sink_offset: int, window: int = 10
 ) -> bool:
@@ -314,10 +393,16 @@ def has_cwe_sink(
 
     A sample passes the sink-presence filter if:
       1. At least one pattern in SINK_PATTERNS[cwe] matches `code`.
+         Comments and docstrings are stripped before matching to suppress
+         documentation-style FPs (audit 2026-05-13).
       2. For CWE-798 only: file_path does NOT look like a test/example file.
-      3. For CWE-798 / CWE-330: a security-context keyword appears within
-         ±10 lines of the sink match (file-wide check was too coarse — see
-         the 2026-05-11 CWE-330 audit in PHASE_2B_OPEN_QUESTIONS.md).
+      3. For CWES_REQUIRING_SECURITY_CONTEXT: a security keyword appears
+         within ±10 lines of the sink match (originally for CWE-798/CWE-330;
+         now empty set after both were deprecated).
+      4. For CWES_REQUIRING_REQUEST_PROXIMITY (CWE-22): a request-taint
+         reference appears within ±20 lines of the sink (audit 2026-05-13
+         found 80% FP rate without this; mostly test fixtures with static
+         paths).
 
     If `cwe` has no defined sink patterns (e.g. unknown CWE), returns
     (True, None) — i.e. we don't filter what we can't validate.
@@ -329,10 +414,17 @@ def has_cwe_sink(
     if cwe in CWES_REQUIRING_TEST_EXCLUSION and is_test_file(file_path):
         return False, None
 
-    needs_context = cwe in CWES_REQUIRING_SECURITY_CONTEXT
+    # Strip comments/docstrings before sink matching. Offsets in the
+    # stripped code align with the original because _strip_comments_for_match
+    # preserves newline positions (it blanks comments to spaces).
+    match_code = _strip_comments_for_match(code)
+
+    needs_security_context = cwe in CWES_REQUIRING_SECURITY_CONTEXT
+    needs_request_proximity = cwe in CWES_REQUIRING_REQUEST_PROXIMITY
+
     for p in patterns:
-        for m in p.finditer(code):
-            if needs_context:
+        for m in p.finditer(match_code):
+            if needs_security_context:
                 # Skip sinks the developer explicitly suppressed (#noqa:S311,
                 # #nosec) — these are intentional non-security uses.
                 line_start = code.rfind("\n", 0, m.start()) + 1
@@ -342,6 +434,9 @@ def has_cwe_sink(
                 if _SUPPRESSED_SINK.search(code[line_start:line_end]):
                     continue
                 if not has_security_context_near(code, m.start()):
+                    continue
+            if needs_request_proximity:
+                if not has_request_near(code, m.start()):
                     continue
             return True, p.pattern
 
