@@ -64,10 +64,34 @@ _COMMIT_RE = re.compile(
 
 # Heuristic: signals that this CVE is about Python code.
 # Used to skip non-Python CVEs early (no point fetching commits we'll throw away).
+#
+# Phase 2B Day 3 expansion: added XML libs (lxml/defusedxml/xmltodict/feedparser),
+# DevOps tooling (saltstack/awx/paramiko/fabric), ML libs (transformers/mlflow/
+# numpy/scipy), crypto (cryptography/pyjwt/passlib/authlib), HTTP libs
+# (requests/urllib3/httpx), and image libs (pillow). The old heuristic was
+# missing too many CWE-611/400/77 advisories whose descriptions named the
+# library directly rather than saying "python".
 _PY_HINT_RE = re.compile(
-    r"(\bpython\b|\bpypi\b|\bpip\b|\bdjango\b|\bflask\b|\bfastapi\b|"
-    r"\btornado\b|\bcelery\b|\bpyyaml\b|\bpickle\b|\bansible\b|"
-    r"\bsqlalchemy\b|\bjinja2\b|\.py\b)",
+    r"("
+    # Language / package management
+    r"\bpython\b|\bpypi\b|\bpip\b|\.py\b|"
+    # Web frameworks
+    r"\bdjango\b|\bflask\b|\bfastapi\b|\btornado\b|\baiohttp\b|\bstarlette\b|"
+    r"\bbottle\b|\bquart\b|\btwisted\b|\bcelery\b|\bjinja2\b|"
+    # Serialization / XML libs (CWE-502, CWE-611)
+    r"\bpyyaml\b|\bpickle\b|\blxml\b|\bdefusedxml\b|\bxmltodict\b|"
+    r"\bfeedparser\b|\bsqlalchemy\b|\bjsonpickle\b|"
+    # DevOps / sysadmin (CWE-78, 77, 798)
+    r"\bansible\b|\bsalt\b|\bsaltstack\b|\bparamiko\b|\bfabric\b|"
+    # ML / scientific
+    r"\btransformers\b|\bmlflow\b|\bnumpy\b|\bscipy\b|\bpandas\b|"
+    # HTTP / SSRF (CWE-918, CWE-400)
+    r"\brequests\b|\burllib3\b|\bhttpx\b|"
+    # Crypto / auth (CWE-330, 798)
+    r"\bcryptography\b|\bpyjwt\b|\bpasslib\b|\bauthlib\b|"
+    # Image (historic CVE hotspot)
+    r"\bpillow\b|\bPIL\b"
+    r")",
     re.IGNORECASE,
 )
 

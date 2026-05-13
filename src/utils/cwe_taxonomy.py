@@ -242,8 +242,9 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\blxml\.etree\.", re.IGNORECASE),
     ],
     "CWE-330": [
-        # `random` module usage — caller must ALSO pass has_security_context()
-        # to filter out games/simulations.
+        # `random` module usage — caller must ALSO have a security-context
+        # keyword within ±10 lines (see file_utils.has_security_context_near)
+        # to filter out games, simulations, and replication-jitter use.
         re.compile(r"\brandom\.(random|choice|choices|randint|sample|shuffle|uniform|randrange)\s*\(", re.IGNORECASE),
         re.compile(r"\brandom\.getrandbits\s*\(", re.IGNORECASE),
     ],
@@ -263,8 +264,8 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
 # CWEs that require a security-context co-occurrence check (not just a sink)
 # ---------------------------------------------------------------------------
 # For these CWEs, the sink alone is too noisy — `random.choice` in a game is
-# not CWE-330. The caller must also verify the file mentions auth/security
-# keywords (see file_utils.has_security_context).
+# not CWE-330. The caller must also verify a security keyword appears within
+# ±10 lines of the sink (see file_utils.has_security_context_near).
 
 CWES_REQUIRING_SECURITY_CONTEXT: set[str] = {"CWE-798", "CWE-330"}
 

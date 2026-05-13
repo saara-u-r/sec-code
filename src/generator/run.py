@@ -31,6 +31,7 @@ from src.generator.scraper import (
     pypa_scraper,
     pysecdb_loader,
     vudenc_loader,
+    weak_random_miner,
 )
 from src.utils.config_loader import load_config
 from src.utils.logger import get_logger
@@ -39,7 +40,7 @@ logger = get_logger(__name__)
 
 ALL_SOURCES = [
     "cvefixes", "osv", "ghsa", "ghsa_db", "pypa", "vudenc", "pysecdb",
-    "nvd_targeted", "hardcoded_creds",
+    "nvd_targeted", "hardcoded_creds", "weak_random",
 ]
 
 # Maps source name → scraper module
@@ -53,6 +54,7 @@ SCRAPERS = {
     "pysecdb":           pysecdb_loader,
     "nvd_targeted":      nvd_targeted_scraper,
     "hardcoded_creds":   hardcoded_creds_miner,
+    "weak_random":       weak_random_miner,
 }
 
 

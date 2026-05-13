@@ -183,18 +183,73 @@ def has_taint_source(snippet: str) -> bool:
 # Phase 2B — sink-presence quality filter (pre-ingest)
 # ---------------------------------------------------------------------------
 
-# Security-context keywords used by has_security_context() — the file must
-# mention at least one of these for CWE-798 / CWE-330 to count as labeled.
-# No \b anchor so the keywords can appear embedded in identifiers like
-# session_token, DATABASE_PASSWORD, etc. (in regex, `_` is a word char, so
-# \b doesn't fire between a letter and `_`).
+# Security-context keywords used by has_security_context_near() — for CWE-798
+# / CWE-330 the file must mention at least one of these within ±10 lines of
+# the sink match.
+#
+# Why some terms have \b and others don't: in regex `_` is a word char, so
+# `\btoken` does NOT match `access_token` (the boundary between `_` and `t`
+# is word-word). For compound-identifier-friendly keywords like `password`,
+# `secret`, `encrypt` we deliberately omit \b so `DATABASE_PASSWORD`,
+# `decrypted_data` all match. \b is reserved for short terms that embed in
+# unrelated words (`auth` → `author`, `sign` → `assignment`/`design`).
+#
+# 2026-05-12 spot-check fallout (after first proximity-filter rerun, on the
+# 30 surviving CWE-330 samples):
+#   * `token(?!iz)`         — NLP tokenizer/tokenize/tokenized triggered many
+#                             ML-pipeline FPs (sentiment_analyzer, seq2seq).
+#   * dropped `salt`        — Saltstack repos contain `salt '*' command`
+#                             docstring examples on every page; `\bsalt\b`
+#                             also matched the software name, not crypto.
+#   * dropped `hash`        — caused the openstack/swift FP via `local_hash`.
+#   * dropped `secure`      — too broad (`make sure`, `securely`).
+#   * dropped `account`     — collides with `accounting`, `acct`.
+#   * dropped `role`        — too short; matches `roles=[]` config noise.
+#   * narrowed `sign`       — `signin/signup/signing/signed/signature` only.
+#   * narrowed `auth`       — must be `auth` as a word or followed by
+#                             n/z/orize/enticate/orization (excludes `author`).
 _SECURITY_CONTEXT = re.compile(
-    r"(auth|authn|authz|password|passwd|credential|session|token|"
-    r"login|logout|signin|signup|secret|sign|verify|hmac|jwt|"
-    r"oauth|saml|ldap|api[_-]?key|csrf|nonce|salt|hash|encrypt|"
-    r"decrypt|cipher|secure|permission|role|account)",
+    r"(\bauth(?:n|z|orize|enticate|orization|enticated)?\b|"
+    r"password|passwd|credential|session|"
+    r"token(?!iz)|"  # exclude tokenizer/tokenize/tokenized (NLP)
+    r"\blog(?:in|out)\b|\bsign(?:in|up|ed|ing|ature|er)\b|"
+    r"secret|verify|hmac|jwt|"
+    r"oauth|saml|ldap|api[_-]?key|csrf|nonce|salt|"
+    r"encrypt|decrypt|cipher|permission)",
     re.IGNORECASE,
 )
+
+# Comment + string-literal stripper. Used to remove docstring URLs, prose
+# (`"Guess my secret number"`), and shell-style examples (`# salt '*' ...`)
+# from the security-context window — those contribute lexical co-occurrence
+# but not semantic auth/crypto use.
+_STRING_LITERAL = re.compile(r"(\"[^\"\n]*\"|'[^'\n]*')")
+_LINE_COMMENT = re.compile(r"#.*$")
+# Triple-quoted docstrings (`"""..."""` / `'''...'''`). Saltstack and openstack
+# heavily use multi-line `salt '*' command` and `keystone-manage` examples in
+# docstrings; those would otherwise leak Saltstack/keystone software names
+# into the context window. We blank the contents but keep newlines so the
+# sink character offsets in the original `code` remain valid for splitlines().
+_TRIPLE_QUOTED = re.compile(r'(\"{3}.*?\"{3}|\'{3}.*?\'{3})', re.DOTALL)
+
+
+def _blank_keep_newlines(s: str) -> str:
+    """Replace every non-newline char with a space — used to neutralize a
+    multi-line region without shifting line numbers."""
+    return "".join(c if c == "\n" else " " for c in s)
+
+# Lines that are pure imports / from-imports contribute identifiers but not
+# semantic use, so a security keyword in an import line is not evidence that
+# the nearby sink is in a security context. (e.g. `from foo import EncryptedType`
+# 8 lines above `random.choices(...)` in superset/utils/mock_data.py).
+_IMPORT_LINE = re.compile(r"^\s*(?:from\s+\S+\s+)?import\s")
+
+# Bandit suppression comments that developers add when intentionally using
+# weak randomness (or other flagged patterns) in non-security code paths.
+# If a sink line carries one of these, the dev has explicitly marked the
+# call as a non-issue — treat it as not-a-CWE-330. S311 is bandit's
+# weak-randomness rule; nosec is the broader suppression.
+_SUPPRESSED_SINK = re.compile(r"#\s*(noqa\s*:\s*S311|nosec\b)", re.IGNORECASE)
 
 # Test/example file detector — paths that should never count as production
 # credential leaks (CWE-798). Matches typical Python test/example layouts.
@@ -217,11 +272,35 @@ def is_test_file(file_path: str | None) -> bool:
     )
 
 
-def has_security_context(code: str) -> bool:
-    """Return True if the file mentions any auth/security keyword.
-    Used as a secondary filter for CWE-798 and CWE-330 where a raw sink
-    match alone is too noisy (e.g. random.choice in a game)."""
-    return bool(_SECURITY_CONTEXT.search(code))
+def has_security_context_near(
+    code: str, sink_offset: int, window: int = 10
+) -> bool:
+    """Return True if a security-context keyword appears within `window` lines
+    of the sink's character offset in `code`, ignoring pure import lines.
+
+    The 2026-05-11 CWE-330 audit found that a file-wide context check fires
+    on unrelated co-occurrences — e.g. `random.randint(0, 9)` for replication
+    jitter passed because the word `auth` appeared 200 lines away in an
+    unrelated function. Restricting the context window to ±10 lines around
+    the sink, and skipping import lines (which contribute identifiers but
+    not semantic use), keeps the check meaningful."""
+    # Blank triple-quoted docstrings first, preserving newlines so offsets
+    # stay valid. Saltstack and OpenStack ship CLI examples like
+    # `salt '*' state.apply` inside docstrings, which would otherwise inject
+    # the software name as a fake "salt" context match.
+    code = _TRIPLE_QUOTED.sub(lambda m: _blank_keep_newlines(m.group(0)), code)
+    sink_line = code.count("\n", 0, sink_offset) + 1
+    lines = code.splitlines()
+    start = max(0, sink_line - window - 1)
+    end = min(len(lines), sink_line + window)
+    cleaned = []
+    for ln in lines[start:end]:
+        if _IMPORT_LINE.match(ln):
+            continue
+        ln = _LINE_COMMENT.sub("", ln)
+        ln = _STRING_LITERAL.sub('""', ln)
+        cleaned.append(ln)
+    return bool(_SECURITY_CONTEXT.search("\n".join(cleaned)))
 
 
 def has_cwe_sink(
@@ -236,7 +315,9 @@ def has_cwe_sink(
     A sample passes the sink-presence filter if:
       1. At least one pattern in SINK_PATTERNS[cwe] matches `code`.
       2. For CWE-798 only: file_path does NOT look like a test/example file.
-      3. For CWE-798 / CWE-330: `code` also has a security-context keyword.
+      3. For CWE-798 / CWE-330: a security-context keyword appears within
+         ±10 lines of the sink match (file-wide check was too coarse — see
+         the 2026-05-11 CWE-330 audit in PHASE_2B_OPEN_QUESTIONS.md).
 
     If `cwe` has no defined sink patterns (e.g. unknown CWE), returns
     (True, None) — i.e. we don't filter what we can't validate.
@@ -248,20 +329,23 @@ def has_cwe_sink(
     if cwe in CWES_REQUIRING_TEST_EXCLUSION and is_test_file(file_path):
         return False, None
 
-    matched = None
+    needs_context = cwe in CWES_REQUIRING_SECURITY_CONTEXT
     for p in patterns:
-        m = p.search(code)
-        if m:
-            matched = p.pattern
-            break
+        for m in p.finditer(code):
+            if needs_context:
+                # Skip sinks the developer explicitly suppressed (#noqa:S311,
+                # #nosec) — these are intentional non-security uses.
+                line_start = code.rfind("\n", 0, m.start()) + 1
+                line_end = code.find("\n", m.start())
+                if line_end == -1:
+                    line_end = len(code)
+                if _SUPPRESSED_SINK.search(code[line_start:line_end]):
+                    continue
+                if not has_security_context_near(code, m.start()):
+                    continue
+            return True, p.pattern
 
-    if not matched:
-        return False, None
-
-    if cwe in CWES_REQUIRING_SECURITY_CONTEXT and not has_security_context(code):
-        return False, None
-
-    return True, matched
+    return False, None
 
 
 # ---------------------------------------------------------------------------
