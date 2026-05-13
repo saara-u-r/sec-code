@@ -38,9 +38,12 @@ _logger = get_logger(__name__)
 # Constants matching labeler/data_prep.py
 # ---------------------------------------------------------------------------
 
-# CWE → class index. Hard negatives carry cwe="safe" (index 7). The
-# legacy "other" bucket is index 7 in data_prep.LABEL_MAP, but since
-# we never emit "other" labels anymore, we re-purpose index 7 as "safe".
+# CWE → class index. Hard negatives carry cwe="safe" (last index).
+#
+# Indices 0-6 preserve the v1/v2 ordering. Phase 2B re-scope (2026-05-13)
+# appended CWE-77, CWE-434, CWE-798 — matching the order of CWE_VULN_MAP
+# in src/utils/cwe_taxonomy.py — and shifted "safe" to the last slot.
+# v1/v2 checkpoints would need a head re-init to load against this vocab.
 CWE_TO_INDEX: dict[str, int] = {
     "CWE-89":  0,
     "CWE-78":  1,
@@ -49,11 +52,16 @@ CWE_TO_INDEX: dict[str, int] = {
     "CWE-94":  4,
     "CWE-918": 5,
     "CWE-502": 6,
-    "safe":    7,
+    "CWE-77":  7,
+    "CWE-434": 8,
+    "CWE-798": 9,
+    "safe":    10,
 }
 INDEX_TO_CWE: list[str] = [
     "CWE-89", "CWE-78", "CWE-22", "CWE-79",
-    "CWE-94", "CWE-918", "CWE-502", "safe",
+    "CWE-94", "CWE-918", "CWE-502",
+    "CWE-77", "CWE-434", "CWE-798",
+    "safe",
 ]
 
 # Sub-vector code → class index for each of the 8 heads.

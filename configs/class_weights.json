@@ -1,0 +1,80 @@
+{
+  "_schema_version": 1,
+  "label_order": [
+    "CWE-89",
+    "CWE-78",
+    "CWE-22",
+    "CWE-79",
+    "CWE-94",
+    "CWE-918",
+    "CWE-502",
+    "CWE-77",
+    "CWE-434",
+    "CWE-798",
+    "safe"
+  ],
+  "raw_counts": {
+    "CWE-89": 193,
+    "CWE-78": 11,
+    "CWE-22": 118,
+    "CWE-79": 160,
+    "CWE-94": 15,
+    "CWE-918": 44,
+    "CWE-502": 14,
+    "CWE-77": 3,
+    "CWE-434": 3,
+    "CWE-798": 20,
+    "safe": 324
+  },
+  "uniform": {
+    "CWE-89": 1.0,
+    "CWE-78": 1.0,
+    "CWE-22": 1.0,
+    "CWE-79": 1.0,
+    "CWE-94": 1.0,
+    "CWE-918": 1.0,
+    "CWE-502": 1.0,
+    "CWE-77": 1.0,
+    "CWE-434": 1.0,
+    "CWE-798": 1.0,
+    "safe": 1.0
+  },
+  "effective_number": {
+    "CWE-89": 0.06286511161883375,
+    "CWE-78": 1.0085700325810854,
+    "CWE-22": 0.09913182997850402,
+    "CWE-79": 0.07462570881570849,
+    "CWE-94": 0.7410962671276136,
+    "CWE-918": 0.25632008417892893,
+    "CWE-502": 0.7936355595507826,
+    "CWE-77": 3.683337138790673,
+    "CWE-434": 3.683337138790673,
+    "CWE-798": 0.5572101241704627,
+    "safe": 0.03987100439673198
+  },
+  "ldam_margins": {
+    "CWE-89": 0.17654726367074297,
+    "CWE-78": 0.36132844057280267,
+    "CWE-22": 0.19965482778774735,
+    "CWE-79": 0.18502070112307129,
+    "CWE-94": 0.334370152488211,
+    "CWE-918": 0.25549779056458916,
+    "CWE-502": 0.3401874666585601,
+    "CWE-77": 0.49999999999999994,
+    "CWE-434": 0.49999999999999994,
+    "CWE-798": 0.3111664886442391,
+    "safe": 0.15510080985034994
+  },
+  "drw_schedule": {
+    "total_epochs": 10,
+    "phase_a_epochs": 8,
+    "phase_b_epochs": 2,
+    "phase_b_weights": "effective_number",
+    "_comment": "Phase A (8 epochs): uniform weights, backbone learns from natural distribution. Phase B (2 epochs): switch to effective_number, classifier head re-calibrates."
+  },
+  "config": {
+    "beta": 0.999,
+    "ldam_max_margin": 0.5,
+    "ldam_exponent": 0.25
+  }
+}
