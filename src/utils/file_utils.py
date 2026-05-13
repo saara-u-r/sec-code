@@ -382,6 +382,69 @@ def has_security_context_near(
     return bool(_SECURITY_CONTEXT.search("\n".join(cleaned)))
 
 
+def sink_was_modified(
+    code_before: str,
+    code_after: str,
+    cwe: str,
+) -> tuple[bool | None, str | None]:
+    """Return ``(modified, evidence_line)`` for the sink-line-changed filter.
+
+    The premise: for a sample to be a real CWE-XXX positive, the fix
+    commit must have *changed the sink*. If `pickle.loads(data)` exists
+    identically in both versions of the file, the CVE fixed something
+    else and this is a co-changed-file mislabel.
+
+    Returns:
+      * ``(True, line)``  — at least one sink line in ``code_before`` does
+        NOT appear in ``code_after`` (removed or altered). The line is
+        returned as audit evidence.
+      * ``(False, None)`` — all sink lines in ``code_before`` are still
+        present verbatim in ``code_after``. The sink was untouched —
+        likely commit-level noise. Drop.
+      * ``(None, None)``  — ``code_after`` is empty or the CWE has no
+        sink patterns. Caller decides whether to keep or drop.
+
+    Comparison is line-level after stripping comments / docstrings and
+    normalizing whitespace, so reformat-only edits don't count as real
+    changes.
+
+    Phase 2B audit (2026-05-13) introduced this filter to address the
+    fundamental limitation of CVE-fix-derived labels: the labeled
+    "vulnerable" file isn't necessarily the actual sink site.
+    """
+    patterns = SINK_PATTERNS.get(cwe)
+    if not patterns:
+        return None, None
+    if not code_after or not code_after.strip():
+        return None, None
+
+    def _sink_lines(code: str) -> set[str]:
+        stripped = _strip_comments_for_match(code)
+        out: set[str] = set()
+        for ln in stripped.splitlines():
+            norm = " ".join(ln.split())
+            if not norm:
+                continue
+            for p in patterns:
+                if p.search(ln):
+                    out.add(norm)
+                    break
+        return out
+
+    before_sinks = _sink_lines(code_before)
+    after_sinks = _sink_lines(code_after)
+
+    if not before_sinks:
+        # No sink lines in `code_before` — shouldn't happen if has_cwe_sink
+        # already passed, but be defensive. Treat as "cannot determine".
+        return None, None
+
+    removed_or_changed = before_sinks - after_sinks
+    if removed_or_changed:
+        return True, next(iter(removed_or_changed))
+    return False, None
+
+
 def has_cwe_sink(
     code: str,
     cwe: str,
