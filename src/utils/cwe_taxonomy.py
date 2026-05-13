@@ -2,8 +2,24 @@
 cwe_taxonomy.py — Single source of truth for CWE labels, sink patterns,
 and per-CWE knowledge shared across all scrapers and the labeler.
 
-Phase 2B (2026-05-11): extended from 7 web-skewed CWEs to 12 covering web,
-CLI, ML, and stdlib Python. See PHASE_2B_DESIGN.md for the scope rationale.
+Phase 2B (2026-05-11): extended from 7 web-skewed CWEs to 12.
+Phase 2B re-scope (2026-05-13): narrowed to the 9 *sink-shaped Top-25
+Python CWEs* — the set where a closed fix-pattern alphabet exists.
+See PHASE_2B_DESIGN.md §1 and the Top-25 taxonomy analysis for rationale.
+
+Sink-shaped Top-25 Python CWEs (active):
+  CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-434, CWE-502, CWE-918, CWE-77
+  + CWE-798 (Top-25, sink-shaped but yields a 2-bucket alphabet — kept
+    because the static miner produces high-precision samples)
+
+Dropped 2026-05-13 (not Top-25; reversible via data/raw_rejected/ manifest):
+  CWE-611 (XXE), CWE-330 (weak rand), CWE-400 (resource exhaustion)
+  → SINK_PATTERNS and CWE_NAMES kept for back-compat with already-saved
+    samples; CWE_VULN_MAP entry removed so scrapers won't write new ones.
+
+Structural Top-25 Python CWEs (deferred to Phase 2C):
+  CWE-352, CWE-862, CWE-863, CWE-284, CWE-306, CWE-639, CWE-200
+  These lack a closed-alphabet sink; verification-metadata-only.
 
 What lives here:
   * CWE_VULN_MAP      — CWE-NNN  → snake_case vuln_type used everywhere
@@ -24,7 +40,7 @@ import re
 # ---------------------------------------------------------------------------
 
 CWE_VULN_MAP: dict[str, str] = {
-    # Original 7 (Phase 1, web-focused)
+    # Sink-shaped Top-25 Python CWEs — Phase 1 originals (web-focused)
     "CWE-89":  "sql_injection",
     "CWE-78":  "command_injection",
     "CWE-22":  "path_traversal",
@@ -33,21 +49,24 @@ CWE_VULN_MAP: dict[str, str] = {
     "CWE-918": "ssrf",
     "CWE-502": "insecure_deserialization",
 
-    # Phase 2B additions (MITRE Top 25 2025, Python-relevant)
-    "CWE-798": "hardcoded_credentials",
-    "CWE-611": "xml_external_entity",
+    # Sink-shaped Top-25 Python CWEs — Phase 2B additions
     "CWE-77":  "command_injection_generic",
-    "CWE-330": "weak_randomness",
-    "CWE-400": "resource_exhaustion",
+    "CWE-434": "unrestricted_file_upload",
+    "CWE-798": "hardcoded_credentials",
 }
 
 TARGET_CWES: set[str] = set(CWE_VULN_MAP.keys())
+
+# Dropped 2026-05-13 — see header comment. Kept as a constant so future
+# Phase 2C work can re-enable selectively without re-deriving the list.
+DEPRECATED_CWES: set[str] = {"CWE-611", "CWE-330", "CWE-400"}
 
 # ---------------------------------------------------------------------------
 # CWE → human-readable name (used by build_meta and reports)
 # ---------------------------------------------------------------------------
 
 CWE_NAMES: dict[str, str] = {
+    # Active sink-shaped Top-25 Python CWEs
     "CWE-89":  "SQL Injection",
     "CWE-78":  "OS Command Injection",
     "CWE-22":  "Path Traversal",
@@ -55,12 +74,14 @@ CWE_NAMES: dict[str, str] = {
     "CWE-94":  "Code Injection",
     "CWE-918": "Server-Side Request Forgery",
     "CWE-502": "Deserialization of Untrusted Data",
-    "CWE-798": "Use of Hard-coded Credentials",
-    "CWE-611": "Improper Restriction of XML External Entity Reference",
     "CWE-77":  "Improper Neutralization of Special Elements (Command Injection)",
+    "CWE-434": "Unrestricted Upload of File with Dangerous Type",
+    "CWE-798": "Use of Hard-coded Credentials",
+    # Kept for backward-compat with prior schema / already-saved samples;
+    # not active targets (see DEPRECATED_CWES above and prior schema entries).
+    "CWE-611": "Improper Restriction of XML External Entity Reference",
     "CWE-330": "Use of Insufficiently Random Values",
     "CWE-400": "Uncontrolled Resource Consumption",
-    # Kept for backward-compat with prior schema; not active targets
     "CWE-327": "Use of Broken or Risky Cryptographic Algorithm",
     "CWE-295": "Improper Certificate Validation",
 }
@@ -231,43 +252,46 @@ SINK_PATTERNS: dict[str, list[re.Pattern]] = {
             r"[^'\"\s]+\1"
         ),
     ],
-    "CWE-611": [
-        re.compile(r"\bresolve_entities\s*=\s*True", re.IGNORECASE),
-        re.compile(r"\bXMLParser\s*\(", re.IGNORECASE),
-        re.compile(r"\betree\.(parse|fromstring|XML)\s*\(", re.IGNORECASE),
-        re.compile(r"\bxml\.sax\.", re.IGNORECASE),
-        re.compile(r"\bxml\.dom\.", re.IGNORECASE),
-        re.compile(r"\bfeedparser\.parse\s*\(", re.IGNORECASE),
-        re.compile(r"\bminidom\.(parse|parseString)\s*\(", re.IGNORECASE),
-        re.compile(r"\blxml\.etree\.", re.IGNORECASE),
-    ],
-    "CWE-330": [
-        # `random` module usage — caller must ALSO have a security-context
-        # keyword within ±10 lines (see file_utils.has_security_context_near)
-        # to filter out games, simulations, and replication-jitter use.
-        re.compile(r"\brandom\.(random|choice|choices|randint|sample|shuffle|uniform|randrange)\s*\(", re.IGNORECASE),
-        re.compile(r"\brandom\.getrandbits\s*\(", re.IGNORECASE),
-    ],
-    "CWE-400": [
-        # Nested regex quantifiers (ReDoS heuristic — imprecise but useful)
-        re.compile(r"\([^)]*[+*?][\d]*\)[+*?]"),
-        # Unbounded extraction
-        re.compile(r"\.extractall\s*\(", re.IGNORECASE),
-        re.compile(r"\bsetrecursionlimit\s*\(", re.IGNORECASE),
-        re.compile(r"\.decompress\s*\(", re.IGNORECASE),
-        re.compile(r"\bzipfile\.ZipFile\b", re.IGNORECASE),
-        re.compile(r"\btarfile\.open\b", re.IGNORECASE),
+    "CWE-434": [
+        # Unrestricted file upload — the sink is the persist-to-disk call on
+        # an HTTP-received file. The vulnerability is the *absence* of an
+        # allowlist / mime / magic-byte check around the sink, which we
+        # can't detect by regex alone — so we accept any persist-to-disk
+        # call as a candidate and rely on CVE-confirmed sources for label
+        # trust. Static mining for CWE-434 would be too noisy without
+        # taint tracking; nvd_targeted / OSV / GHSA are the safer sources.
+        #
+        # Flask / werkzeug sink form:  request.files['x'].save(...)
+        re.compile(r"\brequest\.files\b", re.IGNORECASE),
+        re.compile(r"\bFileStorage\b", re.IGNORECASE),         # werkzeug
+        re.compile(r"\bsave\s*\(\s*os\.path\.join", re.IGNORECASE),
+        # Django sink form:  request.FILES['x'] then FileField / .save()
+        re.compile(r"\brequest\.FILES\b", re.IGNORECASE),
+        re.compile(r"\bFileField\s*\(", re.IGNORECASE),
+        re.compile(r"\bImageField\s*\(", re.IGNORECASE),
+        # FastAPI / Starlette sink form
+        re.compile(r"\bUploadFile\b"),
+        re.compile(r"\bawait\s+\w+\.read\s*\(", re.IGNORECASE),  # UploadFile.read()
+        # The defenses we look for proximity to (not as positive evidence,
+        # but to help downstream tools verify the bucket): secure_filename,
+        # ALLOWED_EXTENSIONS, magic.from_buffer.
+        re.compile(r"\bsecure_filename\s*\(", re.IGNORECASE),
+        re.compile(r"\bALLOWED_EXTENSIONS\b"),
     ],
 }
 
 # ---------------------------------------------------------------------------
 # CWEs that require a security-context co-occurrence check (not just a sink)
 # ---------------------------------------------------------------------------
-# For these CWEs, the sink alone is too noisy — `random.choice` in a game is
-# not CWE-330. The caller must also verify a security keyword appears within
-# ±10 lines of the sink (see file_utils.has_security_context_near).
+# For these CWEs, the sink alone is too noisy — e.g. `password = "x"` in
+# a test fixture is not CWE-798. The caller must also verify a security
+# keyword appears within ±10 lines of the sink (see
+# file_utils.has_security_context_near).
+#
+# CWE-330 was previously in this set; removed 2026-05-13 alongside the
+# deprecation of the CWE itself (not Top-25).
 
-CWES_REQUIRING_SECURITY_CONTEXT: set[str] = {"CWE-798", "CWE-330"}
+CWES_REQUIRING_SECURITY_CONTEXT: set[str] = {"CWE-798"}
 
 # ---------------------------------------------------------------------------
 # CWEs where test/fixture files are common false positives

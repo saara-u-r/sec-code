@@ -31,16 +31,19 @@ from src.generator.scraper import (
     pypa_scraper,
     pysecdb_loader,
     vudenc_loader,
-    weak_random_miner,
 )
 from src.utils.config_loader import load_config
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# weak_random_miner was deregistered 2026-05-13 with the CWE-330 deprecation
+# (see cwe_taxonomy.DEPRECATED_CWES). The module file remains in the tree
+# for reference / Phase 2C revival.
+
 ALL_SOURCES = [
     "cvefixes", "osv", "ghsa", "ghsa_db", "pypa", "vudenc", "pysecdb",
-    "nvd_targeted", "hardcoded_creds", "weak_random",
+    "nvd_targeted", "hardcoded_creds",
 ]
 
 # Maps source name → scraper module
@@ -54,7 +57,6 @@ SCRAPERS = {
     "pysecdb":           pysecdb_loader,
     "nvd_targeted":      nvd_targeted_scraper,
     "hardcoded_creds":   hardcoded_creds_miner,
-    "weak_random":       weak_random_miner,
 }
 
 

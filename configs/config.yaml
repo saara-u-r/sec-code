@@ -9,7 +9,7 @@ generator:
 analyzer:
   rules_dir: "configs/rules"
   vuln_types:
-    # Phase 1 originals (web-focused)
+    # Sink-shaped Top-25 Python CWEs — Phase 1 originals
     - sql_injection
     - command_injection
     - path_traversal
@@ -17,12 +17,10 @@ analyzer:
     - code_injection
     - ssrf
     - insecure_deserialization
-    # Phase 2B additions (MITRE Top 25 2025, Python-relevant)
-    - hardcoded_credentials
-    - xml_external_entity
+    # Sink-shaped Top-25 Python CWEs — Phase 2B additions
     - command_injection_generic
-    - weak_randomness
-    - resource_exhaustion
+    - unrestricted_file_upload
+    - hardcoded_credentials
   output_dir: "data/labeled"
 
 labeler:
@@ -35,11 +33,9 @@ labeler:
     code_injection: "CWE-94"
     ssrf: "CWE-918"
     insecure_deserialization: "CWE-502"
-    hardcoded_credentials: "CWE-798"
-    xml_external_entity: "CWE-611"
     command_injection_generic: "CWE-77"
-    weak_randomness: "CWE-330"
-    resource_exhaustion: "CWE-400"
+    unrestricted_file_upload: "CWE-434"
+    hardcoded_credentials: "CWE-798"
   cvss_mapping:
     # Default CVSS v3.1 base scores — used only as fallback; NVD per-CVE scores override these
     sql_injection: 9.8
@@ -49,11 +45,9 @@ labeler:
     code_injection: 9.8
     ssrf: 7.5
     insecure_deserialization: 8.1
-    hardcoded_credentials: 9.8
-    xml_external_entity: 7.5
     command_injection_generic: 9.8
-    weak_randomness: 5.3
-    resource_exhaustion: 7.5
+    unrestricted_file_upload: 8.8
+    hardcoded_credentials: 9.8
   output_dir: "data/labeled"
 
 cvss_gradient:
