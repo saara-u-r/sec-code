@@ -1,0 +1,122 @@
+% Computers & Security (Elsevier) submission template.
+% Build: latexmk -pdf main.tex
+%
+% Submission options (Elsevier docs):
+%   review    — double-spaced, single-column (use for submission)
+%   1p / 3p / 5p — final-form column layouts (use for camera-ready)
+\documentclass[review,12pt]{elsarticle}
+
+% ---- Packages --------------------------------------------------------------
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{microtype}
+\usepackage{xspace}
+\usepackage[hidelinks]{hyperref}
+\usepackage{lineno}
+\usepackage{url}
+
+% Show line numbers during review (Elsevier requires this for the review class).
+\modulolinenumbers[5]
+
+% Path for figures.
+\graphicspath{{figs/}}
+
+\journal{Computers \& Security}
+
+% ---- Front matter ----------------------------------------------------------
+\begin{document}
+
+\begin{frontmatter}
+
+% TODO (title): pick one or replace.
+%   1. A Sink-Validated Python Vulnerability Detection Benchmark with Adversarial Robustness Probes
+%   2. PyBench: An Audit-Validated Benchmark for Python Vulnerability Detectors
+%   3. Beyond CASTLE: Diff-Anchored Label Validation for Python Vulnerability Benchmarks
+\title{A Sink-Validated Python Vulnerability Detection Benchmark with Adversarial Robustness Probes}
+
+% ---- Authors ---------------------------------------------------------------
+\author[inst1]{TODO: First Author\corref{cor1}}
+\ead{TODO@example.edu}
+\cortext[cor1]{Corresponding author}
+
+% \author[inst1]{TODO: Co-author}
+% \ead{TODO@example.edu}
+
+\affiliation[inst1]{%
+  organization={TODO: Department},%
+  addressline={TODO: street},%
+  city={TODO: city},%
+  postcode={TODO},%
+  country={TODO}}
+
+% ---- Abstract & keywords ---------------------------------------------------
+\begin{abstract}
+Most automated Python vulnerability detectors are evaluated on labels
+inherited from CVE fix commits, where empirical audits report 25--50\%
+label noise from co-changed files. The CASTLE benchmark addressed this
+for C/C++ with a hand-curated 250-program corpus and a comparative
+static-analyzer-versus-LLM study, but no comparable evaluation substrate
+exists for Python --- the dominant language for security tooling, ML
+pipelines, and modern web applications.
+
+We construct an evaluation benchmark for Python vulnerability detection
+covering seven sink-shaped MITRE Top-25 CWE classes (871 audit-validated
+positives + 429 safe hard negatives; 607 train / 127 val / 132 test after
+repo-group stratification with zero cross-split repo leakage). Labels are
+validated through a three-layer methodology: (1) a pre-ingest
+sink-presence filter rejects samples without category-defining code
+patterns; (2) a three-round adversarial audit by independent reviewers
+identifies six recurring mislabel patterns; (3) a diff-based filter
+requires the sink line itself to be modified between \texttt{code\_before}
+and \texttt{code\_after}, treating unchanged sinks as commit-level noise.
+The combined methodology reduces the audited false-positive rate from
+52\% (raw CVE-feed labels) to 26\% (after all three filters).
+
+We accompany the benchmark with four semantics-preserving adversarial
+mutators (dead-code injection, string splitting, identifier rename,
+wrapper extraction), each targeting a known detection shortcut. By
+measuring per-tool F1 drop per mutator we extend CASTLE's framing from
+``which tools detect this vulnerability'' to ``which transformations
+break which tools.''
+% TODO: insert one-line headline result once SAST and LLM evaluations
+% have been run (e.g., ``LLMs lose 19~F1 points on average to wrapper
+% extraction; SAST tools lose 33~F1 points to string splitting'').
+All dataset artifacts, audit reports, rejection manifests, and tool
+runners are released under a permissive license to support replication
+and extension.
+\end{abstract}
+
+\begin{keyword}
+vulnerability detection \sep
+benchmark \sep
+Python \sep
+label noise \sep
+adversarial robustness \sep
+static analysis \sep
+large language models
+\end{keyword}
+
+\end{frontmatter}
+
+% Line numbers on for review class.
+\linenumbers
+
+% ---- Body ------------------------------------------------------------------
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/dataset}
+\input{sections/methodology}
+\input{sections/evaluation}
+\input{sections/threats}
+\input{sections/conclusion}
+
+% ---- Bibliography ----------------------------------------------------------
+% Elsevier numbered style; switch to elsarticle-harv for author-year.
+\bibliographystyle{elsarticle-num}
+\bibliography{bib/references}
+
+\end{document}

@@ -1,0 +1,126 @@
+\section{Introduction}
+\label{sec:introduction}
+
+The bulk of automated vulnerability-detection research over the past
+five years has focused on C and C++. Recent benchmark and dataset
+efforts --- BigVul~\cite{TODO_bigvul}, CVEfixes~\cite{TODO_cvefixes},
+CrossVul~\cite{TODO_crossvul}, DiverseVul~\cite{TODO_diversevul}, and
+the recent CASTLE benchmark~\cite{TODO_castle} --- concentrate on
+memory-safety bugs, buffer overflows, and use-after-free patterns that
+dominate C-language CVE feeds. Python receives substantially less
+attention despite being the dominant language for security-critical
+infrastructure: machine-learning pipelines, scientific computing, web
+back-ends, automation tooling, and cloud-native applications. The
+vulnerability classes that matter for Python software --- SQL
+injection through ORM and DB-API patterns, deserialization of pickle
+and YAML data, code injection via \texttt{eval}/\texttt{exec},
+server-side request forgery in webhook endpoints --- are
+sink-anchored in ways the C-centric literature does not address.
+
+When researchers do build Python vulnerability datasets, they
+typically inherit labels directly from CVE fix commits --- a strategy
+known to produce 25--50\% noise from co-changed
+files~\cite{TODO_croft}. The labeled ``vulnerable'' file in a CVE fix
+is not always the actual sink site: commit boundaries cut across many
+files, and CVE descriptions rarely identify the precise line where the
+vulnerability lives. Recent audits of BigVul~\cite{TODO_croft}
+quantified this at $\approx 25\%$; informal audits of CVE-fix-derived
+data we conducted as part of this work found 52\% mislabeled positives
+in the raw, unfiltered CVE-feed corpus. Training and evaluation on
+this substrate produces models and tool comparisons that partially
+measure noise rather than detection capability.
+
+The CASTLE benchmark~\cite{TODO_castle} addressed this evaluation
+problem for C/C++ with a hand-curated 250-program corpus and a
+comparative study of fourteen static analyzers and ten large language
+models. CASTLE accepts CVE/advisory labels at face value but
+compensates with small, carefully selected samples. For Python, no
+comparable benchmark exists --- researchers fall back to either using
+CVE-fix-derived datasets with known noise, or using
+Juliet-style~\cite{TODO_juliet} synthetic samples that lack
+realistic framework idiom and surrounding application context. Both
+substrates limit what can be concluded about tool performance under
+real-world conditions. Additionally, CASTLE measures detection rates
+but does not evaluate robustness against semantics-preserving
+adversarial transformations, leaving open the question of whether
+high-scoring tools are doing genuine semantic analysis or pattern
+matching that breaks under simple rewriting.
+
+This paper introduces a Python vulnerability-detection benchmark
+covering seven sink-shaped MITRE Top-25 CWE classes (CWE-89, CWE-79,
+CWE-22, CWE-78, CWE-94, CWE-918, and CWE-502) plus a ``safe''
+hard-negative class. We address the label-noise problem with a
+three-layer validation methodology that progressively reduces the
+audited false-positive rate from 52\% to 26\% --- comparable to
+manually audited security datasets at a fraction of the human-hour
+cost. We additionally extend CASTLE's evaluation framing in two
+directions: four semantics-preserving adversarial mutators isolate
+specific detection shortcuts, and per-framework slicing (Flask /
+Django / FastAPI) exposes framework-specific gaps in static-analysis
+rule coverage. The combined benchmark, label-validation methodology,
+and adversarial-robustness probe constitute, to our knowledge, the
+first Python evaluation substrate with explicit, automated
+label-validity criteria.
+
+\paragraph{Contributions}
+\begin{itemize}
+  \item \textbf{An audit-validated Python vulnerability benchmark.}
+    1{,}300 samples (871 positives plus 429 safe hard negatives) across
+    seven sink-shaped MITRE Top-25 CWE classes, with repo-group-stratified
+    train / validation / test splits (607 / 127 / 132) and zero
+    cross-split repository leakage. Distributed with full per-sample
+    metadata, content-hash deduplication, and rejection manifests for
+    every dropped sample.
+
+  \item \textbf{A three-layer label-validation methodology.} A pre-ingest
+    sink-presence filter, a three-round adversarial audit by independent
+    reviewers, and a diff-based filter that requires the sink line to be
+    modified between \texttt{code\_before} and \texttt{code\_after}.
+    Combined, the three layers reduce audited false-positive rate from
+    52\% to 26\%. To our knowledge this is the first CVE-derived Python
+    benchmark with explicit, automated label-validity criteria; the
+    methodology is reusable across CVE-derived datasets in any language.
+
+  \item \textbf{Four semantics-preserving adversarial mutators}
+    (dead-code injection, string splitting, identifier rename, wrapper
+    extraction) with deterministic per-sample reproducibility and
+    AST-level correctness guarantees. Each mutator targets a known
+    detection shortcut. By measuring per-tool F1 drop per mutator, we
+    surface which shortcut each tool depends on --- a finer-grained
+    diagnosis than CASTLE's aggregate detection rates allow.
+
+  \item \textbf{A comparative evaluation} of $N$ static analyzers
+    (Bandit, Semgrep, CodeQL, $\ldots$) and $M$ LLM-based detectors
+    (Claude, GPT-4o, $\ldots$) across the benchmark and its
+    mutator-derived adversarial variants, reporting per-CWE F1, per-tool
+    robustness drop, and per-framework breakdowns.
+    % TODO: replace once eval is run with the headline finding —
+    % e.g., ``We find that LLMs achieve $\Delta$ F1 advantage over
+    % the best SAST baseline on clean samples, but lose $\Delta$
+    % F1 points on string-split adversarials, indicating they
+    % are not immune to surface-token reliance.''
+
+  \item \textbf{A scope justification} documenting which Top-25 CWEs
+    admit sink-anchored detection and which are structural
+    (absence-of-code) patterns that require fundamentally different
+    methodology. We argue for the explicit separation as a
+    contribution: sink-shaped CWEs admit pattern-based evaluation;
+    structural CWEs do not, and benchmarks that mix the two confound
+    detector capabilities.
+\end{itemize}
+
+The remainder of this paper is organized as follows.
+Section~\ref{sec:related} surveys vulnerability datasets, CVE-derived
+label noise studies, and the static-analysis / LLM detector landscape.
+Section~\ref{sec:dataset} describes dataset construction, sources, the
+sink-presence filter, the audit methodology, and the diff-based filter
+that together define the benchmark's labels.
+Section~\ref{sec:methodology} formalizes the evaluation methodology and
+the four adversarial mutators.
+Section~\ref{sec:evaluation} reports the comparative evaluation
+results.
+Section~\ref{sec:threats} discusses threats to validity, including the
+remaining 26\% audit residual.
+Section~\ref{sec:conclusion} summarizes findings and outlines future
+work, including the deferred structural-CWE evaluation track and
+extension to additional languages.

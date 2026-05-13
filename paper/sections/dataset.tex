@@ -1,0 +1,32 @@
+\section{Dataset Construction}
+\label{sec:dataset}
+
+% TODO: this is likely the longest section. Sub-structure:
+
+\subsection{Scope and CWE selection}
+\label{sec:dataset:scope}
+% TODO: which 12 CWEs, why these (MITRE Top 25, Python-relevant).
+
+\subsection{Sources}
+\label{sec:dataset:sources}
+% TODO: NVD, OSV, GHSA / pypa advisory db, cvefixes, static miners.
+% Per-source table: name, retrieval method, raw count.
+
+\subsection{Schema}
+\label{sec:dataset:schema}
+% TODO: 46-field schema overview. Cite FIELD_JUSTIFICATION for the per-field
+% literature backing. Reference Table~\ref{tab:schema} when you make it.
+
+\subsection{Label quality controls}
+\label{sec:dataset:quality}
+% TODO: this is the methodology contribution. Cover:
+%   (a) audit findings that motivated the filter (CWE-94 / CWE-502 audit).
+%   (b) pre-ingest sink-presence filter.
+%   (c) line-proximity security-context check (CWE-330 / CWE-798).
+%   (d) per-CVE cap to limit single-incident clustering.
+%   (e) stratified train/val/test split.
+
+\subsection{Final composition}
+\label{sec:dataset:final}
+% TODO: per-CWE table of clean counts + split sizes. Reference
+% Table~\ref{tab:per-cwe-counts} once built.

@@ -1,0 +1,21 @@
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{Model architecture}
+\label{sec:method:arch}
+% TODO: GraphCodeBERT backbone, dual-task head (CWE classification + binary
+% vulnerable/safe), reference src/model/graphcodebert_dualtask.py.
+
+\subsection{Loss and optimization}
+\label{sec:method:loss}
+% TODO: class-weighted loss, SAM optimizer, schedule (warmup + phase A + B).
+
+\subsection{Hard negatives and augmentation}
+\label{sec:method:augmentation}
+% TODO: Phase 2.5 hard-negative mining (sanitizer-transformed positives) and
+% red-team mutators. Cite PHASE2_5_AUGMENTATION_DESIGN.md material.
+
+\subsection{Training protocol}
+\label{sec:method:training}
+% TODO: stratified split, seeds, hardware (V100), runtime, reproducibility
+% knobs.
