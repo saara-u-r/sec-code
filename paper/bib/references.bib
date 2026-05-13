@@ -1,19 +1,271 @@
 % Bibliography for the Computers & Security submission.
 % Style: elsarticle-num (Vancouver numbered).
 %
-% Examples of the entry types you will most often need below — uncomment and
-% fill in. Keep keys short and stable (firstauthor:year:shortword).
-%
-% @article{croft:2023:noise,
-%   author  = {Croft, Roland and Babar, M. Ali and Kholoosi, M. Mehdi},
-%   title   = {Data quality for software vulnerability datasets},
-%   journal = {ICSE},
-%   year    = {2023}
-% }
-%
-% @inproceedings{guo:2021:graphcodebert,
-%   author    = {Guo, Daya and Ren, Shuo and Lu, Shuai and Feng, Zhangyin and Tang, Duyu and Liu, Shujie and Zhou, Long and Duan, Nan and Svyatkovskiy, Alexey and Fu, Shengyu and Tufano, Michele and Deng, Shao Kun and Clement, Colin and Drain, Dawn and Sundaresan, Neel and Yin, Jian and Jiang, Daxin and Zhou, Ming},
-%   title     = {Graph{C}ode{BERT}: Pre-training Code Representations with Data Flow},
-%   booktitle = {ICLR},
-%   year      = {2021}
-% }
+% Keys are stable and match \cite{...} usage in the .tex files.
+% Entries flagged with "% TODO_VERIFY" need volume/pages/DOI confirmation
+% before final submission.
+
+% ============================================================================
+% MITRE / Standards / Tools
+% ============================================================================
+
+@misc{TODO_mitre_top25,
+  author = {{MITRE Corporation}},
+  title  = {{CWE Top 25 Most Dangerous Software Weaknesses}},
+  year   = 2024,
+  note   = {\url{https://cwe.mitre.org/top25/}}
+}
+
+@misc{TODO_bandit,
+  author = {{PyCQA}},
+  title  = {Bandit: a security linter for {P}ython},
+  year   = 2024,
+  note   = {\url{https://bandit.readthedocs.io/}}
+}
+
+@misc{TODO_semgrep,
+  author = {{Semgrep, Inc.}},
+  title  = {Semgrep: lightweight static analysis for many languages},
+  year   = 2024,
+  note   = {\url{https://semgrep.dev/}}
+}
+
+@misc{TODO_codeql,
+  author = {{GitHub, Inc.}},
+  title  = {{CodeQL}: semantic code analysis},
+  year   = 2024,
+  note   = {\url{https://codeql.github.com/}}
+}
+
+@misc{TODO_pylint,
+  author = {{Pylint contributors}},
+  title  = {Pylint: a static code analyzer for {P}ython},
+  year   = 2024,
+  note   = {\url{https://pylint.readthedocs.io/}}
+}
+
+@misc{TODO_juliet,
+  author = {{National Institute of Standards and Technology}},
+  title  = {Juliet Test Suite for {P}ython, {C}/{C}++, and {J}ava},
+  year   = 2017,
+  note   = {\url{https://samate.nist.gov/SARD/test-suites}}
+}
+
+% ============================================================================
+% Vulnerability datasets
+% ============================================================================
+
+@inproceedings{TODO_bigvul,
+  author    = {Fan, Jiahao and Li, Yi and Wang, Shaohua and Nguyen, Tien N.},
+  title     = {A {C}/{C}++ Code Vulnerability Dataset with Code Changes and {CVE} Summaries},
+  booktitle = {Proceedings of the 17th International Conference on Mining Software Repositories (MSR '20)},
+  year      = 2020,
+  pages     = {508--512},
+  publisher = {ACM},
+  doi       = {10.1145/3379597.3387501}
+}
+
+@inproceedings{TODO_cvefixes,
+  author    = {Bhandari, Guru and Naseer, Amara and Moonen, Leon},
+  title     = {{CVEfixes}: automated collection of vulnerabilities and their fixes from open-source software},
+  booktitle = {Proceedings of the 17th International Conference on Predictive Models and Data Analytics in Software Engineering (PROMISE '21)},
+  year      = 2021,
+  pages     = {30--39},
+  publisher = {ACM},
+  doi       = {10.1145/3475960.3475985}
+}
+
+@inproceedings{TODO_crossvul,
+  author    = {Nikitopoulos, Georgios and Dritsa, Konstantina and Louridas, Panos and Mitropoulos, Dimitris},
+  title     = {{CrossVul}: a cross-language vulnerability dataset with commit data},
+  booktitle = {Proceedings of the 29th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE '21)},
+  year      = 2021,
+  pages     = {1565--1569},
+  publisher = {ACM},
+  doi       = {10.1145/3468264.3473122}
+}
+
+@inproceedings{TODO_diversevul,
+  author    = {Chen, Yizheng and Ding, Yuhan and Alowain, Lukas and Chen, Xueying and Wagner, David},
+  title     = {{DiverseVul}: a new vulnerable source code dataset for deep learning based vulnerability detection},
+  booktitle = {Proceedings of the 26th International Symposium on Research in Attacks, Intrusions and Defenses (RAID '23)},
+  year      = 2023,
+  pages     = {654--668},
+  publisher = {ACM},
+  doi       = {10.1145/3607199.3607242}
+}
+
+@inproceedings{TODO_devign,
+  author    = {Zhou, Yaqin and Liu, Shangqing and Siow, Jingkai and Du, Xiaoning and Liu, Yang},
+  title     = {{Devign}: effective vulnerability identification by learning comprehensive program semantics via graph neural networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = 2019,
+  pages     = {10197--10207}
+}
+
+@article{TODO_reveal,
+  author  = {Chakraborty, Saikat and Krishna, Rahul and Ding, Yangruibo and Ray, Baishakhi},
+  title   = {Deep learning based vulnerability detection: are we there yet?},
+  journal = {IEEE Transactions on Software Engineering},
+  year    = 2022,
+  volume  = 48,
+  number  = 9,
+  pages   = {3280--3296},
+  doi     = {10.1109/TSE.2021.3087402}
+}
+
+@article{TODO_reveal_critique,
+  author  = {Chakraborty, Saikat and Krishna, Rahul and Ding, Yangruibo and Ray, Baishakhi},
+  title   = {Deep learning based vulnerability detection: are we there yet?},
+  journal = {IEEE Transactions on Software Engineering},
+  year    = 2022,
+  volume  = 48,
+  number  = 9,
+  pages   = {3280--3296},
+  note    = {Same paper as TODO\_reveal; cited separately for the
+             commit-level-mislabel critique discussion.}
+}
+
+@inproceedings{TODO_linevul,
+  author    = {Fu, Michael and Tantithamthavorn, Chakkrit},
+  title     = {{LineVul}: a transformer-based line-level vulnerability prediction},
+  booktitle = {Proceedings of the 19th International Conference on Mining Software Repositories (MSR '22)},
+  year      = 2022,
+  pages     = {608--620},
+  publisher = {IEEE}
+}
+
+@inproceedings{TODO_d2a,
+  author    = {Zheng, Yunhui and Pujar, Saurabh and Burdet, Bryan and Buratti, Luca and Epstein, Edward and Yang, Bo and Lewis, Jim and Zhang, Carl and Farchi, Eitan},
+  title     = {{D2A}: a dataset built for {AI}-based vulnerability detection methods using differential analysis},
+  booktitle = {2021 IEEE/ACM 43rd International Conference on Software Engineering: Software Engineering in Practice (ICSE-SEIP)},
+  year      = 2021,
+  pages     = {111--120},
+  publisher = {IEEE},
+  doi       = {10.1109/ICSE-SEIP52600.2021.00020}
+}
+
+@inproceedings{TODO_vudenc,
+  author    = {Wartschinski, Laura and Noller, Yannic and Vogel, Thomas and Kehrer, Timo and Grunske, Lars},
+  title     = {{VUDENC}: vulnerability detection with deep learning on a natural codebase for {P}ython},
+  booktitle = {Information and Software Technology},
+  year      = 2022,
+  volume    = 144,
+  pages     = {106809},
+  doi       = {10.1016/j.infsof.2021.106809}
+}
+
+% ============================================================================
+% Label quality and dataset criticism
+% ============================================================================
+
+@inproceedings{TODO_croft,
+  author    = {Croft, Roland and Babar, M. Ali and Kholoosi, M. Mehdi},
+  title     = {Data quality for software vulnerability datasets},
+  booktitle = {Proceedings of the 45th International Conference on Software Engineering (ICSE '23)},
+  year      = 2023,
+  pages     = {121--133},
+  publisher = {IEEE},
+  doi       = {10.1109/ICSE48619.2023.00022}
+}
+
+% ============================================================================
+% Models
+% ============================================================================
+
+@inproceedings{TODO_graphcodebert,
+  author    = {Guo, Daya and Ren, Shuo and Lu, Shuai and Feng, Zhangyin and Tang, Duyu and Liu, Shujie and Zhou, Long and Duan, Nan and Svyatkovskiy, Alexey and Fu, Shengyu and Tufano, Michele and Deng, Shao Kun and Clement, Colin and Drain, Dawn and Sundaresan, Neel and Yin, Jian and Jiang, Daxin and Zhou, Ming},
+  title     = {{GraphCodeBERT}: pre-training code representations with data flow},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = 2021
+}
+
+@inproceedings{TODO_codebert,
+  author    = {Feng, Zhangyin and Guo, Daya and Tang, Duyu and Duan, Nan and Feng, Xiaocheng and Gong, Ming and Shou, Linjun and Qin, Bing and Liu, Ting and Jiang, Daxin and Zhou, Ming},
+  title     = {{CodeBERT}: a pre-trained model for programming and natural languages},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2020},
+  year      = 2020,
+  pages     = {1536--1547}
+}
+
+% ============================================================================
+% Benchmarks for tool evaluation
+% ============================================================================
+
+@inproceedings{TODO_castle,
+  author    = {Dubniczky, R. A. and {et al.}},
+  title     = {{CASTLE}: a benchmark for {SAST} and {LLM} evaluation on {C}/{C}++ programs},
+  booktitle = {{TODO\_VERIFY: venue and pages}},
+  year      = 2025,
+  note      = {TODO\_VERIFY: exact citation details}
+}
+
+% ============================================================================
+% LLM evaluations for vulnerability detection
+% ============================================================================
+
+@misc{TODO_khare_llm,
+  author = {Khare, Avishree and Dutta, Saikat and Li, Ziyang and Solko-Breslin, Alaia and Alur, Rajeev and Naik, Mayur},
+  title  = {Understanding the effectiveness of large language models in detecting security vulnerabilities},
+  year   = 2023,
+  note   = {arXiv:2311.16169}
+}
+
+@inproceedings{TODO_steenhoek,
+  author    = {Steenhoek, Benjamin and Rahman, Md Mahbubur and Roy, Monoshi Kumar and Alam, Mirza Sanjida and Barr, Earl T. and Le, Wei},
+  title     = {A comprehensive study of the capabilities of large language models for vulnerability detection},
+  booktitle = {{TODO\_VERIFY: venue}},
+  year      = 2024,
+  note      = {arXiv:2403.17218; TODO\_VERIFY exact venue}
+}
+
+% ============================================================================
+% Adversarial robustness for code models
+% ============================================================================
+
+@article{TODO_yefet,
+  author  = {Yefet, Noam and Alon, Uri and Yahav, Eran},
+  title   = {Adversarial examples for models of code},
+  journal = {Proceedings of the ACM on Programming Languages (OOPSLA)},
+  year    = 2020,
+  volume  = 4,
+  pages   = {1--30},
+  doi     = {10.1145/3428230}
+}
+
+@inproceedings{TODO_bielik,
+  author    = {Bielik, Pavol and Vechev, Martin},
+  title     = {Adversarial robustness for code},
+  booktitle = {Proceedings of the 37th International Conference on Machine Learning (ICML)},
+  year      = 2020,
+  pages     = {896--907}
+}
+
+@inproceedings{TODO_henkel,
+  author    = {Henkel, Jordan and Ramakrishnan, Goutham and Wang, Zi and Albarghouthi, Aws and Jha, Somesh and Reps, Thomas},
+  title     = {Semantic robustness of models of source code},
+  booktitle = {2022 IEEE International Conference on Software Analysis, Evolution and Reengineering (SANER)},
+  year      = 2022,
+  pages     = {526--537},
+  publisher = {IEEE}
+}
+
+% ============================================================================
+% Misc / cited in passing
+% ============================================================================
+
+@misc{TODO_juliet_limits,
+  author = {{TODO\_VERIFY}: pick one of the Juliet-transferability papers},
+  title  = {Limitations of synthetic vulnerability benchmarks},
+  year   = 2023,
+  note   = {TODO: cite e.g. Chakraborty et al.'s discussion of Juliet limitations
+            in their ReVeal evaluation, or replace with a more direct citation.}
+}
+
+@misc{TODO_classification_eval_caps,
+  author = {{TODO}: pick a multi-class classification eval methodology citation},
+  title  = {Practical limits on multi-class classification evaluation},
+  year   = 2020,
+  note   = {TODO: justify the ``10-label cap'' claim with a concrete reference
+            (Sokolova \& Lapalme 2009 on classification metrics, or similar).}
+}
