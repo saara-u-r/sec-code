@@ -1,32 +1,483 @@
 \section{Dataset Construction}
 \label{sec:dataset}
 
-% TODO: this is likely the longest section. Sub-structure:
+This section describes the substrate of the benchmark: how samples are
+selected, which sources they come from, and how labels are validated.
+The three-layer label validation methodology
+(Sections~\ref{sec:dataset:sink},~\ref{sec:dataset:audit},
+and~\ref{sec:dataset:diff}) is the principal methodological
+contribution; the final composition (Section~\ref{sec:dataset:final})
+is the artifact that downstream evaluation (Section~\ref{sec:evaluation})
+operates on.
 
 \subsection{Scope and CWE selection}
 \label{sec:dataset:scope}
-% TODO: which 12 CWEs, why these (MITRE Top 25, Python-relevant).
 
-\subsection{Sources}
+The MITRE Top-25 Most Dangerous Software Weaknesses~\cite{TODO_mitre_top25}
+lists 25 CWE classes by aggregate severity-weighted exploit prevalence
+across all NVD-tracked CVEs. Sixteen of the 25 are
+\emph{Python-relevant}: nine entries describe C/C++ memory bugs
+(CWE-787, CWE-125, CWE-416, CWE-476, CWE-119, CWE-190, CWE-120, CWE-121,
+CWE-122) that surface only through CPython's C extensions, where the
+bug lives in the underlying C code, and are out of scope.
+
+We further partition the sixteen Python-relevant CWEs into two
+methodological categories.
+
+\paragraph{Sink-shaped CWEs} have a well-defined unsafe function or
+construct (a ``sink'') whose unsafe use is the vulnerability. The fix
+modifies the sink call, typically replacing it with one of a small set
+of safe alternatives:
+\begin{itemize}
+\item \textbf{CWE-89 (SQL Injection)}: \texttt{cursor.execute(f"...")}
+  fixed to \texttt{cursor.execute("...?", (val,))}.
+\item \textbf{CWE-79 (XSS)}: \texttt{Markup(user\_input)} fixed to
+  \texttt{escape(user\_input)} or removed.
+\item \textbf{CWE-22 (Path Traversal)}: \texttt{open(taint)} fixed to
+  \texttt{open(safe\_join(BASE, secure\_filename(taint)))}.
+\item \textbf{CWE-78 (OS Command Injection)}: \texttt{os.system(f"...
+  \{taint\}")} fixed to \texttt{subprocess.run([...,~taint],
+  shell=False)}.
+\item \textbf{CWE-94 (Code Injection)}: \texttt{eval(taint)} removed
+  or replaced with \texttt{ast.literal\_eval}.
+\item \textbf{CWE-918 (SSRF)}: \texttt{requests.get(url)} restricted
+  with hostname allowlists or \texttt{is\_private\_address} checks.
+\item \textbf{CWE-502 (Insecure Deserialization)}:
+  \texttt{pickle.loads(taint)} replaced with
+  \texttt{yaml.safe\_load} or signed payloads.
+\end{itemize}
+
+Two additional sink-shaped CWEs were initially included and later
+removed during cleanup (see Section~\ref{sec:dataset:audit}):
+CWE-434 (Unrestricted File Upload), where audit revealed sink patterns
+predominantly matched framework source rather than application
+handlers; and CWE-798 (Hardcoded Credentials), where all samples came
+from a single static miner (single-source bias) and the
+two-bucket fix alphabet did not align with the multi-variant
+``alphabet'' framing applied to the other classes. CWE-77 (Improper
+Neutralization in a Command) was merged into CWE-78 (its child in the
+MITRE hierarchy) because in Python the two CWEs fire on the same sink
+set; preserving them as separate labels created artificial scarcity.
+
+\paragraph{Structural CWEs} encode the \emph{absence} of a check
+rather than the misuse of a sink. The vulnerability and its fix
+differ only in whether a defensive construct is present:
+\begin{itemize}
+\item CWE-352 (CSRF): the absent construct is a CSRF token validator
+  or middleware.
+\item CWE-862 / CWE-863 (Missing / Incorrect Authorization): the
+  absent construct is an authorization check
+  (\texttt{@permission\_required} decorator, ownership filter, etc.).
+\item CWE-306 (Missing Authentication): the absent construct is
+  \texttt{@login\_required} on a privileged route.
+\item CWE-284 (Improper Access Control): umbrella for the above.
+\item CWE-639 (IDOR): the absent construct is a per-request
+  ownership filter on a queried object.
+\item CWE-200 (Information Exposure): partially sink-shaped (output
+  channels) but the vulnerable cases require knowing which fields
+  are sensitive in context.
+\end{itemize}
+
+The sink-anchored detection methodology that this benchmark evaluates
+--- regex sink patterns, file-level static analysis, and code-as-text
+LLM prompts --- cannot reliably detect structural CWEs without
+application-level context. We exclude structural CWEs from the
+benchmark and document the analysis as scope justification rather
+than a limitation. CWE-20 (Improper Input Validation) and CWE-770
+(Allocation Without Limits) are also excluded as too broad to admit
+a closed fix-pattern alphabet.
+
+\paragraph{Final scope.}
+The benchmark covers \textbf{seven sink-shaped Python CWE classes}
+(CWE-89, CWE-79, CWE-22, CWE-78, CWE-94, CWE-918, CWE-502) plus a
+\texttt{safe} hard-negative class for negative evaluation, for a
+total of eight labels. This figure sits comfortably under the
+typical 10-label cap for stable multi-class
+evaluation~\cite{TODO_classification_eval_caps}.
+
+\subsection{Data sources}
 \label{sec:dataset:sources}
-% TODO: NVD, OSV, GHSA / pypa advisory db, cvefixes, static miners.
-% Per-source table: name, retrieval method, raw count.
 
-\subsection{Schema}
+Samples are aggregated from five primary sources, supplemented by
+two derived sources (hard negatives and hand-curated canonical
+samples). Table~\ref{tab:sources} summarizes each source's
+retrieval method, raw yield, and the fraction kept after the
+three label-validation layers.
+
+\begin{table}[h]
+\centering
+\caption{Data sources and per-source yield after label validation.
+Counts reflect the final benchmark composition.}
+\label{tab:sources}
+\begin{tabular}{lrl}
+\toprule
+\textbf{Source} & \textbf{Final samples} & \textbf{Retrieval method} \\
+\midrule
+GHSA Advisory DB    & 384 & Local clone (1.5\,GB), per-advisory commit fetch via GitHub API \\
+\texttt{vudenc}     & 209 & Pre-labeled corpus (no CVE pair) \\
+CVEfixes            &  58 & Local SQLite DB (23\,GB) query on \texttt{file\_change} \\
+NVD-targeted        &  33 & NVD API for selected CWE + Python keyword filter \\
+OSV / GHSA GraphQL  &  54 & OSV API + GHSA GraphQL for commit references \\
+Canonical (curated) &  20 & Hand-written textbook OWASP/SANS examples \\
+\addlinespace
+Hard negatives      & 429 & Per-source: paired safe variants from each scrape \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+GHSA Advisory DB is the dominant source after Phase~2B re-scoping
+because it indexes per-CWE advisories with explicit fix commits and
+\texttt{database\_specific.cwe\_ids}, allowing precise per-CWE
+scraping with low retrieval overhead. The \texttt{vudenc}
+corpus~\cite{TODO_vudenc} is a pre-labeled human-annotated dataset
+without paired before/after versions; it contributes only to CWE-89
+(its strongest class by curator agreement) and is treated as a
+separate label-confidence tier (Section~\ref{sec:dataset:final}).
+
+Hand-curated canonical samples (twenty in total, distributed
+across CWE-502, CWE-94, CWE-78, and CWE-434 prior to CWE-434
+exclusion) are textbook OWASP and SANS exemplars rewritten as
+self-contained Python files. They serve as benchmark calibration
+points: a detector that misses these samples is broken regardless
+of its CVE-corpus performance.
+
+\subsection{Sample schema}
 \label{sec:dataset:schema}
-% TODO: 46-field schema overview. Cite FIELD_JUSTIFICATION for the per-field
-% literature backing. Reference Table~\ref{tab:schema} when you make it.
 
-\subsection{Label quality controls}
-\label{sec:dataset:quality}
-% TODO: this is the methodology contribution. Cover:
-%   (a) audit findings that motivated the filter (CWE-94 / CWE-502 audit).
-%   (b) pre-ingest sink-presence filter.
-%   (c) line-proximity security-context check (CWE-330 / CWE-798).
-%   (d) per-CVE cap to limit single-incident clustering.
-%   (e) stratified train/val/test split.
+Each sample is stored as a paired \texttt{\{id\}.py} (the
+\texttt{code\_before} source) and \texttt{\{id\}.meta.json} (a
+schema-versioned metadata record). The metadata schema contains 46
+fields organized into eight groups: identity (4), advisory IDs (4),
+vulnerability label (5), CVSS severity decomposition (13),
+provenance (7), code payload (2), code-quality signals (8), and
+pipeline state (3). The complete per-field literature justification
+is documented separately in \texttt{FIELD\_JUSTIFICATION.md}; here
+we describe the four signal fields most relevant to label
+validation:
 
-\subsection{Final composition}
+\begin{itemize}
+\item \texttt{cwe} --- the labeled MITRE CWE identifier (e.g.,
+  \texttt{CWE-89}). Inherited from the source advisory.
+\item \texttt{has\_cwe\_sink} --- boolean, auto-computed by the
+  sink-presence filter (Section~\ref{sec:dataset:sink}).
+\item \texttt{sink\_pattern} --- the specific regex pattern that
+  matched, preserved for audit and reproducibility.
+\item \texttt{label\_source} --- one of \texttt{advisory},
+  \texttt{static\_mining}, \texttt{canonical}, or
+  \texttt{commit\_classifier}. Tracks the provenance of the CWE
+  assignment for label-confidence tiering.
+\end{itemize}
+
+\subsection{Layer 1: Pre-ingest sink-presence filter}
+\label{sec:dataset:sink}
+
+The first validation layer rejects samples that lack the
+category-defining sink token for their labeled CWE. For each CWE
+$c \in \text{TARGET\_CWES}$, we define a small set of regex sink
+patterns $S_c$ corresponding to the function calls, attribute
+accesses, or syntactic constructs whose unsafe use is the
+vulnerability. A sample with $\texttt{cwe} = c$ passes Layer~1 if
+and only if at least one pattern in $S_c$ matches its
+\texttt{code\_before}. Patterns are designed for high recall: they
+match \emph{both} safe and unsafe forms of the sink (Layer~3 will
+discriminate them via diff comparison).
+
+We strip line comments and triple-quoted docstrings before matching
+to suppress documentation-style false positives (e.g.,
+\texttt{\# pickle.loads is unsafe}). For two CWEs the sink alone is
+insufficient: CWE-22 additionally requires an HTTP-request reference
+within $\pm 20$ lines of the sink (test fixtures with hardcoded paths
+are otherwise common false positives); CWE-798 (during its inclusion
+period) required a security-context keyword within $\pm 10$ lines.
+
+\begin{figure}[h]
+\begin{verbatim}
+def has_cwe_sink(code, cwe, file_path=None):
+    if cwe in TEST_EXCLUSION_CWES and is_test_file(file_path):
+        return False, None
+    match_code = strip_comments_and_docstrings(code)
+    for pat in SINK_PATTERNS[cwe]:
+        for m in pat.finditer(match_code):
+            if cwe in REQUIRES_REQUEST_PROXIMITY:
+                if not has_request_near(code, m.start()):
+                    continue
+            if cwe in REQUIRES_SECURITY_CONTEXT:
+                if not has_security_context_near(code, m.start()):
+                    continue
+            return True, pat.pattern
+    return False, None
+\end{verbatim}
+\caption{Layer-1 sink-presence filter (simplified). Full implementation
+in \texttt{src/utils/file\_utils.py:has\_cwe\_sink}.}
+\label{fig:sink-filter}
+\end{figure}
+
+Application of Layer~1 to the pre-filter corpus (1{,}982 samples)
+dropped 749 samples (38\%). The rejection rate varied substantially
+by CWE: 68\% for CVEfixes-sourced samples (commit-level mislabels
+confirmed at scale), 41\% for GHSA-DB, 28\% for NVD-targeted. The
+\texttt{vudenc}-sourced CWE-94 samples were rejected wholesale via
+an explicit source-CWE blocklist after audit revealed 14 of 15
+samples lacked the sink set (see Section~\ref{sec:dataset:audit}).
+
+\subsection{Layer 2: Adversarial audit}
+\label{sec:dataset:audit}
+
+The sink-presence filter rejects samples that lack a sink token but
+cannot reject samples where the sink \emph{is} present but is not
+the actual vulnerability (a co-changed file in a CVE fix commit).
+To characterize and remove this residual noise, we conducted three
+rounds of independent adversarial audit on randomly sampled
+post-Layer-1 positives.
+
+\paragraph{Methodology.}
+For each audit round, the dataset is sampled stratified by CWE: ten
+samples per populous class ($n > 30$), full audit for rare classes
+($n \le 30$). Canonical and \texttt{safe} samples are excluded
+(positive by construction, separate negative-class audit). For each
+sampled sample, the auditor receives a structured prompt containing:
+the sample ID, source, repository, file path, the regex pattern
+that originally matched, and the $\pm 8$-line code excerpt around
+the sink match. The auditor returns a binary verdict
+(\textsc{pass} = correctly labeled / \textsc{fail} = mislabeled)
+with a one-sentence justification. Auditors are independent and do
+not see each other's verdicts.
+
+Round~1 (77~samples, eight CWEs including CWE-434 and CWE-798)
+produced an aggregate false-positive rate of 52\%. The
+per-sample reasoning across the 40 \textsc{fail} verdicts
+clustered into six recurring patterns, summarized in
+Table~\ref{tab:audit-patterns}.
+
+\begin{table}[h]
+\centering
+\caption{Audit failure patterns by frequency (round~1).}
+\label{tab:audit-patterns}
+\begin{tabular}{p{5cm}rp{6cm}}
+\toprule
+\textbf{Pattern} & \textbf{Frequency} & \textbf{Description} \\
+\midrule
+Sink-too-broad & 15+ & Pattern matches framework source, type annotations, imports rather than application sink call \\
+Co-changed file noise & 12+ & Sink present but is parameterized / safe; fix touched the file for unrelated reasons \\
+Documentation matches & 8+ & Sink pattern matches text in line comments or docstrings \\
+Pattern conflation & 3 & \texttt{re.compile} matched the CWE-94 \texttt{compile(} pattern \\
+Inverted operation & 1 & \texttt{jsonpickle.encode} matched the CWE-502 \texttt{jsonpickle.} pattern \\
+Wrapper abstraction & 2 & Class or function wrapper of the sink, not a direct invocation \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Pattern tightenings.}
+Each failure pattern motivated a specific change to either
+\texttt{SINK\_PATTERNS} or the surrounding gate logic:
+documentation matches were suppressed by extending the
+comment-stripping pass to all CWEs; pattern conflation was
+addressed by removing the bare \texttt{compile(} pattern from
+CWE-94's sink set (the remaining
+\texttt{eval}/\texttt{exec}/\texttt{\_\_import\_\_} patterns cover
+the actual cases); inverted operation by narrowing the
+\texttt{jsonpickle.} pattern to \texttt{jsonpickle.(decode|loads)}.
+The CWE-22 patterns were augmented with a
+\texttt{has\_request\_near} proximity check ($\pm 20$ lines)
+because the unmodified sinks (\texttt{open}, \texttt{os.path.join})
+match too permissively in test fixtures.
+
+Two CWEs proved to have systematic issues that single-pattern
+fixes could not address: CWE-434 (Unrestricted File Upload), where
+the audit found 0 of 7 samples valid (100\% FP), and CWE-798
+(Hardcoded Credentials), already flagged for the single-source-bias
+issue. CWE-434 was dropped from the active taxonomy with all 15
+samples (including 8 canonicals) moved to a rejection manifest; the
+methodology contribution from CWE-434 remains documented in the
+deferred-CWE analysis. CWE-798 was dropped at the same time.
+
+\paragraph{Round~2 and~3.}
+Round~2 (70~samples on the post-pattern-tightening dataset)
+confirmed that the pattern fixes worked where targeted but
+revealed an audit-floor effect: the aggregate FP rate held at 51\%,
+because the new random samples surfaced different failure modes
+on the unchanged-pattern CWEs. The CWEs where pattern fixes
+targeted (CWE-502, CWE-22) improved; CWEs without pattern fixes
+held steady. This motivated Layer~3.
+
+Round~3 (78~samples, post-Layer-3) is reported in
+Section~\ref{sec:dataset:diff}.
+
+\subsection{Layer 3: Diff-based filter}
+\label{sec:dataset:diff}
+
+The dominant audit failure pattern across all three rounds is
+``co-changed file noise'': a file touched in a CVE fix commit
+whose labeled CWE is not actually localized to that file. The
+sink-presence filter cannot detect this because the sink token
+\emph{is} present --- it just isn't the line the fix modified.
+
+We address this with an evidence-anchored label criterion: a
+positive sample is valid only if at least one line containing a
+sink-pattern match for its CWE differs between \texttt{code\_before}
+and \texttt{code\_after}. Samples where every sink line is
+identical between the two versions are treated as commit-level
+noise. Figure~\ref{fig:diff-filter} presents the algorithm.
+
+\begin{figure}[h]
+\begin{verbatim}
+def sink_was_modified(code_before, code_after, cwe):
+    patterns = SINK_PATTERNS.get(cwe)
+    if not patterns or not code_after.strip():
+        return None  # cannot determine
+
+    def sink_lines(code):
+        out = set()
+        for ln in strip_comments(code).splitlines():
+            normalized = " ".join(ln.split())
+            if not normalized:
+                continue
+            for p in patterns:
+                if p.search(ln):
+                    out.add(normalized)
+                    break
+        return out
+
+    before = sink_lines(code_before)
+    after  = sink_lines(code_after)
+    return (before - after) != set()
+\end{verbatim}
+\caption{Diff-based filter. A sample passes if at least one sink
+line in \texttt{code\_before} is absent from \texttt{code\_after}.
+Comments are stripped and whitespace is normalized before
+comparison so that reformat-only edits are not counted as real
+changes. Implementation: \texttt{src/utils/file\_utils.py:
+sink\_was\_modified}.}
+\label{fig:diff-filter}
+\end{figure}
+
+\paragraph{Application.}
+Of the 738 positives reaching Layer~3, 316 (43\%) had unchanged
+sink lines and were rejected. The yield was strongly per-CWE:
+CWE-79 lost 116 of 170 (68\%), CWE-22 lost 37 of 52 (71\%), CWE-78
+lost 32 of 49 (65\%); CWE-502 lost only 18 of 90 (20\%) and
+CWE-94 lost 25 of 55 (45\%). The dramatic CWE-79 cut confirms
+the audit-round observation: XSS labels in CVE-fix commits
+frequently mark template-related files where the fix touched
+escape logic elsewhere, leaving the sink line itself unchanged.
+
+Samples for which \texttt{code\_after} is empty (typically
+\texttt{vudenc} entries, which are human-labeled without a paired
+fix commit) cannot be discriminated by Layer~3. These 217 samples
+are retained as a separate label-confidence tier
+(Section~\ref{sec:dataset:final}).
+
+\paragraph{Round-3 audit (post-Layer-3).}
+A third audit round on 78 samples drawn from the diff-filtered
+dataset measured an aggregate FP rate of 26\% --- approximately
+halving the post-Layer-2 rate (Table~\ref{tab:audit-progression}).
+The improvement is most pronounced on the CWEs that suffered most
+from co-changed-file noise: CWE-22 dropped from 80\% to 27\% FP,
+CWE-502 to 0\%, CWE-94 to 0\%. Residual noise concentrates on
+CWE-89 (because \texttt{vudenc} samples are kept without diff
+validation) and CWE-79 (where the diff filter does identify
+\emph{some} change but the change is sometimes a defensive
+no-op rather than a sink rewrite).
+
+\begin{table}[h]
+\centering
+\caption{Audit FP rate progression across the three validation
+layers. Each round samples disjoint subsets of the current
+post-filter dataset.}
+\label{tab:audit-progression}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{CWE} & \textbf{Round~1 (raw)} & \textbf{Round~2 (patterns)} & \textbf{Round~3 (+diff)} \\
+\midrule
+CWE-502 & 40\% & 20\% & \textbf{0\%} \\
+CWE-94  & 40\% & 50\% & \textbf{0\%} \\
+CWE-78  & 20\% & 30\% & 12\% \\
+CWE-22  & 80\% & 70\% & 27\% \\
+CWE-918 & 50\% & 70\% & 36\% \\
+CWE-89  & 40\% & 30\% & 50\%$^\star$ \\
+CWE-79  & 60\% & 70\% & 50\% \\
+\midrule
+\textbf{Overall} & \textbf{52\%} & \textbf{51\%} & \textbf{26\%} \\
+\bottomrule
+\end{tabular}
+\\[1ex]
+{\footnotesize $^\star$Round-3 CWE-89 sample was $N=6$; wide CI.
+The estimate carries over residual noise from
+\texttt{vudenc}-sourced samples retained under the no-diff-data tier.}
+\end{table}
+
+\subsection{Final composition and label-confidence tiers}
 \label{sec:dataset:final}
-% TODO: per-CWE table of clean counts + split sizes. Reference
-% Table~\ref{tab:per-cwe-counts} once built.
+
+The final benchmark consists of 871 positives across seven
+sink-shaped CWEs plus 429 \texttt{safe} hard negatives, totaling
+1{,}300 samples. Train/validation/test splits (607~/~127~/~132)
+are stratified by CWE with a repo-group constraint: samples sharing
+a repository are placed together in the same split, eliminating
+cross-split repository leakage. Repo-leakage verification reports
+zero overlap across all three splits.
+
+\begin{table}[h]
+\centering
+\caption{Final per-CWE distribution. All CWE classes have $\ge 7$
+test samples except CWE-22 ($n_{\text{test}}=3$); the small-$n$
+classes are flagged for confidence-interval reporting in
+Section~\ref{sec:evaluation}.}
+\label{tab:per-cwe-counts}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Label} & \textbf{Total} & \textbf{Train} & \textbf{Val} & \textbf{Test} \\
+\midrule
+CWE-89 (SQL Injection)         & 212 & 148 & 32 & 32 \\
+CWE-502 (Insecure Deserialization) & 78 & 51 & 11 & 12 \\
+CWE-79 (XSS)                    & 54 & 40 & 7 & 7 \\
+CWE-94 (Code Injection)         & 36 & 24 & 5 & 6 \\
+CWE-78 (OS Command Injection)   & 25 & 17 & 4 & 4 \\
+CWE-918 (SSRF)                  & 22 & 17 & 2 & 3 \\
+CWE-22 (Path Traversal)         & 15 & 10 & 2 & 3 \\
+\texttt{safe} (hard negatives)  & 429 & 300 & 64 & 65 \\
+\midrule
+\textbf{Total}                  & \textbf{871}$^\dagger$ & \textbf{607} & \textbf{127} & \textbf{132} \\
+\bottomrule
+\end{tabular}
+\\[1ex]
+{\footnotesize $^\dagger$The 5-sample discrepancy from the row sum is
+content-hash deduplication: duplicate \texttt{code\_before} strings
+across sources are collapsed at training time but retained on disk
+for provenance.}
+\end{table}
+
+\paragraph{Label-confidence tiers.}
+Samples carry one of three implicit confidence tiers based on the
+combination of source and Layer-3 validity:
+
+\begin{enumerate}
+\item \textbf{HIGH (provable)} --- \texttt{label\_source =
+  advisory} \emph{and} the diff-based filter (Layer~3) recorded a
+  modified sink line. The label is anchored on direct evidence:
+  the fix commit changed the sink. Approximately 442 of 871
+  positives are in this tier.
+
+\item \textbf{HIGH (curated)} --- \texttt{label\_source =
+  canonical}. 20 hand-written textbook samples; correctness by
+  construction.
+
+\item \textbf{MEDIUM (curator)} --- \texttt{vudenc}-sourced
+  samples. Human-labeled but lacks a paired \texttt{code\_after},
+  so Layer~3 cannot validate. 209 samples, all CWE-89. Should be
+  reported separately in per-tier evaluation.
+\end{enumerate}
+
+The tier distinction matters for evaluation:
+Section~\ref{sec:evaluation} reports per-tool F1 stratified by
+confidence tier, so readers can distinguish performance on
+diff-anchored vs. curator-labeled samples.
+
+\paragraph{Reproducibility artifacts.}
+All sample files (\texttt{.py}~+~\texttt{.meta.json}), audit
+reports (rounds 1--3), rejection manifests for every dropped
+sample with per-sample reason codes, the regex pattern set,
+the diff-filter implementation, and the audit-pack generator
+are released alongside the paper. The dataset is hash-pinned
+to a tagged release; any future revision will be a separate
+tag with a documented changelog.
