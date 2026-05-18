@@ -22,3 +22,8 @@ models/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Build / editor artifacts
+paper.zip
+*.spl
+logs/
