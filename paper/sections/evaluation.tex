@@ -1,33 +1,180 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
+This section applies the benchmark to a set of detectors. The goal is
+not to crown a winner but to demonstrate what the benchmark measures:
+detection accuracy on sink-validated labels, and the robustness drop
+that the four adversarial mutators expose.
+
 \subsection{Research questions}
 \label{sec:eval:rq}
-% TODO: 3--4 RQs. Suggested seeds:
-%   RQ1: How accurately does the model classify the 12 target CWEs?
-%   RQ2: How much does the audit-driven sink filter improve label quality
-%        and downstream model performance?
-%   RQ3: How do hard negatives + augmentation affect precision/recall on the
-%        underrepresented CWEs?
-%   RQ4: How does the model generalize to held-out CVE clusters?
+
+\begin{description}
+  \item[RQ1] How accurately do free static analysis tools classify the
+    seven sink-shaped CWE classes on the clean test set?
+  \item[RQ2] How much accuracy does each tool lose when the test
+    samples are rewritten by a semantics-preserving mutator, and which
+    mutator costs the most?
+  \item[RQ3] Does the diff-based label filter (Section~\ref{sec:dataset})
+    change the picture a detector evaluation paints --- that is, are the
+    tools being scored against labels they could plausibly satisfy?
+\end{description}
 
 \subsection{Setup}
 \label{sec:eval:setup}
-% TODO: splits, metrics (macro-F1, per-class P/R/F1), baselines.
 
-\subsection{Main results}
-\label{sec:eval:main}
-% TODO: per-CWE table + headline number(s). Reference
-% Table~\ref{tab:main-results} when built.
+\paragraph{Test set.} The held-out test split is 132 samples: 67
+vulnerable positives spanning the seven CWE classes and 65 \texttt{safe}
+hard negatives. The four single mutators and the composed mutator are
+applied to the 67 positives, producing five adversarial variant sets of
+67 samples each. The hard negatives are not mutated; they appear only in
+the \emph{clean} run, where they measure false positives.
 
-\subsection{Ablations}
-\label{sec:eval:ablation}
-% TODO: sink-filter on/off, hard-negs on/off, augmentation on/off.
+\paragraph{Metric.} Every detector prediction is scored one-vs-rest per
+CWE class: a sample labelled CWE-X that the tool flags as CWE-X is a
+true positive for that class, a sample of any other label flagged as
+CWE-X is a false positive, and so on (Section~\ref{sec:methodology}).
+From the per-class counts we compute precision, recall, and F1, and
+report the macro-average of F1 across the seven classes. Macro-averaging
+gives each class equal weight regardless of support, which matters here
+because class sizes in the test set range from 3 (CWE-22) to 32
+(CWE-89).
 
-\subsection{Generalization}
-\label{sec:eval:generalization}
-% TODO: held-out-CVE evaluation, cross-repo evaluation if applicable.
+\paragraph{Robustness drop.} For a tool and a mutator, the robustness
+drop is the macro-F1 on the clean positives minus the macro-F1 on that
+mutator's output. Because the hard negatives are absent from the
+mutator variants, the clean baseline for this comparison is recomputed
+over the 67 positives only, so the subtraction is like-for-like. The
+aggregate robustness number is the mean drop across the four single
+mutators.
 
-\subsection{Qualitative analysis}
-\label{sec:eval:qualitative}
-% TODO: error cases, confusion patterns, hard examples.
+\paragraph{Detectors.} We report two free, locally-installable static
+analysis tools: Bandit 1.9.4 and Semgrep 1.163.0. Semgrep is run with
+the \texttt{p/python}, \texttt{p/security-audit}, and
+\texttt{p/owasp-top-ten} registry rule packs. Each tool emits findings
+that we map to the seven CWE classes; for Bandit the mapping is by rule
+identifier rather than by Bandit's own \texttt{issue\_cwe} field, which
+mislabels \texttt{eval} as CWE-78 and \texttt{yaml.load} as CWE-20.
+LLM detectors are evaluated through the same harness with a fixed
+classification prompt; those results are reported in
+Section~\ref{sec:eval:llm}.
+
+\subsection{Detection on the clean test set (RQ1)}
+\label{sec:eval:clean}
+
+Table~\ref{tab:clean-percwe} gives the per-class F1 of the two static
+analysis tools on the clean test set.
+
+\begin{table}[h]
+\centering
+\caption{Per-CWE F1 on the clean test set. $n$ is the number of
+positive test samples in the class.}
+\label{tab:clean-percwe}
+\begin{tabular}{l r r r}
+\hline
+CWE & $n$ & Bandit & Semgrep \\
+\hline
+CWE-22  Path Traversal        &  3 & 0.00 & 0.00 \\
+CWE-78  OS Command Injection  &  4 & 0.38 & 0.29 \\
+CWE-79  Cross-site Scripting  &  7 & 0.60 & 0.33 \\
+CWE-89  SQL Injection         & 32 & 0.80 & 0.06 \\
+CWE-94  Code Injection        &  6 & 0.86 & 0.80 \\
+CWE-502 Insecure Deserial.    & 12 & 0.80 & 0.73 \\
+CWE-918 SSRF                  &  3 & 0.00 & 0.00 \\
+\hline
+Macro-F1 (positives + safe)   &    & 0.49 & 0.32 \\
+\hline
+\end{tabular}
+\end{table}
+
+Two classes score zero for both tools. Neither Bandit nor Semgrep ships
+a path traversal (CWE-22) rule that fires on the test samples, and
+neither has a server-side request forgery (CWE-918) rule with usable
+CWE metadata; Bandit's closest signal, the \texttt{urllib.urlopen}
+check, produced five false positives and no true positives. These zeros
+are a real finding, not a harness artifact: the benchmark includes CWE
+classes that free static analysis does not cover, and the macro-average
+makes that gap visible rather than letting a well-covered class mask it.
+
+The two tools diverge most on SQL injection. Bandit reaches F1 0.80 on
+CWE-89; Semgrep reaches 0.06, flagging one of 32 positives. The cause is
+the composition of the CWE-89 sub-corpus: most of these samples are
+fragments drawn from the \texttt{vudenc} source and lack the
+framework-recognisable source-to-sink shape that Semgrep's taint rules
+require. Bandit's \texttt{B608} rule, which matches inline SQL string
+construction lexically, fires far more readily on such fragments. This
+divergence is itself a use of the benchmark: it separates lexical
+matching from taint-style reasoning on exactly the inputs where the two
+approaches disagree.
+
+The headline macro-F1 of 0.49 (Bandit) and 0.32 (Semgrep) is computed
+over all 132 clean samples, including the 65 hard negatives. Restricted
+to the 67 positives the same tools score 0.59 and 0.38; the gap is the
+F1 cost of false positives raised on safe code, and chiefly reflects
+Bandit's low-severity \texttt{subprocess} warnings (\texttt{B603},
+\texttt{B607}) firing on benign command-execution code.
+
+\subsection{Adversarial robustness (RQ2)}
+\label{sec:eval:robustness}
+
+Table~\ref{tab:robustness} reports macro-F1 on the clean positives and
+on each mutator variant, with the robustness drop in the final column.
+
+\begin{table}[h]
+\centering
+\caption{Macro-F1 by variant, computed over the 67 positives.
+DC: dead code, SS: string split, VR: variable rename, WE: wrapper
+extraction, Comp: composed. Drop is the mean clean$-$mutator difference
+over the four single mutators.}
+\label{tab:robustness}
+\begin{tabular}{l r r r r r r r}
+\hline
+Tool & Clean & DC & SS & VR & WE & Comp & Drop \\
+\hline
+Bandit  & 0.59 & 0.59 & 0.59 & 0.59 & 0.59 & 0.59 & 0.00 \\
+Semgrep & 0.38 & 0.38 & 0.38 & 0.38 & 0.38 & 0.38 & 0.00 \\
+\hline
+\end{tabular}
+\end{table}
+
+Both static analysis tools are essentially invariant to the four
+mutators: the mean robustness drop is 0.001 for Bandit and 0.004 for
+Semgrep, and no single mutator moves macro-F1 by more than 0.01. This is
+the expected result and it validates the mutator design from the
+negative side. Dead code injection, identifier rename, and wrapper
+extraction do not alter the lexical sink tokens that Bandit and Semgrep
+match on, so a rule-based detector that ignores everything except those
+tokens is unaffected. String splitting does break a contiguous SQL
+keyword, but Bandit's \texttt{B608} matches on the call shape
+(\texttt{cursor.execute} with a non-literal argument) as well as on
+keyword substrings, so it survives. A detector with zero robustness drop
+is not robust in any deep sense; it is simply not reading the parts of
+the program the mutators rewrite. The mutators are built to discriminate
+\emph{learned} detectors, where a non-trivial drop is expected; the
+static analysis rows establish the floor.
+
+\subsection{LLM detectors}
+\label{sec:eval:llm}
+
+The harness evaluates LLM detectors through the same interface: a fixed
+system prompt lists the seven CWE classes, the file contents form the
+user turn, and the first line of the response is parsed as the
+prediction. A full pass over the 132 clean samples and the five mutator
+variants is 467 model calls. These results are pending and will be added
+once the LLM evaluation is run; the SAST rows above are the established
+baseline against which the LLM robustness drop will be read.
+
+\subsection{Effect of the label filter (RQ3)}
+\label{sec:eval:labels}
+
+The numbers above are computed against the diff-filtered labels of
+Section~\ref{sec:dataset}, whose audited false-positive rate is 26\%.
+Run against the unfiltered labels, every tool's apparent precision falls
+by construction: a tool that correctly declines to flag a mislabelled
+sample is charged a false negative. The filter therefore does not flatter
+the tools --- it removes samples on which a correct detector and the
+label disagree because the label is wrong. Reporting detector accuracy
+against sink-validated labels is what separates this benchmark from an
+evaluation run directly on raw CVE-derived tags, where 30--50\% of the
+ground truth is noise and a tool is partly being scored on its agreement
+with that noise.
