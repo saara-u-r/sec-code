@@ -192,10 +192,84 @@ def check_cwe502(source: str) -> dict:
     }
 
 
+# CWE-79: Cross-site Scripting
+# Looks for Django mark_safe(), Jinja2 Markup(), render_template_string(), or
+# explicit autoescape=False — all of which bypass the framework's HTML escaping.
+_XSS_PATTERNS = [
+    re.compile(r"\bmark_safe\s*\("),
+    re.compile(r"\bMarkup\s*\("),
+    re.compile(r"\brender_template_string\s*\("),
+    re.compile(r"\bformat_html\s*\(.*%s", re.DOTALL),
+    re.compile(r"autoescape\s*=\s*False"),
+    re.compile(r"\|safe\b"),
+]
+
+def check_cwe79(source: str) -> dict:
+    has_xss_sink  = any(p.search(source) for p in _XSS_PATTERNS)
+    has_taint     = bool(TAINT_SOURCES.search(source))
+    confident     = has_xss_sink and has_taint
+    plausible     = has_xss_sink
+    return {
+        "has_xss_sink":   has_xss_sink,
+        "has_taint_source": has_taint,
+        "confident":      confident,
+        "plausible":      plausible,
+    }
+
+
+# CWE-94: Code Injection
+# eval()/exec()/compile() receiving user-controlled input.
+_CODE_INJ_PATTERNS = [
+    re.compile(r"\beval\s*\("),
+    re.compile(r"\bexec\s*\("),
+    re.compile(r"\bcompile\s*\("),
+    re.compile(r"\b__import__\s*\("),
+    re.compile(r"\bimportlib\.import_module\s*\("),
+]
+
+def check_cwe94(source: str) -> dict:
+    has_dynamic_exec = any(p.search(source) for p in _CODE_INJ_PATTERNS)
+    has_taint        = bool(TAINT_SOURCES.search(source))
+    confident        = has_dynamic_exec and has_taint
+    plausible        = has_dynamic_exec
+    return {
+        "has_dynamic_exec": has_dynamic_exec,
+        "has_taint_source": has_taint,
+        "confident":        confident,
+        "plausible":        plausible,
+    }
+
+
+# CWE-918: Server-Side Request Forgery
+# HTTP client calls (requests, urllib, httpx, aiohttp) receiving a user-controlled URL.
+_SSRF_PATTERNS = [
+    re.compile(r"\brequests\s*\.\s*(get|post|put|patch|delete|head|request)\s*\("),
+    re.compile(r"\burllib\.request\.(urlopen|Request)\s*\("),
+    re.compile(r"\bhttpx\s*\.\s*(get|post|put|patch|delete|AsyncClient)\s*\("),
+    re.compile(r"\baiohttp\s*\.\s*ClientSession\s*\("),
+    re.compile(r"\bhttp\.client\.(HTTPConnection|HTTPSConnection)\s*\("),
+]
+
+def check_cwe918(source: str) -> dict:
+    has_http_call = any(p.search(source) for p in _SSRF_PATTERNS)
+    has_taint     = bool(TAINT_SOURCES.search(source))
+    confident     = has_http_call and has_taint
+    plausible     = has_http_call
+    return {
+        "has_http_call":  has_http_call,
+        "has_taint_source": has_taint,
+        "confident":      confident,
+        "plausible":      plausible,
+    }
+
+
 CWE_CHECKERS = {
     "CWE-89":  check_cwe89,
     "CWE-78":  check_cwe78,
     "CWE-22":  check_cwe22,
+    "CWE-79":  check_cwe79,
+    "CWE-94":  check_cwe94,
+    "CWE-918": check_cwe918,
     "CWE-502": check_cwe502,
 }
 
@@ -209,7 +283,7 @@ def structural_checks(source: str, meta: dict) -> dict:
     try:
         ast.parse(source)
         valid_syntax = True
-    except SyntaxError as e:
+    except SyntaxError :
         valid_syntax = False
 
     # 2. Flask import
@@ -219,7 +293,7 @@ def structural_checks(source: str, meta: dict) -> dict:
     stripped = re.sub(r'"""[\s\S]*?"""', "", source)  # remove triple-quote strings
     stripped = re.sub(r"'''[\s\S]*?'''", "", stripped)
     stripped = re.sub(r"#.*", "", stripped)             # remove comments
-    executable_lines = [l for l in stripped.splitlines() if l.strip()]
+    executable_lines = [line for line in stripped.splitlines() if line.strip()]
     has_executable_code = len(executable_lines) > 2
 
     # 4. Has Flask route handlers

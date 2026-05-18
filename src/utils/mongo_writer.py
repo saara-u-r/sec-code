@@ -21,7 +21,6 @@ Indexes created on first connection:
 """
 
 import os
-from typing import Optional
 
 from dotenv import load_dotenv
 
@@ -54,8 +53,7 @@ def _init() -> bool:
 
     try:
         import certifi
-        from pymongo import MongoClient, ASCENDING
-        from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+        from pymongo import MongoClient
         from src.utils.config_loader import load_config
 
         config = load_config().get("mongodb", {})
@@ -127,7 +125,6 @@ def upsert_sample(meta: dict) -> bool:
         return False
 
     try:
-        from pymongo import UpdateOne
 
         content_hash = meta.get("content_hash")
         if not content_hash:

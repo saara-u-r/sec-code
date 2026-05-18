@@ -80,6 +80,25 @@ CWE_PATTERNS: dict[str, list[re.Pattern]] = {
         re.compile(r"\byaml\s*\.\s*load\s*\("),
         re.compile(r"\bmarshal\s*\.\s*loads?\s*\("),
     ],
+    "CWE-79": [
+        re.compile(r"\bmark_safe\s*\("),
+        re.compile(r"\bMarkup\s*\("),
+        re.compile(r"\brender_template_string\s*\("),
+        re.compile(r"autoescape\s*=\s*False"),
+        re.compile(r"\|safe\b"),
+    ],
+    "CWE-94": [
+        re.compile(r"\beval\s*\("),
+        re.compile(r"\bexec\s*\("),
+        re.compile(r"\bcompile\s*\("),
+        re.compile(r"\b__import__\s*\("),
+    ],
+    "CWE-918": [
+        re.compile(r"\brequests\s*\.\s*(get|post|put|patch|delete|head|request)\s*\("),
+        re.compile(r"\burllib\.request\.(urlopen|Request)\s*\("),
+        re.compile(r"\bhttpx\s*\.\s*(get|post|put|patch|delete)\s*\("),
+        re.compile(r"\baiohttp\s*\.\s*ClientSession\s*\("),
+    ],
 }
 
 
@@ -95,7 +114,7 @@ def has_executable_code(source: str) -> bool:
     stripped = re.sub(r'"""[\s\S]*?"""', "", source)
     stripped = re.sub(r"'''[\s\S]*?'''", "", stripped)
     stripped = re.sub(r"#.*", "", stripped)
-    lines = [l for l in stripped.splitlines() if l.strip()]
+    lines = [line for line in stripped.splitlines() if line.strip()]
     return len(lines) > 2
 
 

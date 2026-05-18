@@ -23,17 +23,20 @@ from src.utils.mongo_writer import get_collection
 
 logger = get_logger(__name__)
 
-TARGET_CWES = {"CWE-89", "CWE-78", "CWE-22", "CWE-502"}
+TARGET_CWES = {"CWE-89", "CWE-78", "CWE-22", "CWE-79", "CWE-94", "CWE-918", "CWE-502"}
 
 LABEL_MAP: dict[str, int] = {
     "CWE-89":  0,   # SQL Injection
-    "CWE-78":  1,   # Command Injection
+    "CWE-78":  1,   # OS Command Injection
     "CWE-22":  2,   # Path Traversal
-    "CWE-502": 3,   # Insecure Deserialization
-    "other":   4,
+    "CWE-79":  3,   # Cross-site Scripting
+    "CWE-94":  4,   # Code Injection
+    "CWE-918": 5,   # SSRF
+    "CWE-502": 6,   # Insecure Deserialization
+    "other":   7,
 }
 
-LABEL_NAMES = ["CWE-89", "CWE-78", "CWE-22", "CWE-502", "other"]
+LABEL_NAMES = ["CWE-89", "CWE-78", "CWE-22", "CWE-79", "CWE-94", "CWE-918", "CWE-502", "other"]
 
 
 class Split(NamedTuple):
@@ -53,7 +56,7 @@ def load_and_split(seed: int = 42) -> Split:
 
     cursor = col.find(
         {
-            "commit_message": {"$exists": True, "$ne": None, "$ne": ""},
+            "commit_message": {"$exists": True, "$nin": [None, ""]},
             "cwe":            {"$exists": True, "$ne": None},
         },
         {"_id": 1, "commit_message": 1, "cwe": 1},
