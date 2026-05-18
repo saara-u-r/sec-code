@@ -23,7 +23,14 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+_PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
+
+from dotenv import load_dotenv  # noqa: E402
+
+# Load the project .env so ANTHROPIC_API_KEY (and other secrets) are
+# available without an explicit `export` each shell session.
+load_dotenv(_PROJECT_ROOT / ".env")
 
 from src.eval.cwe_map import TARGET_CWES  # noqa: E402
 from src.eval.detectors import DETECTORS, SAST_TOOLS  # noqa: E402
