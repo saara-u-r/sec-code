@@ -1,13 +1,22 @@
 """Detector implementations for the evaluation harness."""
 
+from collections.abc import Callable
+
 from src.eval.detectors.bandit import BanditDetector
 from src.eval.detectors.base import Detector, Prediction, find_executable
+from src.eval.detectors.llm import LLMDetector
 from src.eval.detectors.semgrep import SemgrepDetector
 
-#: Registry of available SAST detectors, keyed by CLI name.
-DETECTORS: dict[str, type[Detector]] = {
+#: SAST detectors — run by `--tool all`. Free, local, no cost.
+SAST_TOOLS: tuple[str, ...] = ("bandit", "semgrep")
+
+#: Registry of all detectors, keyed by CLI name. Values are factories
+#: (a no-arg callable returning a Detector). `claude` is excluded from
+#: `all` because a real run bills the Anthropic account.
+DETECTORS: dict[str, Callable[[], Detector]] = {
     "bandit": BanditDetector,
     "semgrep": SemgrepDetector,
+    "claude": LLMDetector,
 }
 
 __all__ = [
@@ -16,5 +25,7 @@ __all__ = [
     "find_executable",
     "BanditDetector",
     "SemgrepDetector",
+    "LLMDetector",
     "DETECTORS",
+    "SAST_TOOLS",
 ]

@@ -26,7 +26,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.eval.cwe_map import TARGET_CWES  # noqa: E402
-from src.eval.detectors import DETECTORS  # noqa: E402
+from src.eval.detectors import DETECTORS, SAST_TOOLS  # noqa: E402
+from src.eval.detectors.llm import LLMDetector  # noqa: E402
 from src.eval.samples import SINGLE_MUTATORS, VARIANTS, load_variant  # noqa: E402
 from src.eval.scoring import (  # noqa: E402
     PredictionRecord,
@@ -53,12 +54,15 @@ def run_tool(
     variants: list[str],
     variants_dir: str,
     raw_dir: str,
+    max_samples: int | None = None,
 ) -> list[PredictionRecord]:
     """Run one detector over every requested variant; return all records."""
     records: list[PredictionRecord] = []
     version = detector.version
     for variant in variants:
         samples = load_variant(variant, variants_dir, raw_dir)
+        if max_samples is not None:
+            samples = samples[:max_samples]
         logger.info(f"  {detector.name} :: {variant} — {len(samples)} samples")
         predictions = detector.run(samples)
         for s in samples:
@@ -140,6 +144,34 @@ def print_report(summary: dict) -> None:
                   f"{c.f1:>7.3f}{c.support:>7}{c.tp:>5}{c.fp:>5}{c.fn:>5}")
 
 
+def dry_run_llm(detector: LLMDetector, variants: list[str],
+                variants_dir: str, raw_dir: str,
+                max_samples: int | None) -> None:
+    """Offline cost projection for an LLM detector — no API call."""
+    print(f"\n{'=' * 64}")
+    print(f"  {detector.name}  ({detector.version}) — DRY RUN, no API calls")
+    print(f"{'=' * 64}")
+    total_cost = 0.0
+    total_calls = 0
+    for variant in variants:
+        samples = load_variant(variant, variants_dir, raw_dir)
+        if max_samples is not None:
+            samples = samples[:max_samples]
+        est = detector.estimate_cost(samples)
+        total_cost += est["est_cost_usd"]
+        total_calls += est["calls"]
+        print(f"  {variant:<22} {est['calls']:>4} calls  "
+              f"~{est['est_input_tokens']:>8,} in + "
+              f"{est['est_output_tokens']:>6,} out  "
+              f"≈ ${est['est_cost_usd']:.2f}")
+    print(f"  {'TOTAL':<22} {total_calls:>4} calls"
+          f"{'':>27}≈ ${total_cost:.2f}")
+    print("\nThis is an offline chars/4 estimate. A real run needs "
+          "ANTHROPIC_API_KEY and `pip install anthropic`,\nand bills the "
+          "account — run `--tool claude` (optionally `--max-samples N`) "
+          "to execute it.")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--tool", choices=[*DETECTORS, "all"], default="all")
@@ -148,39 +180,52 @@ def main() -> int:
     parser.add_argument("--variants-dir", default="data/test_variants")
     parser.add_argument("--raw-dir", default="data/raw")
     parser.add_argument("--out-dir", default="reports/eval")
+    parser.add_argument("--max-samples", type=int, default=None,
+                        help="Cap samples per variant (cost control / smoke test).")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="LLM tools: print an offline cost projection, "
+                             "make no API calls.")
     args = parser.parse_args()
 
-    tools = list(DETECTORS) if args.tool == "all" else [args.tool]
+    # `all` runs the free local SAST tools only — never an LLM (real LLM
+    # runs bill the Anthropic account and must be requested explicitly).
+    tools = list(SAST_TOOLS) if args.tool == "all" else [args.tool]
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     exit_code = 0
     for tool_name in tools:
         detector = DETECTORS[tool_name]()
+
+        if args.dry_run and isinstance(detector, LLMDetector):
+            dry_run_llm(detector, args.variants,
+                        args.variants_dir, args.raw_dir, args.max_samples)
+            continue
+
         if not detector.is_available():
-            logger.warning(
-                f"{tool_name}: not installed — skipping. "
-                f"Install with `pip install {tool_name}`."
-            )
+            hint = ("set ANTHROPIC_API_KEY and `pip install anthropic`"
+                    if isinstance(detector, LLMDetector)
+                    else f"`pip install {tool_name}`")
+            logger.warning(f"{tool_name}: unavailable — skipping. Needs {hint}.")
             exit_code = 1
             continue
 
         logger.info(f"Running {tool_name} (v{detector.version})")
-        records = run_tool(detector, args.variants,
-                           args.variants_dir, args.raw_dir)
+        records = run_tool(detector, args.variants, args.variants_dir,
+                           args.raw_dir, args.max_samples)
 
-        pred_path = out_dir / f"{tool_name}_predictions.jsonl"
+        pred_path = out_dir / f"{detector.name}_predictions.jsonl"
         with pred_path.open("w", encoding="utf-8") as fh:
             for r in records:
                 fh.write(json.dumps(r.to_json()) + "\n")
 
-        summary = build_summary(tool_name, records)
+        summary = build_summary(detector.name, records)
         print_report(summary)
 
         summary.pop("_variant_scores")
-        (out_dir / f"{tool_name}_summary.json").write_text(
+        (out_dir / f"{detector.name}_summary.json").write_text(
             json.dumps(summary, indent=2), encoding="utf-8")
-        logger.info(f"  wrote {pred_path} and {tool_name}_summary.json")
+        logger.info(f"  wrote {pred_path} and {detector.name}_summary.json")
 
     return exit_code
 
