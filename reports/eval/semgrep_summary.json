@@ -1,0 +1,83 @@
+{
+  "tool": "semgrep",
+  "tool_version": "1.163.0",
+  "macro_f1": {
+    "clean": 0.3152752009894867,
+    "dead_code_injection": 0.3833832833832834,
+    "string_split": 0.3747252747252747,
+    "variable_rename": 0.3833832833832834,
+    "wrapper_extraction": 0.3747252747252747,
+    "composed": 0.3747252747252747
+  },
+  "n_samples": {
+    "clean": 132,
+    "dead_code_injection": 67,
+    "string_split": 67,
+    "variable_rename": 67,
+    "wrapper_extraction": 67,
+    "composed": 67
+  },
+  "per_cwe_f1": {
+    "clean": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.28571428571428575,
+      "CWE-79": 0.33333333333333326,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.8,
+      "CWE-502": 0.7272727272727272,
+      "CWE-918": 0.0
+    },
+    "dead_code_injection": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.5,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
+    "string_split": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.5,
+      "CWE-89": 0.0,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
+    "variable_rename": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.5,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
+    "wrapper_extraction": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.5,
+      "CWE-89": 0.0,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
+    "composed": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.5,
+      "CWE-89": 0.0,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    }
+  },
+  "robustness_drop": {
+    "dead_code_injection": 0.0,
+    "string_split": 0.008658008658008698,
+    "variable_rename": 0.0,
+    "wrapper_extraction": 0.008658008658008698
+  },
+  "mean_single_mutator_drop": 0.004329004329004349
+}

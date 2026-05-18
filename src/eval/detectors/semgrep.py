@@ -21,18 +21,23 @@ from src.eval.cwe_map import normalize_cwe
 from src.eval.detectors.base import Detector, Prediction, find_executable
 from src.eval.samples import EvalSample
 
-#: Default Semgrep ruleset. ``p/python`` is the registry's curated
-#: Python pack; it is fetched once and cached. Override via the
-#: constructor for a pinned local ruleset.
-DEFAULT_CONFIG = "p/python"
+#: Default Semgrep rulesets, per EVALUATION_METHODOLOGY.md section 5.1.
+#: ``p/python`` alone is mostly correctness lints; the security-audit
+#: and owasp-top-ten packs carry the injection/XSS/SSRF rules with CWE
+#: metadata. All three are fetched from the registry once and cached.
+DEFAULT_CONFIGS: tuple[str, ...] = (
+    "p/python",
+    "p/security-audit",
+    "p/owasp-top-ten",
+)
 
 
 class SemgrepDetector(Detector):
     name = "semgrep"
 
-    def __init__(self, config: str = DEFAULT_CONFIG) -> None:
+    def __init__(self, configs: tuple[str, ...] = DEFAULT_CONFIGS) -> None:
         self._exe = find_executable("semgrep")
-        self._config = config
+        self._configs = tuple(configs)
         self._version: str | None = None
 
     def is_available(self) -> bool:
@@ -65,11 +70,14 @@ class SemgrepDetector(Detector):
             for s in samples:
                 (tmpdir / f"{s.id}.py").write_text(s.code, encoding="utf-8")
 
+            cmd = [self._exe, "scan", "--json", "--quiet"]
+            for cfg in self._configs:
+                cmd += ["--config", cfg]
+            cmd.append(str(tmpdir))
+
             t0 = time.monotonic()
             proc = subprocess.run(
-                [self._exe, "scan", "--json", "--quiet",
-                 "--config", self._config, str(tmpdir)],
-                capture_output=True, text=True, check=False,
+                cmd, capture_output=True, text=True, check=False,
             )
             elapsed_ms = int((time.monotonic() - t0) * 1000)
 

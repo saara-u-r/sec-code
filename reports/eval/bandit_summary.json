@@ -1,0 +1,83 @@
+{
+  "tool": "bandit",
+  "tool_version": "1.9.4",
+  "macro_f1": {
+    "clean": 0.49115646258503404,
+    "dead_code_injection": 0.5891293891293891,
+    "string_split": 0.5859348198970841,
+    "variable_rename": 0.5891293891293891,
+    "wrapper_extraction": 0.5891293891293891,
+    "composed": 0.5891293891293891
+  },
+  "n_samples": {
+    "clean": 132,
+    "dead_code_injection": 67,
+    "string_split": 67,
+    "variable_rename": 67,
+    "wrapper_extraction": 67,
+    "composed": 67
+  },
+  "per_cwe_f1": {
+    "clean": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.38095238095238093,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8,
+      "CWE-94": 0.8571428571428571,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
+    "dead_code_injection": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 1.0,
+      "CWE-502": 0.9090909090909091,
+      "CWE-918": 0.0
+    },
+    "string_split": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.7924528301886793,
+      "CWE-94": 1.0,
+      "CWE-502": 0.9090909090909091,
+      "CWE-918": 0.0
+    },
+    "variable_rename": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 1.0,
+      "CWE-502": 0.9090909090909091,
+      "CWE-918": 0.0
+    },
+    "wrapper_extraction": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 1.0,
+      "CWE-502": 0.9090909090909091,
+      "CWE-918": 0.0
+    },
+    "composed": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 1.0,
+      "CWE-502": 0.9090909090909091,
+      "CWE-918": 0.0
+    }
+  },
+  "robustness_drop": {
+    "dead_code_injection": 0.0,
+    "string_split": 0.003194569232304989,
+    "variable_rename": 0.0,
+    "wrapper_extraction": 0.0
+  },
+  "mean_single_mutator_drop": 0.0007986423080762473
+}
