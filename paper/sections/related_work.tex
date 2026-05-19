@@ -116,6 +116,66 @@ theoretical maximum of 1{,}250. CASTLE does not measure adversarial
 robustness, does not validate its labels beyond CVE inheritance, and
 does not cover Python.
 
+\subsection{Benchmarks for evaluating vulnerability detectors}
+\label{sec:related:benchmarks}
+
+A separate line of work builds benchmarks whose purpose is to
+\emph{compare} detectors rather than to train them, and its recurring
+lesson is that benchmark construction decides the result.
+PrimeVul~\cite{TODO_primevul} demonstrated this directly: a code
+language model that scores 68.3\% F1 on BigVul scores 3.1\% on
+PrimeVul --- the same task evaluated on a de-duplicated corpus with
+chronological train/test splits and tightened labels. PrimeVul also
+argued that F1 is the wrong headline metric for a detector deployed
+against a stream of mostly-benign code, and proposed instead the
+false-negative rate at a fixed low false-positive rate, together with
+a pair-wise evaluation that scores a detector on its ability to
+separate a vulnerable function from its patched version.
+CleanVul~\cite{TODO_cleanvul} quantified the underlying problem:
+across widely used vulnerability datasets, between 40\% and 75\% of
+the labels are inaccurate. These two results are the direct motivation
+for the label-validation pipeline of Section~\ref{sec:dataset}. A
+benchmark built on raw CVE inheritance measures a detector's agreement
+with label noise as much as its detection ability.
+
+The closest prior work to ours is RealVuln~\cite{TODO_realvuln}, which
+evaluates fifteen scanners on intentionally vulnerable real-world
+Python repositories and, like us, organizes detectors into tiers:
+rule-based static analysis, general-purpose LLMs, and
+security-specialized scanners. RealVuln reports a consistent ordering
+across those tiers, with the best general-purpose LLM scoring roughly
+three times the recall-weighted score of the best rule-based tool.
+Our benchmark differs from RealVuln in three ways. RealVuln labels
+findings by manual review of whole repositories; we apply a
+reproducible, sink-anchored label-validity criterion at the file level
+(Section~\ref{sec:dataset:diff}). RealVuln spans eighteen CWE families
+at whatever granularity each repository provides; we fix seven
+sink-shaped Top-25 classes and evaluate per class. And RealVuln
+measures detection on unmodified code only, whereas we add the
+perpendicular axis of robustness under semantics-preserving rewriting.
+
+The IRIS system and its companion CWE-Bench-Java
+benchmark~\cite{TODO_iris} are relevant for two reasons. First, IRIS
+pairs an LLM with the CodeQL static analyzer and detects roughly twice
+as many real vulnerabilities as CodeQL alone, which establishes that
+the strongest current approach for real-world detection is a hybrid of
+learned and rule-based components rather than either in isolation.
+Second, CWE-Bench-Java scopes itself to ``sink-shaped'' CWEs --- path
+traversal, command injection, code injection, cross-site scripting ---
+the same family we target, which supports the methodological
+separation we draw between sink-shaped and structural weaknesses.
+
+Finally, SecLLMHolmes~\cite{TODO_secllmholmes} is a benchmark built
+specifically to probe whether LLM detectors reason or pattern-match.
+It found that model verdicts are non-deterministic and that trivial,
+semantics-preserving edits --- renaming an identifier, inserting an
+unrelated function call --- are sufficient to flip a correct verdict
+to an incorrect one. This is the precedent for the four mutators of
+Section~\ref{sec:methodology}; the difference is that SecLLMHolmes
+applied perturbations to hand-written scenarios as a single robustness
+score, whereas we apply targeted mutators to real CVE-derived code and
+report a per-mutator, per-CWE breakdown.
+
 \subsection{Adversarial robustness of code models}
 \label{sec:related:adv}
 
@@ -148,9 +208,10 @@ to build a vulnerability dataset; BigVul, CVEfixes, and others have
 done so at larger scale. We are not the first to identify label
 noise in CVE-derived data; Croft et al.\ and the ReVeal authors
 have. We are not the first to compare static analyzers against
-LLMs; CASTLE did this for C/C++. We are not the first to study
-robustness against code transformations; Yefet, Bielik, and Henkel
-laid that groundwork.
+LLMs; CASTLE did this for C/C++ and RealVuln for Python
+repositories. We are not the first to study robustness against
+code transformations; Yefet, Bielik, and Henkel laid that
+groundwork.
 
 What is new here is the combination. A Python benchmark with
 seven sink-shaped Top-25 CWE classes does not currently exist.
