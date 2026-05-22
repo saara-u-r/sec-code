@@ -21,7 +21,8 @@
     "wrapper_extraction"
   ],
   "holdout_mutators": [
-    "string_split"
+    "string_split",
+    "sink_attr_obfuscate"
   ],
-  "_holdout_rationale": "string_split is held out as a test-time adversarial probe per PHASE2_5_AUGMENTATION_DESIGN.md §3.4. It is the strongest test of pattern-matching shortcuts (defeats Bandit/Semgrep-style literal-substring detection)."
+  "_holdout_rationale": "Two test-time adversarial probes. string_split is the original (PHASE2_5_AUGMENTATION_DESIGN.md §3.4) — defeats Bandit/Semgrep literal-substring detection by fragmenting the SQL/shell/template strings. sink_attr_obfuscate (added 2026-05-22) is the second-round probe — rewrites x.attr(...) sinks as getattr(x, 'attr')(...), removing the sink identifier from the source token stream entirely. Targets the universal-invariance finding from the first eval round, where all detectors were robust to the four sink-syntax-preserving mutators."
 }

@@ -13,21 +13,22 @@ operates on.
 \subsection{Scope and CWE selection}
 \label{sec:dataset:scope}
 
-The MITRE Top-25 Most Dangerous Software Weaknesses~\cite{TODO_mitre_top25}
+The MITRE Top-25 Most Dangerous Software Weaknesses~\cite{mitre_top25}
 lists 25 CWE classes by aggregate severity-weighted exploit prevalence
-across all NVD-tracked CVEs. Sixteen of the 25 are
-\emph{Python-relevant}: nine entries describe C/C++ memory bugs
-(CWE-787, CWE-125, CWE-416, CWE-476, CWE-119, CWE-190, CWE-120, CWE-121,
-CWE-122) that surface only through CPython's C extensions, where the
-bug lives in the underlying C code, and are out of scope.
+across all NVD-tracked CVEs. A subset of the list describes C/C++
+memory bugs (CWE-787, CWE-125, CWE-416, CWE-476, CWE-119, CWE-190,
+CWE-120, CWE-121, CWE-122) that surface only through CPython's C
+extensions, where the bug lives in the underlying C code; these are
+out of scope.
 
-We further partition the sixteen Python-relevant CWEs into two
-methodological categories.
+We partition the Python-relevant CWEs into two methodological
+categories.
 
 \paragraph{Sink-shaped CWEs} have a well-defined unsafe function or
 construct (a ``sink'') whose unsafe use is the vulnerability. The fix
 modifies the sink call, typically replacing it with one of a small set
 of safe alternatives:
+\begin{sloppypar}
 \begin{itemize}
 \item \textbf{CWE-89 (SQL Injection)}: \texttt{cursor.execute(f"...")}
   fixed to \texttt{cursor.execute("...?", (val,))}.
@@ -46,6 +47,7 @@ of safe alternatives:
   \texttt{pickle.loads(taint)} replaced with
   \texttt{yaml.safe\_load} or signed payloads.
 \end{itemize}
+\end{sloppypar}
 
 Two additional sink-shaped CWEs were initially included and later
 removed during cleanup (see Section~\ref{sec:dataset:audit}):
@@ -78,10 +80,10 @@ differ only in whether a defensive construct is present:
   are sensitive in context.
 \end{itemize}
 
-The sink-anchored detection methodology that this benchmark evaluates
---- regex sink patterns, file-level static analysis, and code-as-text
-LLM prompts --- cannot reliably detect structural CWEs without
-application-level context. We exclude structural CWEs from the
+The sink-anchored detection methodology that this benchmark evaluates,
+which includes regex sink patterns, file-level static analysis, and
+code-as-text LLM prompts, cannot reliably detect structural CWEs
+without application-level context. We exclude structural CWEs from the
 benchmark and document the analysis as scope justification rather
 than a limitation. CWE-20 (Improper Input Validation) and CWE-770
 (Allocation Without Limits) are also excluded as too broad to admit
@@ -93,7 +95,7 @@ The benchmark covers \textbf{seven sink-shaped Python CWE classes}
 \texttt{safe} hard-negative class for negative evaluation, for a
 total of eight labels. This figure sits comfortably under the
 typical 10-label cap for stable multi-class
-evaluation~\cite{TODO_classification_eval_caps}.
+evaluation~\cite{sokolova2009}.
 
 \subsection{Data sources}
 \label{sec:dataset:sources}
@@ -109,9 +111,9 @@ three label-validation layers.
 \caption{Data sources and per-source yield after label validation.
 Counts reflect the final benchmark composition.}
 \label{tab:sources}
-\begin{tabular}{lrl}
+\begin{tabular}{lrp{0.5\linewidth}}
 \toprule
-\textbf{Source} & \textbf{Final samples} & \textbf{Retrieval method} \\
+\textbf{Source} & \textbf{Count} & \textbf{Retrieval method} \\
 \midrule
 GHSA Advisory DB    & 384 & Local clone (1.5\,GB), per-advisory commit fetch via GitHub API \\
 \texttt{vudenc}     & 209 & Pre-labeled corpus (no CVE pair) \\
@@ -129,7 +131,7 @@ GHSA Advisory DB is the dominant source after Phase~2B re-scoping
 because it indexes per-CWE advisories with explicit fix commits and
 \texttt{database\_specific.cwe\_ids}, allowing precise per-CWE
 scraping with low retrieval overhead. The \texttt{vudenc}
-corpus~\cite{TODO_vudenc} is a pre-labeled human-annotated dataset
+corpus~\cite{vudenc} is a pre-labeled human-annotated dataset
 without paired before/after versions; it contributes only to CWE-89
 (its strongest class by curator agreement) and is treated as a
 separate label-confidence tier (Section~\ref{sec:dataset:final}).
@@ -146,23 +148,28 @@ of its CVE-corpus performance.
 
 Each sample is stored as a paired \texttt{\{id\}.py} (the
 \texttt{code\_before} source) and \texttt{\{id\}.meta.json} (a
-schema-versioned metadata record). The metadata schema contains 46
-fields organized into eight groups: identity (4), advisory IDs (4),
-vulnerability label (5), CVSS severity decomposition (13),
-provenance (7), code payload (2), code-quality signals (8), and
-pipeline state (3). The complete per-field literature justification
-is documented separately in \texttt{FIELD\_JUSTIFICATION.md}; here
-we describe the four signal fields most relevant to label
-validation:
+schema-versioned metadata record). The metadata schema (version~3.0,
+released 2026-05-22) contains 26 fields organized into ten groups:
+identity (3), advisory IDs (2), vulnerability label (3), CVSS
+severity (4 — a single \texttt{cvss\_vector} field encodes the eight
+base metrics, rather than carrying one column per metric), git and
+commit provenance (3), code payload (2), code-quality signals (2),
+dataset management (2), pipeline state (2), and hard-negative
+provenance (3). Schema 3.0 trims the previous 53-field schema by
+removing fields documented as derivable, filter-time-only, or tied
+to removed pipeline phases; the complete per-field literature
+justification, including the ``removed in 3.0'' appendix, is in
+\texttt{FIELD\_JUSTIFICATION.md}. Here we describe the four signal
+fields most relevant to label validation:
 
 \begin{itemize}
-\item \texttt{cwe} --- the labeled MITRE CWE identifier (e.g.,
+\item \texttt{cwe}: the labeled MITRE CWE identifier (e.g.,
   \texttt{CWE-89}). Inherited from the source advisory.
-\item \texttt{has\_cwe\_sink} --- boolean, auto-computed by the
+\item \texttt{has\_cwe\_sink}: boolean, auto-computed by the
   sink-presence filter (Section~\ref{sec:dataset:sink}).
-\item \texttt{sink\_pattern} --- the specific regex pattern that
-  matched, preserved for audit and reproducibility.
-\item \texttt{label\_source} --- one of \texttt{advisory},
+\item \texttt{sink\_pattern}: the specific regex pattern that matched,
+  preserved for audit and reproducibility.
+\item \texttt{label\_source}: one of \texttt{advisory},
   \texttt{static\_mining}, \texttt{canonical}, or
   \texttt{commit\_classifier}. Tracks the provenance of the CWE
   assignment for label-confidence tiering.
@@ -310,7 +317,7 @@ The dominant audit failure pattern across all three rounds is
 ``co-changed file noise'': a file touched in a CVE fix commit
 whose labeled CWE is not actually localized to that file. The
 sink-presence filter cannot detect this because the sink token
-\emph{is} present --- it just isn't the line the fix modified.
+\emph{is} present. It just is not the line the fix modified.
 
 We address this with an evidence-anchored label criterion: a
 positive sample is valid only if at least one line containing a
@@ -369,8 +376,8 @@ are retained as a separate label-confidence tier
 
 \paragraph{Round-3 audit (post-Layer-3).}
 A third audit round on 78 samples drawn from the diff-filtered
-dataset measured an aggregate FP rate of 26\% --- approximately
-halving the post-Layer-2 rate (Table~\ref{tab:audit-progression}).
+dataset measured an aggregate FP rate of 26\%, approximately halving
+the post-Layer-2 rate (Table~\ref{tab:audit-progression}).
 The improvement is most pronounced on the CWEs that suffered most
 from co-changed-file noise: CWE-22 dropped from 80\% to 27\% FP,
 CWE-502 to 0\%, CWE-94 to 0\%. Residual noise concentrates on
@@ -452,20 +459,19 @@ Samples carry one of three implicit confidence tiers based on the
 combination of source and Layer-3 validity:
 
 \begin{enumerate}
-\item \textbf{HIGH (provable)} --- \texttt{label\_source =
-  advisory} \emph{and} the diff-based filter (Layer~3) recorded a
-  modified sink line. The label is anchored on direct evidence:
-  the fix commit changed the sink. Approximately 442 of 871
-  positives are in this tier.
+\item \textbf{HIGH (provable)}: \texttt{label\_source = advisory}
+  \emph{and} the diff-based filter (Layer~3) recorded a modified sink
+  line. The label is anchored on direct evidence: the fix commit
+  changed the sink. Approximately 442 of 871 positives are in this
+  tier.
 
-\item \textbf{HIGH (curated)} --- \texttt{label\_source =
-  canonical}. 20 hand-written textbook samples; correctness by
-  construction.
+\item \textbf{HIGH (curated)}: \texttt{label\_source = canonical}.
+  20 hand-written textbook samples; correctness by construction.
 
-\item \textbf{MEDIUM (curator)} --- \texttt{vudenc}-sourced
-  samples. Human-labeled but lacks a paired \texttt{code\_after},
-  so Layer~3 cannot validate. 209 samples, all CWE-89. Should be
-  reported separately in per-tier evaluation.
+\item \textbf{MEDIUM (curator)}: \texttt{vudenc}-sourced samples.
+  Human-labeled but lacks a paired \texttt{code\_after}, so Layer~3
+  cannot validate. 209 samples, all CWE-89. Reported separately in
+  per-tier evaluation.
 \end{enumerate}
 
 The tier distinction matters for evaluation:

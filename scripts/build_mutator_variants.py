@@ -42,6 +42,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.red_team import all_mutators, apply_mutators, get_mutator  # noqa: E402
+from src.red_team.mutators.sink_attr_obfuscate import (  # noqa: E402
+    apply_to_source as apply_sink_obfuscate,
+)
+from src.red_team.mutators.sink_via_globals import (  # noqa: E402
+    apply_to_source as apply_sink_via_globals,
+)
+from src.red_team.mutators.taint_through_dict import (  # noqa: E402
+    apply_to_source as apply_taint_through_dict,
+)
 from src.utils.logger import get_logger  # noqa: E402
 
 logger = get_logger("build_mutator_variants")
@@ -51,7 +60,20 @@ MUTATOR_NAMES = [
     "string_split",
     "variable_rename",
     "wrapper_extraction",
+    "sink_attr_obfuscate",
+    "sink_via_globals",
+    "taint_through_dict",
 ]
+
+#: Mutators that operate on the whole module instead of the first
+#: function. The standard apply_mutators pipeline scopes mutation to a
+#: single function; sink-targeting mutators need to see the whole module
+#: because the sink may live anywhere (method, helper, module-level).
+MODULE_SCOPE_MUTATORS = {
+    "sink_attr_obfuscate",
+    "sink_via_globals",
+    "taint_through_dict",
+}
 
 
 def stable_seed(sample_id: str, salt: str = "") -> int:
@@ -62,7 +84,19 @@ def stable_seed(sample_id: str, salt: str = "") -> int:
 
 
 def apply_one(source: str, mutator_name: str, seed: int) -> tuple[str, bool]:
-    """Apply a single mutator. Return (output_source, applied_successfully)."""
+    """Apply a single mutator. Return (output_source, applied_successfully).
+
+    Module-scope mutators (see ``MODULE_SCOPE_MUTATORS``) bypass the
+    per-function pipeline and run on the whole module's AST.
+    """
+    if mutator_name in MODULE_SCOPE_MUTATORS:
+        if mutator_name == "sink_attr_obfuscate":
+            return apply_sink_obfuscate(source)
+        if mutator_name == "sink_via_globals":
+            return apply_sink_via_globals(source)
+        if mutator_name == "taint_through_dict":
+            return apply_taint_through_dict(source)
+        raise ValueError(f"no module-scope handler for {mutator_name!r}")
     mutator = get_mutator(mutator_name)
     rng = random.Random(seed)
     out, results = apply_mutators(

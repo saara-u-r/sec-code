@@ -1,12 +1,76 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-% TODO: 2--3 paragraphs. Restate the gap, summarize what was built and what
-% was found, end with concrete future work.
+Most Python vulnerability detectors today are evaluated on labels
+inherited unmodified from CVE fix commits, on metrics that do not
+account for the rarity of vulnerable code, and on a single point on
+the input distribution. Each of these is a substantive source of
+measurement noise on its own, and together they produce comparisons
+that are difficult to interpret and harder to replicate. The CASTLE
+benchmark~\cite{castle} addressed two of these issues for C and
+C++ with a hand-curated 250-program corpus, but its design does not
+transfer to Python, where the dominant CWE classes are sink-anchored
+injection and deserialization weaknesses rather than memory-safety
+bugs, and where the labels themselves are noisier because Python
+advisories rarely localize the defect below the file.
+
+This paper contributes a Python-specific evaluation substrate that
+addresses the three issues directly. The benchmark covers seven
+sink-shaped MITRE Top-25 CWE classes with 871 positives and 429 safe
+hard negatives, partitioned into 607 training, 127 validation, and
+132 test samples under a repo-group stratified split with zero
+cross-split repository leakage. Labels are validated through a
+three-layer methodology that combines a sink-presence filter, three
+rounds of independent adversarial audit, and a diff-based filter that
+requires the sink line to have been modified between
+\texttt{code\_before} and \texttt{code\_after}. The combined
+methodology reduces the audited false-positive rate from 52\% on raw
+CVE-feed labels to 26\%. We additionally publish seven
+semantics-preserving adversarial mutators across three orthogonal
+families (sink-preserving: dead-code injection, string literal
+splitting, identifier rename, wrapper extraction; sink-targeted:
+attribute-access obfuscation, builtins-module indirection; dataflow:
+taint-through-dict), each targeting a known detection shortcut, and
+use them to extend a single-axis detection comparison to a two-axis
+comparison of detection accuracy against rewrite robustness. To our knowledge this is the
+first Python vulnerability benchmark that publishes an automated,
+sink-anchored label-validity criterion and an adversarial robustness
+probe alongside detection accuracy.
+
+The current evaluation reports two static-analysis baselines
+(Bandit, Semgrep) and one benchmark-trained learned detector
+(a fine-tuned GraphCodeBERT classifier) on the clean test set and
+the seven adversarial variants under a five-measure profile
+(macro-F1, detection MCC, severity-weighted recall, hierarchical
+CWE macro-accuracy, weighted Cohen's $\kappa$). The headline finding
+is that the sink-token mutator family separates the detector tiers
+cleanly: the two SAST tools drop 0.11--0.19 macro-F1 and
+0.20--0.35 severity-weighted recall under attribute-access
+obfuscation and bare-builtin indirection, while the trained detector
+is invariant to every mutator in the suite. Three follow-up tracks
+are planned. First, an LLM detector row (Anthropic Claude) is
+built into the harness and reserved for an authorized run. Second,
+the multi-model learned-detector evaluation (a second Transformer
+encoder and a non-Transformer baseline) is the natural extension to
+generalize the single-checkpoint robustness claim. Third, the
+deferred structural CWE track (CWE-352, CWE-862, CWE-863, CWE-306,
+CWE-284, CWE-639, CWE-200) will be evaluated separately because the
+sink-anchored detection methodology cannot reliably detect the
+absence-of-a-check vulnerability shape; a structural-CWE benchmark
+requires a different methodology built around application-level
+context that we leave to follow-up work.
 
 \paragraph{Data and code availability}
-% TODO: GitHub link, dataset DOI (Zenodo / figshare), license.
+The benchmark dataset, the audit reports for all three rounds, the
+rejection manifests with per-sample reason codes for every dropped
+sample, the regex pattern set, the diff-filter and mutator
+implementations, the audit-pack generator, and the evaluation harness
+are released under a permissive open-source license. The dataset is
+hash-pinned to a tagged release. Any future revision will be a
+separate tag with a documented changelog. % TODO: insert repository URL
+% and dataset DOI (Zenodo / figshare) before submission.
 
 \paragraph{Acknowledgements}
-% TODO. Funding sources go in a separate \section*{Funding} block per
-% Elsevier policy if applicable.
+% TODO: acknowledge supervisors, funding source (if applicable), and
+% compute provider (if applicable). Funding statements may need to
+% appear in a separate \section*{Funding} block per Elsevier policy.

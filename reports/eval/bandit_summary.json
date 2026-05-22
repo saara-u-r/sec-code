@@ -7,7 +7,76 @@
     "string_split": 0.5859348198970841,
     "variable_rename": 0.5891293891293891,
     "wrapper_extraction": 0.5891293891293891,
-    "composed": 0.5891293891293891
+    "sink_attr_obfuscate": 0.40211640211640215,
+    "sink_via_globals": 0.44627224627224626,
+    "taint_through_dict": 0.5891293891293891,
+    "composed": 0.581708238851096
+  },
+  "detection_mcc": {
+    "clean": 0.47308742392646874,
+    "dead_code_injection": null,
+    "string_split": null,
+    "variable_rename": null,
+    "wrapper_extraction": null,
+    "sink_attr_obfuscate": null,
+    "sink_via_globals": null,
+    "taint_through_dict": null,
+    "composed": null
+  },
+  "severity_weighted_recall": {
+    "clean": 0.7448614834673816,
+    "dead_code_injection": 0.7448614834673816,
+    "string_split": 0.7448614834673816,
+    "variable_rename": 0.7448614834673816,
+    "wrapper_extraction": 0.7448614834673816,
+    "sink_attr_obfuscate": 0.3981233243967827,
+    "sink_via_globals": 0.49865951742627324,
+    "taint_through_dict": 0.7448614834673816,
+    "composed": 0.7336907953529938
+  },
+  "swr_pool_size": {
+    "clean": 27,
+    "dead_code_injection": 27,
+    "string_split": 27,
+    "variable_rename": 27,
+    "wrapper_extraction": 27,
+    "sink_attr_obfuscate": 27,
+    "sink_via_globals": 27,
+    "taint_through_dict": 27,
+    "composed": 27
+  },
+  "hcma": {
+    "clean": 0.5642006802721089,
+    "dead_code_injection": 0.5642006802721089,
+    "string_split": 0.5597363945578232,
+    "variable_rename": 0.5642006802721089,
+    "wrapper_extraction": 0.5642006802721089,
+    "sink_attr_obfuscate": 0.34197845804988664,
+    "sink_via_globals": 0.421343537414966,
+    "taint_through_dict": 0.5642006802721089,
+    "composed": 0.5522959183673469
+  },
+  "weighted_kappa": {
+    "clean": 0.5621794506183945,
+    "dead_code_injection": 0.49964438122332866,
+    "string_split": 0.4844183156485996,
+    "variable_rename": 0.49964438122332866,
+    "wrapper_extraction": 0.49964438122332866,
+    "sink_attr_obfuscate": 0.27160862553013543,
+    "sink_via_globals": 0.404750392844192,
+    "taint_through_dict": 0.49964438122332866,
+    "composed": 0.4793751407702951
+  },
+  "observed_agreement": {
+    "clean": 0.7272727272727273,
+    "dead_code_injection": 0.6716417910447762,
+    "string_split": 0.6567164179104478,
+    "variable_rename": 0.6716417910447762,
+    "wrapper_extraction": 0.6716417910447762,
+    "sink_attr_obfuscate": 0.47761194029850745,
+    "sink_via_globals": 0.582089552238806,
+    "taint_through_dict": 0.6716417910447762,
+    "composed": 0.6567164179104478
   },
   "n_samples": {
     "clean": 132,
@@ -15,6 +84,9 @@
     "string_split": 67,
     "variable_rename": 67,
     "wrapper_extraction": 67,
+    "sink_attr_obfuscate": 67,
+    "sink_via_globals": 67,
+    "taint_through_dict": 67,
     "composed": 67
   },
   "per_cwe_f1": {
@@ -63,7 +135,25 @@
       "CWE-502": 0.9090909090909091,
       "CWE-918": 0.0
     },
-    "composed": {
+    "sink_attr_obfuscate": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 1.0,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "sink_via_globals": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 0.0,
+      "CWE-502": 0.9090909090909091,
+      "CWE-918": 0.0
+    },
+    "taint_through_dict": {
       "CWE-22": 0.0,
       "CWE-78": 0.8,
       "CWE-79": 0.6,
@@ -71,13 +161,25 @@
       "CWE-94": 1.0,
       "CWE-502": 0.9090909090909091,
       "CWE-918": 0.0
+    },
+    "composed": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.8,
+      "CWE-79": 0.6,
+      "CWE-89": 0.8148148148148148,
+      "CWE-94": 1.0,
+      "CWE-502": 0.8571428571428571,
+      "CWE-918": 0.0
     }
   },
   "robustness_drop": {
     "dead_code_injection": 0.0,
     "string_split": 0.003194569232304989,
     "variable_rename": 0.0,
-    "wrapper_extraction": 0.0
+    "wrapper_extraction": 0.0,
+    "sink_attr_obfuscate": 0.1870129870129869,
+    "sink_via_globals": 0.1428571428571428,
+    "taint_through_dict": 0.0
   },
-  "mean_single_mutator_drop": 0.0007986423080762473
+  "mean_single_mutator_drop": 0.047580671300347814
 }

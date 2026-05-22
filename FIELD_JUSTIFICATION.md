@@ -5,10 +5,83 @@ in the vulnerability dataset schema (`build_meta()` in `src/utils/file_utils.py`
 Each field is grounded in peer-reviewed vulnerability dataset and vulnerability detection
 research. The aim is to demonstrate that every field either (a) directly mirrors a field
 used in a published dataset, (b) follows a standard established in the literature, or
-(c) is an original contribution motivated by the web-security focus of this pipeline.
+(c) is an original contribution motivated by the security-focus of this pipeline.
 
-The schema has **48 fields** organized into 8 groups. The 4 CWE classes targeted
-(CWE-89, CWE-78, CWE-22, CWE-502) are justified separately at the end.
+The schema has **26 fields** organized into 9 groups, schema version **3.0**. The
+7 sink-shaped Top-25 Python CWE classes targeted (CWE-89, CWE-79, CWE-22, CWE-78,
+CWE-94, CWE-918, CWE-502) are justified separately at the end.
+
+**Schema 3.0 (this version)** trimmed 27 fields from the 53-field 2.x schema. The
+trim removed redundant fields (the 8 per-CVSS-metric breakdowns are decomposable
+from `cvss_vector`; `cwe_name` and `vuln_type` are derivable from `cwe`),
+filter-time-only signals that have no downstream readers (`syntax_valid`,
+`has_taint_source`, `is_web_code`, `has_cwe_sink`, `loc_before`, `loc_after`),
+and fields tied to removed pipeline phases (`classifier_cwe`,
+`classifier_confidence` from the dropped Phase-2 commit classifier). The 26
+retained fields are partitioned into three usage tiers below; the removed fields
+are documented in the "Removed in schema 3.0" appendix with their literature
+justifications preserved for traceability.
+
+---
+
+## Field Tiers — What Each Consumer Actually Uses
+
+Not every consumer of this dataset needs every field. The 26 fields cluster into
+three tiers by *role*. A reviewer asking "do you really need 26 fields?" should
+see this table first: only 3 are required to run an evaluation; the rest exist
+to support training and to make the benchmark reproducible.
+
+### Tier 1 — Core evaluation (3 fields)
+
+What a detector is scored against. A third-party SAST or LLM run only needs
+these.
+
+| Field | Used by |
+|---|---|
+| `code_before` | Detector input. |
+| `cwe` | Ground-truth label. |
+| `split` | Identifies the held-out test set used in `reports/eval/`. |
+
+### Tier 2 — Training and augmentation (11 fields)
+
+Additional fields read by the Phase-3 dual-task model and the Phase-2.5
+augmentation pipeline.
+
+| Field | Used by |
+|---|---|
+| `code_after` | Phase-2.5 sanitization rules (transform `code_before` → safe variant). |
+| `cvss_score` | Phase-3 dual-task model — regression head target. |
+| `cvss_severity` | Per-severity slicing in the eval harness. |
+| `label_confidence` | Training-time sample weighting (low-confidence labels down-weighted). |
+| `label_source` | Per-source quality filtering during training. |
+| `pair_id` | Joins `code_before`/`code_after` records for contrastive examples. |
+| `framework` | Per-framework slicing in result tables. |
+| `is_hard_negative` | Distinguishes augmented hard negatives from natural samples. |
+| `parent_sample_id` | Links a hard negative to the vulnerable sample it was derived from. |
+| `sanitization_transform` | Records which Phase-2.5 rule generated the hard negative. |
+| `repo` | Anti-leakage grouping in the stratified splitter (`src/labeler/stratified_splitter.py`). |
+
+### Tier 3 — Benchmark artifact (12 fields)
+
+Provenance, dedup, and pipeline-state fields that let a third party re-derive
+or extend the dataset. Not read at evaluation or training time, but essential
+if the benchmark is to outlive any single training run — the same role these
+fields play in CVEfixes, BigVul, and DiverseVul.
+
+| Field | Used by |
+|---|---|
+| `_schema_version` | Forward-compatibility for future schema changes. |
+| `id` | Primary key. |
+| `source` | Which scraper produced the record. |
+| `cve_id` | Canonical external identifier. |
+| `ghsa_id` | Scraper-level dedup (`ghsa_db_scraper`) + alternate join key. |
+| `cvss_version` | CVSS 3.0 vs 3.1 disambiguation. |
+| `cvss_vector` | Full vector string encoding all 8 base metrics. |
+| `file_path` | Where in the source repo the sample lives. |
+| `fix_commit` | Reproducibility: re-pull the original fix from upstream. |
+| `sink_pattern` | Which sub-pattern within a CWE matched (audit + per-pattern slicing). |
+| `content_hash` | MongoDB dedup key. |
+| `nvd_enriched` | Phase-3 idempotency flag (skip already-enriched records). |
 
 ---
 
@@ -37,9 +110,9 @@ All papers below were independently verified with DOIs/URLs.
 
 ---
 
-## Group 1 — Identity (4 fields)
+## Group 1 — Identity (3 fields)
 
-**Fields:** `_schema_version`, `id`, `source`, `scraped_at`
+**Fields:** `_schema_version`, `id`, `source`
 
 ### Purpose
 
@@ -82,20 +155,11 @@ high-quality-source records, or debug scraper-specific anomalies. CrossVul (Niki
 et al., 2021) organises its entire directory structure by source database and programming
 language for the same reason.
 
-### `scraped_at`
-
-A UTC collection timestamp serves two purposes. First, it enables incremental scraping:
-only re-run scrapers for records older than a threshold, rather than re-scraping everything
-on every run. Second, it enables temporal analysis of dataset growth over time and lets
-you verify that a dataset version was collected before or after a specific advisory was
-published (e.g., to avoid including future-knowledge leakage in evaluation).
-CVEfixes stores `published_date` and `updated_date` per CVE record for the same reasons.
-
 ---
 
-## Group 2 — Advisory IDs (4 fields)
+## Group 2 — Advisory IDs (2 fields)
 
-**Fields:** `cve_id`, `ghsa_id`, `osv_id`, `pysec_id`
+**Fields:** `cve_id`, `ghsa_id`
 
 ### Purpose
 
@@ -134,33 +198,19 @@ for records that already have CVSS data from GHSA, and it enables cross-referenc
 between our scrapers (e.g., an OSV record and a GHSA record for the same vulnerability
 can be merged).
 
-### `osv_id`
-
-The Open Source Vulnerability (OSV) schema (Chang et al., Google, 2021) is the emerging
-standard for open-source vulnerability advisories. OSV.dev aggregates advisories from
-GHSA, PyPA, Go Vulnerability Database, Rust Advisory DB, and others. The OSV schema
-specification explicitly defines `id`, `aliases`, and `related` fields to support
-cross-database linking — our four advisory ID fields implement exactly this pattern.
-Storing `osv_id` enables enrichment from the OSV API and cross-referencing with
-OSV-sourced records in the dataset.
-
-### `pysec_id`
-
-PyPA advisories (format `PYSEC-YYYY-NNN`) are the primary source for Python-package-
-specific vulnerabilities. Many Python package vulnerabilities are reported to PyPA before
-they receive a CVE from MITRE, so `pysec_id` captures records that would be missed if
-we relied solely on `cve_id`. The OSV schema explicitly defines PyPA (`pysec`) as a
-distinct namespace with its own ID format, further justifying a separate field.
-
-All four advisory ID fields coexist on every record, with `null` for whichever scrapers
-did not produce the record — this is the same pattern used by the OSV schema's `aliases`
-array and is consistent with CrossVul's multi-ID design.
+Both ID fields coexist on every record, with `null` for whichever scrapers did
+not produce the record — this is the same pattern used by the OSV schema's
+`aliases` array and is consistent with CrossVul's multi-ID design. The original
+schema also carried `osv_id` and `pysec_id`; those were trimmed in schema 3.0
+because no downstream consumer reads them and the OSV/PySEC IDs can be
+re-derived from `cve_id` + `source` via the OSV REST API. See the "Removed
+in schema 3.0" appendix.
 
 ---
 
-## Group 3 — Vulnerability Label (5 fields)
+## Group 3 — Vulnerability Label (3 fields)
 
-**Fields:** `cwe`, `cwe_name`, `vuln_type`, `label_source`, `label_confidence`
+**Fields:** `cwe`, `label_source`, `label_confidence`
 
 ### Purpose
 
@@ -188,26 +238,6 @@ universal:
 
 CWE is the single most consistently used label in the vulnerability ML literature.
 It is not a design choice; it is the standard.
-
-### `cwe_name`
-
-`cwe_name` is the human-readable string for the CWE ID (e.g., "SQL Injection" for
-CWE-89). BigVul includes a `Vulnerability Classification` column with the CWE name
-alongside the numeric ID. CVEfixes stores both CWE ID and CWE description. The field
-is not used directly in ML training, but it is essential for generating readable
-reports, visualisations, and dataset documentation — and for sanity-checking that a
-numeric CWE ID was correctly assigned (e.g., confirming that CWE-89 maps to SQL
-Injection and not Path Traversal).
-
-### `vuln_type`
-
-`vuln_type` is an internal normalised slug (e.g., `sql_injection`, `path_traversal`)
-used as a filename prefix, MongoDB filter key, and dataset folder name. It is derived
-deterministically from `cwe`. CrossVul uses a `vulnerability_type` column for the same
-purpose — a stable, machine-processable string for the vulnerability class that avoids
-the need to parse numeric CWE IDs in downstream code. Without this field, every MongoDB
-query for a specific vulnerability class would require a regex or CWE-ID lookup, making
-the pipeline more brittle.
 
 ### `label_source`
 
@@ -248,43 +278,27 @@ the recommendation implied by D2A's label-source tracking.
 
 ---
 
-## Group 4 — CVSS Severity (13 fields)
+## Group 4 — CVSS Severity (4 fields)
 
-**Fields:** `cvss_score`, `cvss_severity`, `cvss_version`, `cvss_vector`,
-`cvss_attack_vector`, `cvss_attack_complexity`, `cvss_privileges_required`,
-`cvss_user_interaction`, `cvss_scope`, `cvss_confidentiality`, `cvss_integrity`,
-`cvss_availability`, `cvss_source`
+**Fields:** `cvss_score`, `cvss_severity`, `cvss_version`, `cvss_vector`
 
 ### Purpose
 
 CVSS v3 encodes vulnerability severity across 8 independent dimensions, which combine
-mathematically into a 0–10 score. The critical design decision in this schema is to
-store each CVSS component as an individual field rather than only the composite score.
-This choice is directly justified by two independent peer-reviewed ML studies showing
-that individual CVSS components are better predictive features than the aggregate score
-alone.
+mathematically into a 0–10 score. Schema 2.x stored each dimension as its own column
+(13 fields total) following **Spanos & Angelis (2018)** and **CVSS-BERT (Shahid &
+Debar, ISSREW 2021)**, which train per-dimension classifiers and argue that
+sub-metrics are independently predictive.
 
-### Why 13 fields instead of just `cvss_score`?
-
-**Spanos & Angelis (2018)** — *Journal of Systems and Software*, vol. 146 — is the
-primary justification. Their paper trains multi-target ML models to predict individual
-CVSS characteristics from vulnerability descriptions. Their key finding: Attack Vector,
-Attack Complexity, Confidentiality Impact, Integrity Impact, and Availability Impact are
-each independently predictive, and models using individual sub-metrics as separate
-features significantly outperform those using only the composite score. They explicitly
-conclude that decomposing CVSS into its components is the correct approach for
-ML-based vulnerability analysis.
-
-**CVSS-BERT (Shahid & Debar, ISSREW 2021)** independently confirms this on 45,926 NVD
-CVE entries from 2018–2020. It trains a separate BERT-based classifier for each of the
-8 CVSS v3 base metrics (Attack Vector, Attack Complexity, Privileges Required, User
-Interaction, Scope, Confidentiality, Integrity, Availability). This architecture — one
-classifier per sub-metric — would be impossible to implement if the sub-metrics were not
-stored as individual fields.
-
-**Bozorgi et al. (KDD 2010)** used CVSS base metrics as individual features for
-exploitability prediction at the KDD conference, establishing the earliest academic
-precedent for treating CVSS components as separate ML features.
+Schema 3.0 collapses the 8 per-metric fields into the single `cvss_vector` string,
+which encodes all of them in NVD's canonical form (`CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`).
+This is the same trade-off the NVD JSON 2.0 feed makes: it ships the vector string and
+expects consumers to parse it for per-metric values rather than duplicating the data
+across 8 columns. The Spanos/CVSS-BERT methods remain implementable from the vector
+string with one parsing pass — the predictive content is preserved, only the
+denormalisation is removed. See the "Removed in schema 3.0" appendix for the
+literature justifications retained for the 8 dropped per-metric columns plus
+`cvss_source`.
 
 ### `cvss_score`
 
@@ -322,83 +336,11 @@ without querying the database again, and any discrepancy between `cvss_score` an
 vector can be detected. The NVD JSON feed includes the full vector string alongside
 individual sub-metric fields, and this practice is mirrored here.
 
-### `cvss_attack_vector`
-
-Attack Vector distinguishes remote (NETWORK) from local (LOCAL, ADJACENT, PHYSICAL)
-vulnerabilities. This is arguably the most important CVSS component for prioritisation:
-NETWORK-exploitable vulnerabilities (SQL injection in a web-facing Flask endpoint) are
-dramatically more dangerous than LOCAL ones. Spanos & Angelis (2018) identify Attack
-Vector as a high-importance feature in their multi-target model. Bozorgi et al. (2010)
-use Attack Vector as a feature for exploitability prediction. In Phase 6, Attack Vector
-determines which red team payloads are applicable (only NETWORK vulnerabilities are
-targeted by the web-based red team).
-
-### `cvss_attack_complexity`
-
-Attack Complexity (LOW / HIGH) encodes whether an exploit requires special conditions
-beyond the attacker's control. LOW means the exploit is reliable and repeatable; HIGH
-means it requires a race condition, specific configuration state, or other circumstance
-the attacker cannot directly control. Spanos & Angelis (2018) and CVSS-BERT (2021)
-both model Attack Complexity as a separately predicted feature. In Phase 6 it informs
-the difficulty level of red team exploit payloads.
-
-### `cvss_privileges_required`
-
-Privileges Required (NONE / LOW / HIGH) indicates whether the attacker needs an account
-on the system. NONE means the exploit is unauthenticated — the most dangerous scenario
-for a public web application. SQL injection vulnerabilities in public Flask routes are
-almost always NONE. Bozorgi et al. (2010) and Spanos & Angelis (2018) both use this
-component as a feature for exploitability and severity prediction.
-
-### `cvss_user_interaction`
-
-User Interaction (NONE / REQUIRED) indicates whether a victim must take action. Server-
-side vulnerabilities like SQL injection and OS command injection are NONE: the attacker
-interacts directly with the server and no victim action is required. This field helps
-filter for purely server-side vulnerabilities, which are the focus of the Phase 6 red
-team engine. CVSS-BERT (2021) trains a dedicated classifier for this metric.
-
-### `cvss_scope`
-
-Scope (UNCHANGED / CHANGED) is unique to CVSS v3 and indicates whether a successful
-exploit can affect systems beyond the vulnerable component. CHANGED means the exploit
-can "jump" — from the web application to the underlying OS (relevant for CWE-78 command
-injection) or database server. Scope-CHANGED vulnerabilities receive higher red team
-priority. Spanos & Angelis (2018) model Scope as a separate target in their multi-target
-framework.
-
-### `cvss_confidentiality`, `cvss_integrity`, `cvss_availability`
-
-These three fields encode the CIA (Confidentiality, Integrity, Availability) impact
-(NONE / LOW / HIGH). Together they represent the classic information security triad:
-
-- CWE-89 SQL Injection: HIGH confidentiality (read entire DB), HIGH integrity (write or
-  delete data), potentially HIGH availability (drop tables).
-- CWE-22 Path Traversal: HIGH confidentiality (read arbitrary files on the server).
-- CWE-502 Insecure Deserialization: typically HIGH across all three (arbitrary code
-  execution).
-- CWE-78 Command Injection: HIGH across all three (full OS command execution).
-
-Spanos & Angelis (2018) train three separate classifiers — one per CIA component — and
-find that each carries distinct predictive signals. CVSS-BERT (2021) similarly treats
-each CIA impact as a separate classification task. Storing all three individually is
-required to reproduce these methods and to generate per-dimension impact reports.
-
-### `cvss_source`
-
-`cvss_source` records whether CVSS data came from GHSA (available at scrape time,
-assigned by GitHub's security team) or NVD (filled in by Phase 3, assigned by NIST
-analysts). GHSA and NVD scores for the same CVE sometimes differ. Without this field,
-there is no way to audit which records have NIST-assigned scores versus GitHub-assigned
-ones, or to detect and resolve scoring discrepancies between the two sources. This is
-a data provenance field analogous to `label_source` in Group 3.
-
 ---
 
-## Group 5 — Provenance (7 fields)
+## Group 5 — Provenance (3 fields)
 
-**Fields:** `repo`, `file_path`, `fix_commit`, `vulnerable_commit`,
-`commit_message`, `commit_date`, `commit_author`
+**Fields:** `repo`, `file_path`, `fix_commit`
 
 ### Purpose
 
@@ -444,53 +386,13 @@ in every vulnerability dataset that uses real-world code:
 - VCCFinder (2015) was the earliest large-scale work to map CVEs to GitHub fix commits,
   establishing this as the foundational concept for code-level vulnerability datasets.
 
-### `vulnerable_commit`
-
-The SHA of the parent commit (last commit before the fix) identifies the exact code
-state that is vulnerable — the version from which `code_before` is fetched. The
-methodology for identifying this commit is the **SZZ algorithm** (Śliwerski, Zimmermann
-& Zeller, MSR 2005), which introduced the concept of tracing backward from a fix
-commit to find the commit that introduced the bug. SZZ and its variants (B-SZZ,
-AG-SZZ, MA-SZZ, RA-SZZ) are the standard approach used by CVEfixes, D2A, and BigVul
-for locating the vulnerable version of code. Without storing `vulnerable_commit`,
-reproducing the dataset would require re-running git bisection for every sample.
-
-### `commit_message`
-
-The developer's commit message documents their own understanding of what was wrong and
-how they fixed it. This field is established across the dataset literature:
-
-- CVEfixes stores `commit_message` as an explicit field for every fix commit.
-- VCCFinder (Perl et al., 2015) uses commit messages as ML features — showing that
-  developers' natural-language descriptions of their changes carry signal for
-  vulnerability detection.
-- CrossVul includes commit messages in its supporting data tables specifically because
-  they aid in verifying that a commit is a security fix (rather than a routine refactor).
-
-In this schema, `commit_message` is retained as a provenance field: it enables qualitative
-auditing of label quality (a commit message saying "Fix SQL injection in login form"
-corroborates a CWE-89 label) and is useful for consumers who want to understand the
-human context behind each fix.
-
-### `commit_date`
-
-The date of the fix commit enables temporal analysis — a standard methodology in
-empirical software engineering. Studies such as Finifter et al. (2013) used commit
-dates to measure vulnerability lifetimes in Chrome and Firefox. CVEfixes stores
-`commit_date` per record for this purpose. Temporal analysis of fix commit dates is
-relevant for answering questions such as: How long do vulnerabilities survive before
-being patched? Are newer Flask projects patching faster than older ones? The field is
-currently not fully populated but is reserved for future enrichment in this pipeline.
-
-### `commit_author`
-
-`commit_author` is intentionally set to `null` in all records for PII (Personally
-Identifiable Information) reasons. Developer usernames and email addresses are personal
-data subject to privacy regulations including GDPR in Europe and equivalent laws
-elsewhere. CVEfixes explicitly omits personally identifiable developer information.
-The field is retained in the schema (as a typed null) rather than removed entirely
-so that the schema documents the deliberate decision — a future version of the pipeline
-could populate it with anonymised author IDs if needed for contribution-analysis studies.
+`vulnerable_commit`, `commit_message`, `commit_date`, and `commit_author` were
+present in schema 2.x but trimmed in schema 3.0. The vulnerable commit is recoverable
+as the parent of `fix_commit` via one git API call (SZZ-style, Śliwerski et al., MSR
+2005); `commit_message` and `commit_date` are recoverable from `fix_commit` against
+the upstream repo; and `commit_author` was always set to `null` for PII reasons.
+Literature justifications for the dropped fields are preserved in the "Removed in
+schema 3.0" appendix.
 
 ---
 
@@ -565,17 +467,21 @@ superior training signal.
 
 ---
 
-## Group 7 — Code Analysis Flags (8 fields)
+## Group 7 — Code Quality Signals (2 fields)
 
-**Fields:** `framework`, `language`, `loc_before`, `loc_after`,
-`syntax_valid`, `has_taint_source`, `is_web_code`, `content_hash`
+**Fields:** `framework`, `sink_pattern`
 
 ### Purpose
 
-These fields are computed automatically at scrape time by static analysis of
-`code_before` and `code_after`. They serve two purposes: dataset quality control
-(filtering out unsuitable samples before training) and feature engineering (providing
-additional signals for Phase 5 ML models beyond raw code content).
+Schema 2.x stored 8 auto-computed signals (`language`, `loc_before`, `loc_after`,
+`syntax_valid`, `has_taint_source`, `is_web_code`, `has_cwe_sink`, plus
+`framework`/`sink_pattern`) used at scrape time to filter and stratify samples.
+Schema 3.0 retains only the two signals that have downstream readers — `framework`
+(per-framework slicing in result tables) and `sink_pattern` (audit + per-pattern
+slicing). The other 6 are filter-time-only: they gate which samples enter
+`data/raw/` but are never read again, so for the published artifact they are
+recomputable from `code_before` if needed. Their literature justifications are
+preserved in the "Removed in schema 3.0" appendix.
 
 ### `framework`
 
@@ -589,94 +495,45 @@ CrossVul records programming language across 40+ languages and organises samples
 language — the most direct precedent for framework-level stratification. ReVeal is built
 exclusively from Chromium and Debian security patches, implicitly applying a strong
 framework/environment filter; our `framework` field makes this filter explicit and
-queryable. The red team engine (Phase 6) targets Flask applications specifically, so
-`framework` is a mandatory filter field for Phase 6.
+queryable. In the eval harness, `framework` enables per-framework F1 breakdowns
+(Django vs. Flask vs. FastAPI rows in the results table), and the Phase-6 red-team
+engine uses it to select framework-specific exploit payloads.
 
-### `language`
+### `sink_pattern`
 
-`language` is always `"python"` in the current dataset and is reserved for future
-expansion to other languages. Storing it explicitly follows the standard established by
-every multi-language dataset:
+`sink_pattern` records the specific regex within a CWE's pattern set that matched
+`code_before` (e.g., for CWE-94 it captures whether the sample matched `eval(`,
+`exec(`, `__import__(`, or `compile(...,'exec')`). The Phase-2B sink-presence
+filter (`src/utils/cwe_taxonomy.py:has_cwe_sink`) computes this; the audit-pack
+builder (`scripts/build_audit_pack.py:151`) reads it to stratify human-review
+samples by sub-pattern, and the paper uses it for per-sub-pattern result tables
+(e.g., "of CWE-94 samples, X% used `eval(` and Y% used dynamic import").
 
-- CrossVul covers 40+ programming languages and includes `language` (from file extension)
-  as an explicit schema field.
-- BigVul covers C/C++ and documents language as a key characteristic of its scope.
-- CVEfixes covers multiple languages and uses `programming_language` as a filter field.
-- DiverseVul covers both C and C++ and documents language distribution in its statistics.
+No prior Python vulnerability benchmark publishes this level of sink-pattern
+detail. The closest precedent is Devign's per-function "vulnerability type" tag
+on Chromium/QEMU patches, but Devign's tags are coarse-grained (e.g., "memory
+corruption") rather than sink-specific. Storing the matched sink-pattern is an
+original contribution of this benchmark and supports the sink-shaped scoping
+decision documented in `PHASE_2B_DESIGN.md`.
 
-Storing `language` even when it is always `"python"` future-proofs the schema for
-expansion and makes the dataset's scope explicit to consumers.
+---
 
-### `loc_before` and `loc_after`
+## Group 8 — Dataset Management & Pipeline State (4 fields)
 
-Lines of code (LOC) is one of the oldest and most widely studied code metrics in
-software engineering. Its relevance to vulnerability detection:
+**Fields:** `content_hash`, `pair_id`, `nvd_enriched`, `split`
 
-- CVEfixes stores the number of lines added and deleted per commit, from which file LOC
-  is directly derivable. The paper uses LOC statistics to characterise the dataset.
-- BigVul records code-size statistics per function, and LineVul builds on these for its
-  line-level analysis.
-- The vulnerability detection literature consistently finds that vulnerability density
-  (vulnerabilities per KLOC) varies across file sizes, meaning LOC is a useful
-  normalisation factor and a feature for ML.
-- Software defect prediction literature (Nagappan & Ball, ICSE 2005; Halstead 1977)
-  has established LOC as a baseline metric for defect prediction for over 50 years.
+### Purpose
 
-In Phase 5, `loc_before` is used to stratify training samples: very small utility
-files and very large application modules have different vulnerability pattern densities.
-`loc_after` allows computing the patch size delta (the size of the change that fixed
-the vulnerability), which is used as a quality signal — patches that change hundreds of
-lines are more likely to mix security fixes with unrelated refactoring.
+These fields serve two roles: `content_hash` and `pair_id` are dataset-management
+keys (deduplication and before/after pair joining); `nvd_enriched` and `split` are
+pipeline-state flags populated by later phases. Together they enable idempotent
+re-execution: any phase can re-run and skip records it has already processed.
 
-### `syntax_valid`
-
-`syntax_valid` records whether `code_before` passes Python `ast.parse()` without errors.
-Files that fail are filtered before Phase 5 training for three reasons:
-1. They cannot be tokenised or parsed by any code analysis tool.
-2. Syntax errors in scraped code typically indicate truncated file fetches or encoding
-   problems during scraping.
-3. A model trained on syntactically invalid code learns noise rather than vulnerability
-   patterns.
-
-CVEfixes and D2A both include syntax and parsability filtering as explicit cleaning
-steps in their pipeline descriptions. D2A specifically notes that files failing static
-analysis tool checks are excluded from its dataset. Our `syntax_valid` flag makes this
-filtering step explicit and queryable — a transparent cleaning decision rather than a
-hidden pre-processing step that could silently bias the dataset.
-
-### `has_taint_source`
-
-`has_taint_source` is `true` when the file contains direct references to user-input
-sources such as `request.args`, `request.form`, `request.data`, or `request.json`.
-Taint analysis — tracking the flow of user-controlled data from input sources to
-dangerous sinks — is the foundational methodology of web application security analysis.
-Tools including OWASP's CodeQL integration, Bandit (Python), and FlowDroid all implement
-taint analysis.
-
-The Juliet Test Suite (NIST/NSA), which is the standard synthetic vulnerability benchmark,
-categorises every sample by whether the taint source is in the same file as the dangerous
-sink. This categorisation directly parallels our `has_taint_source` field.
-
-A known limitation of file-level analysis (documented in `DATASET_SCHEMA.md`) is that
-`has_taint_source` is `false` for database-layer files like `db.py` where the taint
-originates in a Flask route file. The field is retained precisely because this limitation
-is informative: it documents a cross-file taint analysis gap that Phase 5 model
-consumers need to be aware of.
-
-### `is_web_code`
-
-`is_web_code` indicates whether a file contains web application code (framework imports,
-HTTP request/response patterns). It is used to filter out library internals, test
-utilities, setup scripts, and configuration files that appear in Flask project
-repositories but contain no web-facing vulnerability patterns.
-
-Domain filtering is applied implicitly in every focused vulnerability dataset:
-- ReVeal (Chakraborty et al., 2022) is built exclusively from security patches in
-  Chromium — a domain filter equivalent in spirit to `is_web_code = true`.
-- Devign covers FFmpeg, QEMU, Linux kernel, and Wireshark — a domain filter to
-  systems-level C code.
-- Our `is_web_code` field makes this domain filter explicit and queryable, consistent
-  with the transparency goals of research-grade dataset construction.
+`classifier_cwe` and `classifier_confidence` were present in schema 2.x as outputs
+of the Phase-2 commit-message classifier. The classifier was removed per
+supervisor feedback (see `PROJECT_SUMMARY_2026-05-22.md`), and the fields were
+trimmed in schema 3.0. Their literature justifications are preserved in the
+"Removed in schema 3.0" appendix.
 
 ### `content_hash`
 
@@ -698,25 +555,8 @@ Dataset deduplication is a critical quality concern across the literature:
 
 Content-hash deduplication is stricter than commit-based deduplication: two different
 commits fixing the same file produce the same `content_hash` and are correctly merged.
-This is the right behaviour because from an ML perspective, training on the same code
-twice (regardless of commit SHA) introduces duplication bias.
-
----
-
-## Group 8 — ML Pipeline State (6 fields)
-
-**Fields:** `pair_id`, `classifier_cwe`, `classifier_confidence`,
-`nvd_enriched`, `split`, and implicitly `content_hash` (also in Group 7)
-
-*(Note: `content_hash` serves double duty as both a quality signal and a pipeline
-deduplication key. It is documented fully in Group 7.)*
-
-### Purpose
-
-These fields start as `null` or `false` at scrape time and are progressively populated
-by later phases of the pipeline. They enable idempotent execution: any phase can re-run
-and safely skip records that have already been processed, and any MongoDB query can
-filter for records at a specific pipeline stage.
+In our pipeline `content_hash` is also the MongoDB unique-index key
+(`src/utils/mongo_writer.py:96`), preventing duplicate inserts on re-runs.
 
 ### `pair_id`
 
@@ -731,32 +571,6 @@ CrossVul encodes pair identity in its file naming convention
 (`bad_{commitID}_{fileID}` / `good_{commitID}_{fileID}`). Our `pair_id` is a first-class
 database field that makes pair joining a simple MongoDB equality query rather than a
 multi-field join.
-
-### `classifier_cwe`
-
-`classifier_cwe` stores the CWE label predicted by the Phase 2 commit message
-classifier (e.g., `"CWE-89"`). This field provides a **secondary label** for samples
-where the advisory CWE is absent, uncertain, or classified as `"other"`.
-
-The use of a classifier-generated secondary label alongside an advisory-sourced primary
-label follows the D2A approach: D2A stores both the automated labeler's assignment
-(`label_source = "auto_labeler"`) and the post-fix extractor's assignment as separate
-fields, allowing downstream consumers to choose their label source or combine both.
-In our pipeline, `classifier_cwe` is used in Phase 5 for samples where `label_confidence`
-is low or `cwe` is missing — the classifier's prediction fills the gap.
-
-### `classifier_confidence`
-
-`classifier_confidence` stores the confidence score (0–1) of the Phase 2 prediction.
-In Phase 2, a DistilBERT model's prediction replaces the SVM prediction only if the
-DistilBERT confidence exceeds the SVM confidence. In Phase 5, low-confidence predictions
-are down-weighted relative to high-confidence advisory-sourced labels.
-
-The pattern of storing a classifier confidence score alongside a label is standard in
-multi-stage NLP pipelines and is consistent with D2A's confidence-tier approach and
-Devign's inter-annotator agreement documentation. Storing the confidence as a numeric
-field rather than a binary accept/reject allows Phase 5 to apply continuous weighting
-rather than a hard threshold.
 
 ### `nvd_enriched`
 
@@ -787,27 +601,109 @@ the train/val/test split as a stored field. LineVul introduced the 80/10/10 chro
 split on BigVul as the standard evaluation protocol, and subsequent papers have adopted
 the same split for fair comparability. Our pipeline uses a stratified 70/15/15 split
 (to ensure class balance across CWE types, given that CWE-89 is ~5x more frequent than
-CWE-502 in our scraped data) rather than a chronological split, but the practice of
+CWE-22 in our scraped data) rather than a chronological split, but the practice of
 storing the split assignment per record follows LineVul.
 
 ---
 
-## Justification for the 4 Target CWE Classes
+## Group 9 — Phase 2.5 Hard-Negative Provenance (3 fields)
 
-The pipeline targets: **CWE-89** (SQL Injection), **CWE-78** (OS Command Injection),
-**CWE-22** (Path Traversal), **CWE-502** (Insecure Deserialization).
+**Fields:** `is_hard_negative`, `parent_sample_id`, `sanitization_transform`
+
+### Purpose
+
+Phase 2.5 generates **hard negatives** — samples that look superficially vulnerable
+(same imports, similar variable names, same control flow) but have been sanitized so
+the sink is no longer exploitable. A hard negative is produced by applying one of the
+per-CWE *sanitization rules* (`src/red_team/sanitization/rules/`) to a vulnerable
+sample. These three fields record the provenance of every hard-negative record so the
+augmentation pipeline is auditable, reversible, and analyzable in the paper's
+robustness section.
+
+The group has no direct precedent in prior Python vulnerability benchmarks because
+augmented-hard-negative provenance is itself a contribution of this work — but the
+*pattern* of recording the source of synthetically generated samples is well-established
+in adversarial-ML datasets (e.g., the original adversarial-examples literature
+(Goodfellow et al., ICLR 2015) and contrastive-learning code datasets (CodeContrast,
+SimCLR-Code) store the parent sample and the transformation that produced each
+augmented example for exactly this reason).
+
+### `is_hard_negative`
+
+Boolean flag that distinguishes naturally-scraped samples (`false`) from samples
+produced by Phase-2.5 sanitization (`true`). Used by the eval harness to score
+detectors *only* on naturally-occurring samples in the standard test set, then
+re-score on a hard-negative-augmented test set to report a robustness delta. Without
+this flag, hard negatives would silently inflate the count of `safe`-labeled samples
+in the standard test split and contaminate clean-test results.
+
+### `parent_sample_id`
+
+The `id` of the vulnerable sample that this hard negative was derived from. Enables:
+
+1. **Audit**: a researcher can inspect both the original vulnerable code and the
+   sanitized version side-by-side to verify the sanitization rule applied correctly.
+2. **Anti-leakage in splits**: a hard negative must land in the same train/val/test
+   split as its parent — otherwise a detector could see the parent in training and
+   trivially recognise the hard-negative variant in test. The stratified splitter
+   (`src/labeler/stratified_splitter.py`) uses `parent_sample_id` as part of its
+   group key when present.
+3. **Pair contrastive learning**: future Phase-3 work could use parent / hard-negative
+   pairs as contrastive examples (closer to BigVul's `func_before`/`func_after`
+   pairing pattern but applied to the augmented dimension).
+
+### `sanitization_transform`
+
+The name of the rule that produced this hard negative (e.g.,
+`percent_execute_to_parameterized` for CWE-89,
+`wrap_render_template_string_with_escape` for CWE-79). One value per record. Used
+by the eval harness to compute per-transform robustness drops in the paper's
+results table — answering "which sanitization patterns do detectors fail to
+recognise as fixes?" rather than aggregating into a single hard-negative-vs-clean
+number that would hide structure.
+
+The Phase 2.5 mutator side (`dead_code_injection`, `string_split`,
+`variable_rename`, `wrapper_extraction`, `composed`) materialises its variants
+under `data/test_variants/` rather than into the dataset, so those mutator names
+do not appear in this field — only the per-CWE sanitization-rule names do. This is
+deliberate: sanitization changes the *label* (vulnerable → safe), so the result is
+a new record; mutation preserves the label, so the result is a per-sample variant
+attached to the same record.
+
+---
+
+## Justification for the 7 Target CWE Classes
+
+The pipeline targets the **7 sink-shaped Top-25 Python CWEs**:
+**CWE-89** (SQL Injection), **CWE-79** (Cross-Site Scripting),
+**CWE-22** (Path Traversal), **CWE-78** (OS Command Injection),
+**CWE-94** (Code Injection), **CWE-918** (Server-Side Request Forgery),
+**CWE-502** (Insecure Deserialization).
+
+The original four-CWE scope (CWE-89, CWE-78, CWE-22, CWE-502) was expanded during
+Phase 2B (see `PHASE_2B_DESIGN.md`) to all sink-shaped CWEs in the MITRE Top 25 that
+appear in Python web code with a closed alphabet of fix patterns. CWE-434 (file
+upload), CWE-798 (hardcoded credentials), CWE-611 (XXE), CWE-330 (weak randomness),
+and CWE-400 (resource exhaustion) were considered and dropped — either because they
+fell outside the Top 25 (611/330/400), because their fix-pattern alphabet was too
+small to support robustness analysis (798), or because audit found 100% false
+positives from the sink filter on structural CWEs (434). The selection criteria
+("sink-shaped" — vulnerability is the presence of a sink with attacker-controlled
+input, not the absence of a structural property) is documented in
+`PHASE_2B_DESIGN.md §1`.
 
 ### OWASP Top 10 (2021)
 
-All four CWE classes appear in the OWASP Top 10 (2021), the industry-standard list of
-the most critical web application security risks:
+All seven CWE classes appear in the OWASP Top 10 (2021), the industry-standard list
+of the most critical web application security risks:
 
-- **A01 — Broken Access Control:** Includes CWE-22 Path Traversal (directory traversal
-  is a canonical broken access control vulnerability).
-- **A03 — Injection:** Explicitly covers CWE-89 SQL Injection and CWE-78 OS Command
-  Injection as its primary examples.
-- **A08 — Software and Data Integrity Failures:** Explicitly covers CWE-502 Insecure
+- **A01 — Broken Access Control:** Includes CWE-22 Path Traversal.
+- **A03 — Injection:** Covers CWE-89 SQL Injection, CWE-79 Cross-Site Scripting,
+  CWE-78 OS Command Injection, and CWE-94 Code Injection as its primary examples.
+- **A08 — Software and Data Integrity Failures:** Covers CWE-502 Insecure
   Deserialization as a primary example.
+- **A10 — Server-Side Request Forgery:** A dedicated category in OWASP 2021,
+  covering CWE-918.
 
 The OWASP Top 10 is the most widely cited web security risk framework in both industry
 and academic research (cited in over 1,200 academic papers per Google Scholar).
@@ -817,18 +713,24 @@ and academic research (cited in over 1,200 academic papers per Google Scholar).
 MITRE and CISA publish an annual list of the 25 most dangerous software weaknesses
 based on NVD CVE data. In the 2022 edition:
 
+- CWE-79 (Cross-Site Scripting) ranked **#2**.
 - CWE-89 (SQL Injection) ranked **#3**.
-- CWE-22 (Path Traversal) ranked **#8**.
 - CWE-78 (OS Command Injection) ranked **#5**.
+- CWE-22 (Path Traversal) ranked **#8**.
+- CWE-94 (Code Injection) ranked **#25**.
 - CWE-502 (Deserialization of Untrusted Data) ranked **#12**.
+- CWE-918 (Server-Side Request Forgery) entered the Top 25 at **#21**.
 
-All four target CWEs appear in the top 25 most dangerous, and three appear in the top 8.
+All seven target CWEs appear in the Top 25 most dangerous, and four appear in the
+top 8. The "sink-shaped" criterion (CWE has a closed alphabet of fix patterns
+expressible as taint source → dangerous sink) is what differentiates these seven
+from the rest of the Top 25 — and is documented in `PHASE_2B_DESIGN.md §1`.
 
 ### Prevalence in Prior Datasets
 
-All four CWE types appear among the most frequent classes in CVEfixes, BigVul, and
-CrossVul, meaning they are well-represented in the vulnerability dataset literature and
-enable fair comparison of results with prior work. CWE-89 alone accounts for
+All seven CWE types appear among the most frequent classes in CVEfixes, BigVul, and
+CrossVul, meaning they are well-represented in the vulnerability dataset literature
+and enable fair comparison of results with prior work. CWE-89 alone accounts for
 approximately 18% of all web application CVEs in NVD data (consistent across multiple
 NVD analyses).
 
@@ -852,34 +754,90 @@ automated red team framework.
 
 ## Summary Table
 
-| Group | Field | Count | Primary citation(s) |
+| Group | Fields | Count | Primary citation(s) |
 |---|---|---|---|
-| Identity | `_schema_version`, `id`, `source`, `scraped_at` | 4 | CVEfixes, BigVul, NVD JSON feed |
-| Advisory IDs | `cve_id`, `ghsa_id`, `osv_id`, `pysec_id` | 4 | CVEfixes, BigVul, CrossVul, VCCFinder, OSV schema |
-| Vulnerability labels | `cwe`, `cwe_name`, `vuln_type` | 3 | CVEfixes, BigVul, CrossVul, DiverseVul, NVD |
-| Label provenance | `label_source`, `label_confidence` | 2 | D2A (exact `label_source` field), Devign, BigVul replication study |
-| CVSS score | `cvss_score`, `cvss_severity`, `cvss_version`, `cvss_vector`, `cvss_source` | 5 | CVEfixes, BigVul, NVD CVSS v3.1 spec |
-| CVSS sub-metrics | `cvss_attack_vector`, `cvss_attack_complexity`, `cvss_privileges_required`, `cvss_user_interaction`, `cvss_scope`, `cvss_confidentiality`, `cvss_integrity`, `cvss_availability` | 8 | Spanos & Angelis 2018 (multi-target prediction), CVSS-BERT 2021, Bozorgi et al. 2010 |
-| Provenance | `repo`, `file_path`, `fix_commit`, `vulnerable_commit`, `commit_message`, `commit_date`, `commit_author` | 7 | CVEfixes, SZZ 2005, VCCFinder 2015, D2A, CrossVul |
+| Identity | `_schema_version`, `id`, `source` | 3 | CVEfixes, BigVul, NVD JSON feed |
+| Advisory IDs | `cve_id`, `ghsa_id` | 2 | CVEfixes, BigVul, CrossVul, VCCFinder, OSV schema |
+| Vulnerability label | `cwe`, `label_source`, `label_confidence` | 3 | CVEfixes, BigVul, CrossVul, NVD; D2A (label_source/confidence) |
+| CVSS severity | `cvss_score`, `cvss_severity`, `cvss_version`, `cvss_vector` | 4 | CVEfixes, BigVul, NVD CVSS v3.1 spec |
+| Provenance | `repo`, `file_path`, `fix_commit` | 3 | CVEfixes, SZZ 2005, VCCFinder 2015 |
 | Code payload | `code_before`, `code_after` | 2 | CVEfixes (exact field names), LineVul 2022, CrossVul, BigVul, Devign, ReVeal, DiverseVul |
-| Code quality | `language`, `loc_before`, `loc_after`, `syntax_valid`, `content_hash` | 5 | CrossVul, CVEfixes, BigVul, D2A (syntax filtering), DiverseVul (content-hash dedup) |
-| Domain filters | `framework`, `has_taint_source`, `is_web_code` | 3 | Original contribution; motivated by ReVeal and Devign domain-filter patterns |
-| Pipeline state | `pair_id`, `classifier_cwe`, `classifier_confidence`, `nvd_enriched`, `split` | 5 | LineVul (split), D2A (label source + confidence), CVEfixes (enrichment flags), CrossVul (pair linking) |
-| **Total** | | **48** | |
+| Code quality signals | `framework`, `sink_pattern` | 2 | Original contributions; framework analogous to ReVeal/Devign domain filters; sink_pattern unique to this benchmark |
+| Dataset mgmt & pipeline state | `content_hash`, `pair_id`, `nvd_enriched`, `split` | 4 | DiverseVul (content-hash dedup), CrossVul (pair linking), CVEfixes (enrichment flags), LineVul (split) |
+| Phase 2.5 hard-neg provenance | `is_hard_negative`, `parent_sample_id`, `sanitization_transform` | 3 | Original contribution; pattern analogous to adversarial-ML / contrastive-code dataset provenance |
+| **Total** | | **26** | |
 
 ---
 
 ## Fields That Are Original Contributions
 
-Three fields in Group 7 do not have a direct counterpart in any surveyed dataset.
-They are the original contribution of this schema and are justified on methodological
-rather than precedent grounds:
+Five fields do not have a direct counterpart in any surveyed dataset. They are the
+original contributions of this schema and are justified on methodological rather
+than precedent grounds:
 
 | Field | Justification |
 |---|---|
-| `framework` | Flask-specific vulnerability patterns differ from Django/FastAPI patterns; required for Phase 6 which targets Flask; analogous to the domain filter implicit in ReVeal (Chromium only) and Devign (FFmpeg/QEMU/Linux/Wireshark only) |
-| `has_taint_source` | Grounded in classical taint analysis methodology (the foundational method for web vulnerability detection); documents the cross-file taint limitation explicitly for dataset consumers |
-| `is_web_code` | Makes the domain filter explicit that every focused vulnerability dataset applies implicitly; required because GitHub repositories contain both web-application code and library/test code |
+| `framework` | Different Python web frameworks have different vulnerability patterns; required for per-framework slicing in the eval harness; analogous to the domain filter implicit in ReVeal (Chromium only) and Devign (FFmpeg/QEMU/Linux/Wireshark only) |
+| `sink_pattern` | Records which specific regex within a CWE's sink set matched. Supports per-sub-pattern audit and the paper's sink-shaped scoping argument (Phase 2B). No prior Python benchmark publishes this granularity. |
+| `is_hard_negative` | Distinguishes naturally-scraped samples from Phase-2.5 sanitization variants; required so hard negatives are evaluated separately from the standard test set. Original to this benchmark. |
+| `parent_sample_id` | Links a hard-negative to the vulnerable sample it was derived from. Required for anti-leakage (parent + variant must share splits) and pair-contrastive learning. Pattern analogous to adversarial-ML augmentation provenance. |
+| `sanitization_transform` | Records which Phase-2.5 sanitization rule produced each hard-negative. Enables per-transform robustness analysis ("which fix patterns do detectors fail to recognise?") rather than aggregating into a single hard-neg-vs-clean number. |
+
+---
+
+## Appendix: Fields Removed in Schema 3.0
+
+Schema 2.x carried 53 fields. Schema 3.0 (this version) trimmed 27 of them — the
+literature justifications for each are preserved here so the deliberate-curation
+argument is traceable. Each removed field falls into one of four categories:
+
+**(A) Derivable from a retained field.** No information loss; downstream code can
+recompute on demand.
+
+| Removed | Derivable from | Original justification (brief) |
+|---|---|---|
+| `cwe_name` | `cwe` (lookup table) | Human-readable CWE name; BigVul/CVEfixes both store it for sanity-checking. |
+| `vuln_type` | `cwe` (snake_case mapping) | Internal slug for filenames/queries; CrossVul uses an analogous `vulnerability_type`. |
+| `cvss_attack_vector`, `cvss_attack_complexity`, `cvss_privileges_required`, `cvss_user_interaction`, `cvss_scope`, `cvss_confidentiality`, `cvss_integrity`, `cvss_availability` | `cvss_vector` (parsing) | Per-CVSS-metric decomposition. **Spanos & Angelis (JSS 2018)** and **CVSS-BERT (ISSREW 2021)** argue these are individually predictive; the vector string preserves the data, only the denormalization is removed. |
+| `loc_before`, `loc_after` | `code_before`, `code_after` (line count) | Code-size metric; Nagappan & Ball 2005, Halstead 1977 — 50+ years of defect-prediction precedent. |
+| `vulnerable_commit` | `fix_commit` + git API (parent) | SZZ algorithm (Śliwerski et al., MSR 2005); recoverable via one upstream call. |
+| `commit_date` | `fix_commit` + git API (date) | Temporal analysis (Finifter et al. 2013); recoverable. |
+| `commit_message` | `fix_commit` + git API (message) | VCCFinder (CCS 2015) uses messages as ML features; recoverable. |
+
+**(B) Filter-time-only signals with no downstream readers.** These gated which
+samples entered `data/raw/` but were never read again. The filtering decision is
+embedded in the dataset's *contents* (failing samples are absent); the boolean flag
+itself is redundant once filtering has run.
+
+| Removed | Original justification (brief) |
+|---|---|
+| `syntax_valid` | `ast.parse()` success; CVEfixes / D2A filter on this. Recomputable if needed. |
+| `has_taint_source` | File contains `request.args`/`request.form`/etc. Used by health_check, which now recomputes inline. |
+| `is_web_code` | Framework imports + HTTP patterns. Effectively `framework != "unknown"`; redundant with `framework`. |
+| `has_cwe_sink` | Sink regex matched. Always True post-filter (failing samples live in `data/raw_rejected/`), so storing the flag is redundant on shipped records. |
+
+**(C) Tied to removed pipeline phases.**
+
+| Removed | Reason |
+|---|---|
+| `classifier_cwe` | Phase-2 commit classifier removed per supervisor feedback; always `null`. |
+| `classifier_confidence` | Same. D2A-style label-provenance pattern preserved via `label_source` + `label_confidence`. |
+
+**(D) Always-null or low-value.**
+
+| Removed | Reason |
+|---|---|
+| `commit_author` | Always set to `null` in schema 2.x for PII reasons (CVEfixes omits the same); empty field carries no signal. |
+| `scraped_at` | UTC timestamp; useful for incremental scraping during construction, never read downstream. |
+| `language` | Always `"python"`; constant column. Will re-add if the benchmark expands to multi-language. |
+| `osv_id`, `pysec_id` | Redundant with `cve_id` + `source` for cross-database join; only set by their respective scrapers, never read by any consumer. |
+| `cvss_source` | Useful for distinguishing NVD-vs-GHSA scoring, but never read; `source` + `cvss_version` provide enough provenance. |
+
+**Restoring any of these fields** is a one-line change in `build_meta()` plus a
+re-scrape (or a script that re-computes the field from `code_before` / `fix_commit`
+for the derivable ones). The literature citations above and the per-field
+discussion preserved in git history (`git show <pre-3.0-commit>:FIELD_JUSTIFICATION.md`)
+remain the academic justification if a future revision needs to add any of them back.
 
 ---
 

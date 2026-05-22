@@ -4,7 +4,7 @@
 % Submission options (Elsevier docs):
 %   review    — double-spaced, single-column (use for submission)
 %   1p / 3p / 5p — final-form column layouts (use for camera-ready)
-\documentclass[review,12pt]{elsarticle}
+\documentclass[3p,12pt]{elsarticle}
 
 % ---- Packages --------------------------------------------------------------
 \usepackage[T1]{fontenc}
@@ -16,11 +16,7 @@
 \usepackage{microtype}
 \usepackage{xspace}
 \usepackage[hidelinks]{hyperref}
-\usepackage{lineno}
 \usepackage{url}
-
-% Show line numbers during review (Elsevier requires this for the review class).
-\modulolinenumbers[5]
 
 % Path for figures.
 \graphicspath{{figs/}}
@@ -28,6 +24,11 @@
 \journal{Computers \& Security}
 
 % ---- Front matter ----------------------------------------------------------
+% Allow TeX to loosen lines when it would otherwise overflow rather than
+% emit Overfull \hbox warnings. The penalty for stretchier lines is
+% applied only when needed, so normal paragraphs are unaffected.
+\setlength{\emergencystretch}{3em}
+
 \begin{document}
 
 \begin{frontmatter}
@@ -60,7 +61,7 @@ inherited from CVE fix commits, where empirical audits report 25--50\%
 label noise from co-changed files. The CASTLE benchmark addressed this
 for C/C++ with a hand-curated 250-program corpus and a comparative
 static-analyzer-versus-LLM study, but no comparable evaluation substrate
-exists for Python --- the dominant language for security tooling, ML
+exists for Python, the dominant language for security tooling, ML
 pipelines, and modern web applications.
 
 We construct an evaluation benchmark for Python vulnerability detection
@@ -76,18 +77,24 @@ and \texttt{code\_after}, treating unchanged sinks as commit-level noise.
 The combined methodology reduces the audited false-positive rate from
 52\% (raw CVE-feed labels) to 26\% (after all three filters).
 
-We accompany the benchmark with four semantics-preserving adversarial
-mutators (dead-code injection, string splitting, identifier rename,
-wrapper extraction), each targeting a known detection shortcut. By
-measuring per-tool F1 drop per mutator we extend CASTLE's framing from
-``which tools detect this vulnerability'' to ``which transformations
-break which tools.''
-% TODO: insert one-line headline result once SAST and LLM evaluations
-% have been run (e.g., ``LLMs lose 19~F1 points on average to wrapper
-% extraction; SAST tools lose 33~F1 points to string splitting'').
-All dataset artifacts, audit reports, rejection manifests, and tool
-runners are released under a permissive license to support replication
-and extension.
+We accompany the benchmark with seven semantics-preserving
+adversarial mutators across three orthogonal families: a
+sink-preserving family that modifies code around the sink
+(dead-code injection, string splitting, identifier rename, wrapper
+extraction), a sink-targeted family that rewrites the sink call
+itself (attribute-access obfuscation, builtins-module indirection),
+and a dataflow mutator that routes the tainted value through an
+intermediate dict subscript. By measuring per-tool F1 drop per
+mutator we extend CASTLE's framing from ``which tools detect this
+vulnerability'' to ``which transformations break which tools.''
+The headline finding is that the sink-token family separates the
+detector tiers cleanly: Bandit loses 0.187 macro-F1 (a $47\%$ relative
+loss in CVSS-severity-weighted recall) under attribute-access
+obfuscation, Semgrep loses 0.132, while a fine-tuned GraphCodeBERT
+classifier trained on the benchmark is invariant to every mutator in
+the suite. All dataset artifacts, audit reports, rejection manifests,
+and tool runners are released under a permissive license to support
+replication and extension.
 \end{abstract}
 
 \begin{keyword}
@@ -101,9 +108,6 @@ large language models
 \end{keyword}
 
 \end{frontmatter}
-
-% Line numbers on for review class.
-\linenumbers
 
 % ---- Body ------------------------------------------------------------------
 \input{sections/introduction}

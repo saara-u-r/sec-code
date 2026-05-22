@@ -7,6 +7,9 @@ registry on import. Adding a new mutator means: (1) write the module,
 """
 
 from src.red_team.mutators import dead_code  # noqa: F401
+from src.red_team.mutators import sink_attr_obfuscate  # noqa: F401
+from src.red_team.mutators import sink_via_globals  # noqa: F401
 from src.red_team.mutators import string_split  # noqa: F401
+from src.red_team.mutators import taint_through_dict  # noqa: F401
 from src.red_team.mutators import variable_rename  # noqa: F401
 from src.red_team.mutators import wrapper_extraction  # noqa: F401

@@ -113,3 +113,130 @@ BANDIT_RULE_TO_CWE: dict[str, str] = {
 def bandit_rule_to_cwe(test_id: str) -> str | None:
     """Map a Bandit rule id (e.g. "B608") to a target CWE, or None."""
     return BANDIT_RULE_TO_CWE.get(test_id.strip().upper())
+
+
+# ---------------------------------------------------------------------------
+# CWE hierarchy (subtree)
+# ---------------------------------------------------------------------------
+#
+# Hand-coded subtree of the MITRE CWE hierarchy (version 4.14, accessed
+# 2026-05-22 at https://cwe.mitre.org/data/index.html). Covers the seven
+# target CWEs and the ancestors needed to compute Wu-Palmer similarity
+# between any two of them.
+#
+# A synthetic ``ROOT`` node at depth 0 unifies the two MITRE pillars we
+# touch so that every CWE in the subtree has a finite path to a common
+# ancestor. Without this, cross-pillar pairs would have no LCA. Wu-Palmer
+# similarity returns 0 when the LCA is ROOT, which is the right answer
+# for "two unrelated weaknesses."
+#
+# MITRE relationships used (ChildOf-Primary):
+#   CWE-78   -> CWE-77   -> CWE-74  -> CWE-707
+#   CWE-79   -> CWE-74  -> CWE-707
+#   CWE-89   -> CWE-74  -> CWE-707
+#   CWE-94   -> CWE-74  -> CWE-707
+#   CWE-22   -> CWE-668 -> CWE-664
+#   CWE-502  -> CWE-913 -> CWE-664
+#   CWE-918  -> CWE-441 -> CWE-664
+#
+# Tree:
+#   ROOT (0)
+#   ├── CWE-707 Improper Neutralization (1)            -- pillar
+#   │   └── CWE-74 Injection (2)
+#   │       ├── CWE-77 Command Injection (3)
+#   │       │   └── CWE-78 OS Command Injection (4)
+#   │       ├── CWE-79 XSS (3)
+#   │       ├── CWE-89 SQL Injection (3)
+#   │       └── CWE-94 Code Injection (3)
+#   └── CWE-664 Improper Control of a Resource (1)     -- pillar
+#       ├── CWE-668 Exposure of Resource (2)
+#       │   └── CWE-22 Path Traversal (3)
+#       ├── CWE-913 Dynamically-Managed Code Resources (2)
+#       │   └── CWE-502 Insecure Deserialization (3)
+#       └── CWE-441 Confused Deputy (2)
+#           └── CWE-918 SSRF (3)
+#
+# Some CWEs have multiple MITRE ChildOf relationships (CWE-918 also lists
+# CWE-610 as a parent). We use the ChildOf-Primary relationship listed
+# first in each CWE's MITRE entry. Reviewers can re-derive any single
+# similarity by inspecting this dict.
+
+_CWE_ROOT = "ROOT"
+
+CWE_PARENT: dict[str, str] = {
+    # Pillars
+    "CWE-707": _CWE_ROOT,
+    "CWE-664": _CWE_ROOT,
+    # Classes / intermediates under CWE-707
+    "CWE-74":  "CWE-707",
+    "CWE-77":  "CWE-74",
+    # Target CWEs under CWE-707
+    "CWE-78":  "CWE-77",
+    "CWE-79":  "CWE-74",
+    "CWE-89":  "CWE-74",
+    "CWE-94":  "CWE-74",
+    # Classes / intermediates under CWE-664
+    "CWE-668": "CWE-664",
+    "CWE-913": "CWE-664",
+    "CWE-441": "CWE-664",
+    # Target CWEs under CWE-664
+    "CWE-22":  "CWE-668",
+    "CWE-502": "CWE-913",
+    "CWE-918": "CWE-441",
+}
+
+
+def cwe_depth(cwe: str) -> int:
+    """Distance from ROOT for ``cwe`` in the hand-coded subtree.
+
+    Raises ``KeyError`` if ``cwe`` is not in the subtree (which excludes
+    ``safe`` and any CWE outside the 7 target classes and their
+    listed ancestors). Callers responsible for ``safe`` handling.
+    """
+    d = 0
+    node = cwe
+    while node != _CWE_ROOT:
+        node = CWE_PARENT[node]
+        d += 1
+    return d
+
+
+def cwe_ancestors(cwe: str) -> list[str]:
+    """Return [cwe, parent, grandparent, ..., ROOT]."""
+    out = [cwe]
+    node = cwe
+    while node != _CWE_ROOT:
+        node = CWE_PARENT[node]
+        out.append(node)
+    return out
+
+
+def cwe_lca(a: str, b: str) -> str:
+    """Lowest common ancestor in the subtree. Returns ``ROOT`` if the
+    two CWEs share no ancestor below it (i.e. they live in different
+    pillars)."""
+    ancestors_a = set(cwe_ancestors(a))
+    for node in cwe_ancestors(b):
+        if node in ancestors_a:
+            return node
+    return _CWE_ROOT  # defensive; unreachable while ROOT is in both walks
+
+
+def wu_palmer_similarity(a: str, b: str) -> float:
+    """Wu and Palmer (ACL 1994) tree similarity in ``[0, 1]``.
+
+    ``sim(a, b) = 2 * depth(LCA(a, b)) / (depth(a) + depth(b))``
+
+    Returns 1.0 for an exact match, 0.0 when the LCA is the synthetic
+    ROOT (cross-pillar pairs and any pair where ``a`` or ``b`` is the
+    pillar itself). The 'safe' label is **not** in the tree; callers
+    that need a similarity involving ``safe`` should treat it as
+    similarity 0 (see ``weighted_cohen_kappa`` for the convention).
+    """
+    if a == b:
+        return 1.0
+    lca = cwe_lca(a, b)
+    depth_lca = cwe_depth(lca) if lca != _CWE_ROOT else 0
+    if depth_lca == 0:
+        return 0.0
+    return (2.0 * depth_lca) / (cwe_depth(a) + cwe_depth(b))

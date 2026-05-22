@@ -1,24 +1,260 @@
 \section{Threats to Validity}
 \label{sec:threats}
 
-% Follow Wohlin et al. classification.
+We discuss threats to validity along the categories of Wohlin
+et al.~\cite{wohlin}. Each category lists the principal risks
+specific to this benchmark, the mitigations applied during construction,
+and the residual exposure that downstream consumers of the dataset and
+the evaluation should be aware of.
 
 \subsection{Construct validity}
 \label{sec:threats:construct}
-% TODO: CWE label accuracy (residual noise after the sink filter), the
-% pre-ingest filter as a definition of "label correctness."
+
+The principal construct-validity risk is that the labels we treat as
+ground truth do not in fact identify the line on which the vulnerability
+is exploitable. We mitigate this with the three-layer methodology of
+Section~\ref{sec:dataset}, which combines a sink-presence filter, three
+rounds of independent adversarial audit, and a diff-based filter that
+requires the sink line to have been modified between
+\texttt{code\_before} and \texttt{code\_after}. The audited residual
+false-positive rate is 26\%, down from 52\% on the unfiltered CVE
+labels. The 26\% figure is reported in
+Section~\ref{sec:dataset:diff} and is a property of the dataset rather
+than of any single detector. We do not claim a noise-free label set.
+Two practical consequences follow. First, an absolute accuracy reported
+on this benchmark inherits a 26\% audit residual and should not be read
+as a tool's true accuracy on a hypothetical noise-free corpus. Second,
+the comparison \emph{between} two tools on the same labels is robust to
+this residual because both tools score against the same noisy ground
+truth.
+
+A second construct-validity concern is that the sink-presence filter is
+itself a definition of what counts as a correct label. The sink regex
+set, the comment-stripping rules, and the proximity gates for CWE-22
+and CWE-798 (during its inclusion period) collectively determine which
+samples are admitted to the benchmark. A detector that uses the same
+sink regexes inherits a measurement advantage. The filter source code,
+the full pattern set, and the audit reports for every round are
+released alongside the dataset so that this dependence is auditable
+rather than hidden. We additionally report the rejection manifest with
+per-sample reason codes for every dropped sample, enabling a downstream
+reviewer to refute or replicate the filter's decisions.
+
+A third construct-validity concern is the strength of the
+adversarial mutator suite (Section~\ref{sec:methodology}). All six
+mutators are semantics-preserving by AST-level construction. They
+divide into two families with sharply different effects on
+detectors. The \emph{sink-preserving} family —
+\texttt{dead\_code\_injection}, \texttt{variable\_rename},
+\texttt{wrapper\_extraction}, and the held-out \texttt{string\_split}
+— modifies code around the sink (unreachable statements, identifier
+substitution, helper-function hoisting, string fragmentation) but
+preserves the sink token verbatim. All three detector families are
+invariant to this family ($\Delta$F1 between $-0.04$ and $+0.01$),
+and \texttt{string\_split} produces a change indistinguishable from
+the three training-augmented mutators on the learned detector,
+evidence that the four sink-preserving mutators occupy a common
+transformation axis rather than four independent ones. The
+\emph{sink-targeted} family — \texttt{sink\_attr\_obfuscate} (SAO)
+and \texttt{sink\_via\_globals} (SVG), both held out of training-time
+augmentation — rewrites the sink itself: SAO via
+\texttt{getattr}-mediated attribute access for CWE-78/89/918/502
+sinks, SVG via \texttt{\_\_dict\_\_} indexing on the builtins module
+for CWE-94 sinks. On this family the two SAST tools show a
+robustness cliff (Bandit $\Delta$F1 $+0.187$/$+0.143$, Semgrep
+$+0.109$/$+0.132$; the corresponding SWR drops range 0.196--0.347)
+while the learned detector remains invariant ($\Delta$F1 between
+$-0.04$ and $0.00$). The cliff replicates across two mutators
+attacking disjoint sink classes, which we read as evidence that the
+sink-token axis is a property of pattern-matching SAST itself rather
+than an artifact of a single rewriting trick. A third mutator,
+\texttt{taint\_through\_dict} (TTD), exercises a separate
+\emph{dataflow} axis: the sink identifier and argument value are
+preserved but the static lineage from a parameter to the sink
+argument now passes through a one-entry dict construction and
+subscript. TTD is invariant on every detector reported here
+($|\Delta\textrm{F1}| \le 0.030$, $|\Delta\textrm{SWR}| \le 0.029$);
+we read the null result as a property of the current detector set
+(none performs dataflow analysis) rather than a property of the
+probe, and we retain TTD in the benchmark as the slot for future
+dataflow-aware detectors (Section~\ref{sec:eval:robustness}).
+
+Four residual concerns remain. First, one further sink-targeted
+axis is not yet exercised: dynamic dispatch through receiver
+indirection (\texttt{getattr(cursor, attr\_name)(query)} where
+\texttt{attr\_name} is a runtime variable). It could reveal an
+independent axis on which the learned detector is not invariant.
+Second, the SVG family applies to only 6 of the 67 test positives
+(all CWE-94, all using \texttt{eval}); its drop numbers are noisier
+than the SAO numbers and we rely on the agreement with the SAO
+direction as cross-validation rather than treating SVG alone as
+conclusive. Third, TTD's null result is uninformative about
+detector dataflow capability because none of the three current
+detectors performs dataflow analysis; the probe is a measurement
+slot rather than a measurement, and the conclusion ``no detector
+breaks on dataflow obfuscation'' should be read as ``no detector
+in the current set has dataflow tracking to break.'' Fourth, the
+mutator suite is evaluated against a single trained model
+(Section~\ref{sec:eval:model}); the conclusion that sink-targeted
+obfuscation does not break a learned detector should be read as a
+property of this specific GraphCodeBERT checkpoint and not as a
+universal property of learned detectors.
 
 \subsection{Internal validity}
 \label{sec:threats:internal}
-% TODO: train/test contamination via single-CVE clustering (mitigated by
-% per-CVE cap + stratified split), hyperparameter choices, single seed.
+
+Single-CVE clustering is the principal internal-validity risk: a single
+high-impact CVE typically generates several near-identical sample files,
+which can dominate per-class metrics if they fall on the same side of
+the split. We mitigate this with a per-CVE sample cap of three at the
+scraping stage and with a repo-group constraint in the stratified
+splitter (Section~\ref{sec:dataset:final}), which forces all samples
+that share a repository to be assigned to the same train, validation,
+or test split. We verify zero cross-split repository leakage after the
+split is constructed; the verification is part of the released
+build-pipeline tests.
+
+The evaluation uses a single seed for the splitter (seed=42) and a
+single run per detector. We do not report multi-seed mean and standard
+deviation. For the static analysis detectors this is sound because
+their output is deterministic given the input and the rule set. For
+the LLM and trained-model detectors that will be added in the
+evaluation phase this is a residual risk, and the planned multi-seed
+protocol is documented as future work
+(Section~\ref{sec:conclusion}). Detector hyperparameters are pinned to
+their default values for the static tools (Bandit~1.9.4, Semgrep~1.163.0
+with the three published rulesets named in
+Section~\ref{sec:eval:setup}); for the LLM and trained-model
+detectors that will be added later, hyperparameters and prompts will be
+fixed and released with the evaluation script.
 
 \subsection{External validity}
 \label{sec:threats:external}
-% TODO: Python-only scope, repo selection bias in the static miners,
-% generalization beyond the 12 selected CWEs.
+
+The benchmark is Python-specific. The label-validation methodology
+generalizes (the sink-presence filter, the audit cycle, and the
+diff-based filter are language-agnostic in design), but the sink
+pattern set we ship is calibrated for Python and would need to be
+re-derived for another target language. We do not claim that the
+detector rankings reported here transfer to other languages.
+
+The benchmark targets seven sink-shaped CWE classes drawn from the
+MITRE Top-25. Structural CWEs (CWE-352, CWE-862, CWE-863, CWE-306,
+CWE-284, CWE-639, CWE-200) are excluded on methodological grounds, as
+documented in Section~\ref{sec:dataset:scope}. A detector that handles
+structural CWEs well is not measurable on this benchmark, and the
+scores reported here are not a comprehensive Python vulnerability
+detection ranking.
+
+The scraped sample set is biased by the repositories present in CVEfixes,
+GHSA Advisory DB, OSV, PyPA, and NVD-targeted scrapes. Popular Python
+projects (Django, Flask, FastAPI applications) are over-represented;
+small or unmaintained projects with security relevant code are
+under-represented. The hand-curated canonical samples partially offset
+this by introducing textbook examples that no real repository may
+contain in idiomatic form, but they account for only 20 of the 871
+positives.
+
+Finally, the 132-sample test set is small. Per-class test sizes range
+from 3 (CWE-22) to 32 (CWE-89). For the smallest classes the per-class
+F1 carries a wide confidence interval, which we flag in
+Table~\ref{tab:per-cwe-counts} and the per-class results table. A
+follow-up release will increase the per-class sample count for
+CWE-22 and CWE-918, where the current size is the dominant source of
+per-class measurement noise.
 
 \subsection{Conclusion validity}
 \label{sec:threats:conclusion}
-% TODO: statistical significance of ablation deltas, single-run vs
-% multi-seed reporting.
+
+The evaluation reports point estimates of detector metrics rather than
+confidence intervals. For the static analysis baseline this is adequate
+because the rule-based detectors are deterministic and the per-class
+counts are exhaustively enumerated. The trained-model row reports a
+single run with a fixed seed and is deterministic given the seed and
+training data; the protocol does not yet include multi-seed
+re-training. For the LLM rows that will be added later, point estimates
+without intervals would be inappropriate; the evaluation protocol for
+those rows requires multiple runs and bootstrap confidence intervals on
+the headline metric, and that protocol is documented in
+Section~\ref{sec:conclusion}.
+
+A related concern is the size of the test set. The 67-positive
+mutator-eligible subset produces a per-sample F1 swing of approximately
+1.5\%, so an absolute change in macro-F1 below 0.04 lies near the
+noise floor of this benchmark and should not be read as a signed
+robustness result. The $-0.036$ mean drop reported for the trained
+detector in Section~\ref{sec:eval:robustness} is at the boundary of
+this noise floor and is reported as evidence of invariance rather
+than of improvement under mutation. Per-class confidence intervals
+are particularly wide for CWE-22, CWE-78, and CWE-918, where the
+positive test count is below seven and a single prediction flip
+changes F1 by 14 to 33 points.
+
+We do not perform a paired statistical test between detectors on the
+current evaluation. Once the LLM rows are available, a paired bootstrap
+test (resampling samples rather than runs) is the planned protocol
+for between-detector comparisons.
+
+The evaluation in Section~\ref{sec:evaluation} reports a five-measure
+profile (macro-F1, detection MCC, Severity-Weighted Recall,
+hierarchical CWE macro-accuracy, weighted Cohen's $\kappa$) rather
+than the CASTLE Score~\cite{castle} or a security-weighted F-measure
+such as F3. The macro-F1 column is kept for continuity with prior
+Python evaluations that report it. MCC~\cite{chicco2020mcc} replaces
+accuracy on the binary vulnerable-versus-safe collapse because it is
+chance-corrected and stays informative under the rough 50/50 prevalence
+of the clean test set. Severity-Weighted Recall replaces an
+ordinal-rank severity bonus with a CVSS-base-score-weighted recall on
+the subset of positives that ship a CVSS score in the advisory feed
+(27 of the 67 positives in the current test set). HCMA replaces
+flat exact-match accuracy with the Wu--Palmer
+similarity~\cite{wupalmer1994} between the detector's prediction and
+the ground-truth CWE on a hand-coded subtree of MITRE CWE 4.14
+(\texttt{src/eval/cwe\_map.py}), so that close-sibling
+mis-classifications (e.g. predicting CWE-94 when truth is CWE-78,
+both under CWE-74 Injection) receive partial credit. Weighted
+Cohen's $\kappa$ (Cohen~\cite{cohen1968kappa}) is a chance-corrected
+rater-agreement statistic that uses $1{-}$Wu--Palmer as its
+disagreement weight; it gives a single bounded headline number with
+partial credit for near-misses, at the cost of the well-documented
+$\kappa$ paradox under highly skewed prevalence. We report raw
+observed agreement alongside $\kappa$ as the methodology requires.
+Pairwise bootstrap intervals on $\kappa$ are deferred to the LLM
+extension of this evaluation.
+
+\subsection{Summary of limitations}
+\label{sec:threats:limitations}
+
+We close with a consolidated summary of the two principal limitations
+that reviewers should weigh against the headline results. Both are
+discussed in detail in the subsections above; we surface them here
+because either alone bounds the conclusions a reader can draw from
+this work.
+
+\paragraph{Test-set size.} The 132-sample test set
+(67 positives plus 65 hard negatives, distributed across seven CWE
+classes) is small by the standards of post-PrimeVul vulnerability
+benchmarks: PrimeVul~\cite{primevul} ships approximately 7{,}000
+vulnerable samples, and RealVuln~\cite{realvuln} reports 796.
+Per-class F1 confidence intervals are correspondingly wide,
+particularly for CWE-22, CWE-78, and CWE-918, where the positive
+count is below seven and a single prediction flip changes F1 by
+14--33 points (Section~\ref{sec:threats:external},
+Section~\ref{sec:threats:conclusion}). The
+\texttt{sink\_via\_globals} mutator additionally applies to only 6
+of the 67 positives (all CWE-94 \texttt{eval} sinks); its drop
+numbers should be read as direction-confirming the
+\texttt{sink\_attr\_obfuscate} cliff rather than as a
+high-confidence point estimate
+(Section~\ref{sec:threats:construct}).
+
+\paragraph{Single-model learned evaluation.} The learned-detector
+robustness results in Section~\ref{sec:eval:model} are produced by a
+single fine-tuned GraphCodeBERT~\cite{graphcodebert} checkpoint. The
+invariance of this detector to both mutator families is a property
+of this checkpoint and not a universal property of learned
+vulnerability detectors. A multi-model evaluation (a second
+Transformer encoder and a non-Transformer baseline) is the natural
+extension and is left as a planned follow-up. Until that evaluation
+is run, the claim that learned detectors generalize across the
+sink-targeted mutator axis is scoped to this specific detector.

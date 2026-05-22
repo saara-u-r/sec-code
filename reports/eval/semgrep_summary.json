@@ -7,7 +7,76 @@
     "string_split": 0.3747252747252747,
     "variable_rename": 0.3833832833832834,
     "wrapper_extraction": 0.3747252747252747,
+    "sink_attr_obfuscate": 0.2747252747252747,
+    "sink_via_globals": 0.2515151515151515,
+    "taint_through_dict": 0.3652014652014652,
     "composed": 0.3747252747252747
+  },
+  "detection_mcc": {
+    "clean": 0.14872850563636114,
+    "dead_code_injection": null,
+    "string_split": null,
+    "variable_rename": null,
+    "wrapper_extraction": null,
+    "sink_attr_obfuscate": null,
+    "sink_via_globals": null,
+    "taint_through_dict": null,
+    "composed": null
+  },
+  "severity_weighted_recall": {
+    "clean": 0.6344950848972295,
+    "dead_code_injection": 0.6344950848972295,
+    "string_split": 0.6344950848972295,
+    "variable_rename": 0.6344950848972295,
+    "wrapper_extraction": 0.6344950848972295,
+    "sink_attr_obfuscate": 0.43789097408400346,
+    "sink_via_globals": 0.3882931188561214,
+    "taint_through_dict": 0.6626452189454869,
+    "composed": 0.6344950848972295
+  },
+  "swr_pool_size": {
+    "clean": 27,
+    "dead_code_injection": 27,
+    "string_split": 27,
+    "variable_rename": 27,
+    "wrapper_extraction": 27,
+    "sink_attr_obfuscate": 27,
+    "sink_via_globals": 27,
+    "taint_through_dict": 27,
+    "composed": 27
+  },
+  "hcma": {
+    "clean": 0.3531037414965986,
+    "dead_code_injection": 0.3531037414965986,
+    "string_split": 0.34863945578231287,
+    "variable_rename": 0.3531037414965986,
+    "wrapper_extraction": 0.34863945578231287,
+    "sink_attr_obfuscate": 0.26530612244897955,
+    "sink_via_globals": 0.21024659863945577,
+    "taint_through_dict": 0.34863945578231287,
+    "composed": 0.34863945578231287
+  },
+  "weighted_kappa": {
+    "clean": 0.22369066948608574,
+    "dead_code_injection": 0.19219339422388815,
+    "string_split": 0.184054232407463,
+    "variable_rename": 0.19219339422388815,
+    "wrapper_extraction": 0.184054232407463,
+    "sink_attr_obfuscate": 0.11867989899583076,
+    "sink_via_globals": 0.1351151988750965,
+    "taint_through_dict": 0.17789920334618803,
+    "composed": 0.184054232407463
+  },
+  "observed_agreement": {
+    "clean": 0.5454545454545454,
+    "dead_code_injection": 0.2835820895522388,
+    "string_split": 0.26865671641791045,
+    "variable_rename": 0.2835820895522388,
+    "wrapper_extraction": 0.26865671641791045,
+    "sink_attr_obfuscate": 0.19402985074626866,
+    "sink_via_globals": 0.19402985074626866,
+    "taint_through_dict": 0.26865671641791045,
+    "composed": 0.26865671641791045
   },
   "n_samples": {
     "clean": 132,
@@ -15,6 +84,9 @@
     "string_split": 67,
     "variable_rename": 67,
     "wrapper_extraction": 67,
+    "sink_attr_obfuscate": 67,
+    "sink_via_globals": 67,
+    "taint_through_dict": 67,
     "composed": 67
   },
   "per_cwe_f1": {
@@ -63,6 +135,33 @@
       "CWE-502": 0.8,
       "CWE-918": 0.0
     },
+    "sink_attr_obfuscate": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.5,
+      "CWE-89": 0.0,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.5,
+      "CWE-918": 0.0
+    },
+    "sink_via_globals": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.4,
+      "CWE-79": 0.5,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.0,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
+    "taint_through_dict": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.3333333333333333,
+      "CWE-79": 0.5,
+      "CWE-89": 0.0,
+      "CWE-94": 0.923076923076923,
+      "CWE-502": 0.8,
+      "CWE-918": 0.0
+    },
     "composed": {
       "CWE-22": 0.0,
       "CWE-78": 0.4,
@@ -77,7 +176,10 @@
     "dead_code_injection": 0.0,
     "string_split": 0.008658008658008698,
     "variable_rename": 0.0,
-    "wrapper_extraction": 0.008658008658008698
+    "wrapper_extraction": 0.008658008658008698,
+    "sink_attr_obfuscate": 0.10865800865800873,
+    "sink_via_globals": 0.1318681318681319,
+    "taint_through_dict": 0.018181818181818243
   },
-  "mean_single_mutator_drop": 0.004329004329004349
+  "mean_single_mutator_drop": 0.03943199657485375
 }

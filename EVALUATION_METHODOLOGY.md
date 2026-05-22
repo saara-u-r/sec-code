@@ -2,7 +2,7 @@
 
 **Project:** Sink-validated Python vulnerability benchmark
 **Audience:** authors, reviewers, anyone replicating the evaluation
-**Last updated:** 2026-05-13
+**Last updated:** 2026-05-22
 
 This document defines what the evaluation measures, which tools we run,
 how each tool gets called, and how the results are reported. The
@@ -136,6 +136,127 @@ recovers because of the test count, CWE-502 at $n=12$, CWE-22 at 3
 which gets the asterisk), the CIs are tight enough that the
 headline F1 numbers are reliable.
 
+### 3.6 Headline metric profile (next evaluation round)
+
+The macro-F1 + robustness-drop pair above is the metric set used in
+the current baseline (Bandit, Semgrep). It is the same metric set
+prior Python evaluations use, which makes the static-analysis numbers
+directly comparable with RealVuln and PrimeVul. It also has known
+weaknesses on this dataset: macro-F1 is not chance-corrected, ignores
+true negatives, and treats every CWE class as equally severe, none of
+which fits the vulnerable-vs-safe imbalance and the wide CVSS spread
+in our sample distribution. For the next evaluation round (when the
+LLM and trained-model rows are added) the headline shifts to a
+three-measure profile of established statistics. The reasoning is
+laid out in the internal report
+`proposed_evaluation__metric.pdf`; what follows is the operational
+summary.
+
+The profile answers three separate questions, each with one bounded
+statistic.
+
+**Detection MCC.** Can the tool tell vulnerable code from safe code?
+The Matthews Correlation Coefficient on the binary
+vulnerable-versus-safe confusion matrix:
+
+```
+MCC = (TP*TN - FP*FN)
+      / sqrt((TP+FP) * (TP+FN) * (TN+FP) * (TN+FN))
+```
+
+MCC lies in `[-1, +1]`, sits at zero for random guessing, and uses all
+four cells of the confusion matrix. It stays honest under class
+imbalance (Chicco and Jurman, BMC Genomics 2020), which is the
+regime PyVulSev sits in: 65 safe samples against 67 positives in the
+clean test set. PR-AUC (Saito and Rehmsmeier, PLOS ONE 2015) is
+reported alongside MCC for a threshold-independent view of the same
+question.
+
+**Hierarchical CWE Macro-Accuracy.** When the tool does flag a sample
+as vulnerable, does it name the right CWE? CWE is a tree, so a sibling
+or parent prediction is a partial match rather than a flat error. The
+similarity between a predicted CWE `p` and a true CWE `g` is the
+Wu-Palmer similarity on MITRE's published CWE hierarchy (Wu and Palmer,
+ACL 1994):
+
+```
+sim(p, g) = 2 * depth(LCA(p, g)) / (depth(p) + depth(g))
+```
+
+`LCA` is the lowest common ancestor in the CWE tree and `depth` is
+the distance from the root. The score is one for an exact match, high
+for a close sibling, low for an unrelated CWE. Averaging the
+similarity within each true CWE class and then macro-averaging across
+classes (Silla and Freitas, Data Mining and Knowledge Discovery 2011)
+produces a single number in `[0, 1]`. This replaces flat exact-match
+accuracy and gives partial credit for near-correct CWE assignments,
+which is the kind of error our own label census surfaced repeatedly on
+the authorization CWEs.
+
+**Severity-Weighted Recall.** How much of the real danger in the
+dataset did the tool catch? The CVSS base score is published with
+each advisory and is on an interval scale, so it can be used as a
+recall weight directly (FIRST.org, CVSS v3.1 Specification, 2019):
+
+```
+SWR = sum of CVSS_k over detected true vulnerabilities
+    / sum of CVSS_k over all true vulnerabilities
+```
+
+SWR lies in `[0, 1]`. Missing one critical CVSS 9.8 vulnerability
+costs more than missing several minor ones, which is the behavior the
+CASTLE severity bonus aimed at but did not achieve cleanly. Samples
+without a CVSS score (`canonical`, `vudenc`) are excluded from the
+SWR pool rather than assigned a fallback; the SWR pool size is
+reported alongside the metric so a reviewer knows it is computed over
+roughly half the positives.
+
+**Optional headline: weighted Cohen's kappa.** Where a single number
+is required for ranking, the right choice is a textbook statistic
+rather than an invention. Weighted Cohen's kappa (Cohen, Psychological
+Bulletin 1968) treats the tool's verdict and the ground-truth label as
+two raters over the categories of `safe` plus the seven CWE classes:
+
+```
+kappa_w = 1 - (sum of w_ij * observed_ij)
+            / (sum of w_ij * expected_ij)
+```
+
+The disagreement weight `w_ij` is zero for an exact match, one minus
+the Wu-Palmer similarity above when both labels are CWEs, and one when
+one label is `safe` and the other a CWE. The result lies in
+`[-1, +1]`, is zero at chance agreement, gives partial credit for
+near-correct CWE assignments, and has nothing hand-tuned: the weight
+matrix comes from MITRE's published CWE tree. The one caveat is
+kappa's sensitivity to class prevalence (the kappa paradox), so the
+raw observed agreement is always reported alongside it. The three
+measures above remain the primary result; kappa is a convenience
+summary for the headline table.
+
+**How mutators slot in.** Each metric is computed on the clean test
+set and on the composed-mutator variant. The reported quantity for
+robustness is the absolute drop (`MCC_clean - MCC_composed`,
+`HCMA_clean - HCMA_composed`, `SWR_clean - SWR_composed`), and each
+drop is bounded by the metric's own range so the magnitude is
+interpretable. The per-mutator breakdown (single-mutator variants)
+follows the same protocol and is reported as a supplementary table
+for the diagnostic question of which shortcut breaks which tool.
+
+**Implementation status (2026-05-22).** MCC, SWR, HCMA, and weighted
+Cohen's kappa are all live in `src/eval/scoring.py` and populated in
+every `reports/eval/*_summary.json` for the three SAST/learned
+detectors. The CWE-tree component is hand-coded in
+`src/eval/cwe_map.py` rather than parsed from MITRE XML, scoped to
+the seven target CWEs and their ancestors in MITRE CWE 4.14, with
+the parent-of-each-node table laid out inline so reviewers can
+verify any single similarity by inspection. The weighted kappa
+formula is implemented by hand (about 25 lines) because
+`sklearn.metrics.cohen_kappa_score` does not accept an arbitrary
+similarity-derived weight matrix. The remaining profile item is
+PR-AUC, which requires per-sample confidence scores from each
+detector — about fifty lines per detector wrapper — and is left as
+a follow-up.
+
 ---
 
 ## 4. What makes our evaluation different from CASTLE
@@ -200,16 +321,46 @@ the language level), so CASTLE doesn't address this.
 
 ### 4.6 We don't compute a CASTLE Score
 
-CASTLE has a custom composite score formula combining TP, TN, FP, FN
-into a single 0–1{,}250 number, with a 200-point baseline for
+CASTLE has a custom composite score formula combining TP, TN, FP, and
+FN into a single 0–1{,}250 number, with a 200-point baseline for
 "reports no issues" to avoid penalizing silent tools. We don't
-replicate this. The reasons:
-- Per-CWE F1 + robustness drop is more interpretable than a single
-  composite.
-- The CASTLE Score's weighting was tuned for C/C++ — the rebalance for
-  Python isn't obvious and would invite reviewer questions.
-- F1 + robustness is the format readers of vulnerability-detection
-  papers expect.
+replicate this. The principled objections, laid out in our internal
+proposed-metric report and applied to the headline profile in
+Section 3.6:
+
+- **Unbounded scale.** CASTLE scores run from large negative numbers
+  up to roughly 1{,}250 with no fixed maximum. A score of 634 carries
+  no scale or point of reference. The three-measure profile is
+  bounded on every axis: MCC in `[-1, +1]`, Hierarchical CWE
+  Macro-Accuracy in `[0, 1]`, Severity-Weighted Recall in `[0, 1]`.
+- **Arbitrary constants.** The five-point hit, two-point correct
+  rejection, and minus-one-per-extra-finding constants are not
+  derived from anything external. Changing them can change the
+  detector ranking. Our three measures are recognized statistics:
+  MCC (Chicco and Jurman 2020), Wu-Palmer similarity (Wu and Palmer
+  1994), CVSS as an interval scale (FIRST.org 2019).
+- **Not chance-corrected.** A trivial baseline that always predicts
+  "vulnerable" accumulates a large positive CASTLE Score. MCC sits at
+  zero for random guessing, as does weighted Cohen's kappa.
+- **Not comparable across datasets.** CASTLE Score is a sum over one
+  fixed corpus. A score on CASTLE cannot be compared with a score on
+  PyVulSev. The three measures are bounded statistics that travel
+  across datasets unchanged.
+- **Collapses multiple things into one number.** Detection, false
+  positives, localization noise, and severity weighting fold into a
+  single CASTLE Score. The three-measure profile separates them onto
+  three axes so the table can show *where* one detector beats another
+  rather than only *that* it does.
+- **Ordinal severity misuse.** CASTLE weights a CWE by its rank in
+  the MITRE Top-25, which is an ordinal scale; arithmetic on ranks
+  is not meaningful. Our Severity-Weighted Recall uses the CVSS base
+  score, an interval scale that is published with each advisory.
+
+The conclusion is not that a cleverer single number is needed but
+that a single invented number was the wrong design for the question.
+The three-measure profile of Section 3.6, with weighted Cohen's
+kappa as the optional headline figure, is the replacement we adopt
+for the next evaluation round.
 
 ---
 

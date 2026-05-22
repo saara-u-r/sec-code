@@ -16,7 +16,7 @@ from src.utils.cwe_taxonomy import (
 # Schema 2.1 (2026-05-11): adds has_cwe_sink + sink_pattern auto-computed
 # fields used by Phase 2B's pre-ingest quality filter. Earlier samples on
 # disk lack these fields; readers should default to None.
-SCHEMA_VERSION = "2.1"
+SCHEMA_VERSION = "3.0"
 
 # CVSS vector component expansion maps
 _AV  = {"N": "NETWORK", "A": "ADJACENT", "L": "LOCAL", "P": "PHYSICAL"}
@@ -623,69 +623,42 @@ def build_meta(fields: dict, code_before: str, code_after: str = "") -> dict:
         "_schema_version":  SCHEMA_VERSION,
         "id":               fields["id"],
         "source":           fields["source"],
-        "scraped_at":       datetime.now(timezone.utc).isoformat(),
 
         # ── Advisory IDs ──────────────────────────────────────────────────
         "cve_id":           fields.get("cve_id"),
         "ghsa_id":          fields.get("ghsa_id"),
-        "osv_id":           fields.get("osv_id"),
-        "pysec_id":         fields.get("pysec_id"),
 
         # ── Vulnerability label ───────────────────────────────────────────
         "cwe":              cwe,
-        "cwe_name":         CWE_NAMES.get(cwe),
-        "vuln_type":        fields.get("vuln_type"),
         "label_source":     fields.get("label_source", "advisory"),
         "label_confidence": fields.get("label_confidence", "medium"),
 
-        # ── CVSS severity gradient ────────────────────────────────────────
-        "cvss_score":               fields.get("cvss_score"),
-        "cvss_severity":            fields.get("cvss_severity"),
-        "cvss_version":             fields.get("cvss_version"),
-        "cvss_vector":              fields.get("cvss_vector"),
-        "cvss_attack_vector":       fields.get("cvss_attack_vector"),
-        "cvss_attack_complexity":   fields.get("cvss_attack_complexity"),
-        "cvss_privileges_required": fields.get("cvss_privileges_required"),
-        "cvss_user_interaction":    fields.get("cvss_user_interaction"),
-        "cvss_scope":               fields.get("cvss_scope"),
-        "cvss_confidentiality":     fields.get("cvss_confidentiality"),
-        "cvss_integrity":           fields.get("cvss_integrity"),
-        "cvss_availability":        fields.get("cvss_availability"),
-        "cvss_source":              fields.get("cvss_source"),
+        # ── CVSS severity (vector encodes the 8 base metrics) ─────────────
+        "cvss_score":       fields.get("cvss_score"),
+        "cvss_severity":    fields.get("cvss_severity"),
+        "cvss_version":     fields.get("cvss_version"),
+        "cvss_vector":      fields.get("cvss_vector"),
 
         # ── Git / commit provenance ───────────────────────────────────────
-        "repo":               fields.get("repo"),
-        "file_path":          fields.get("file_path"),
-        "fix_commit":         fields.get("fix_commit"),
-        "vulnerable_commit":  fields.get("vulnerable_commit"),
-        "commit_message":     fields.get("commit_message", ""),
-        "commit_date":        fields.get("commit_date"),
-        "commit_author":      None,       # intentionally omitted — PII
+        "repo":         fields.get("repo"),
+        "file_path":    fields.get("file_path"),
+        "fix_commit":   fields.get("fix_commit"),
 
         # ── Code payload ─────────────────────────────────────────────────
         "code_before":  code_before,
         "code_after":   code_after,
 
-        # ── Code quality signals (auto-computed) ─────────────────────────
-        "framework":        fields.get("framework", "unknown"),
-        "language":         "python",
-        "loc_before":       signals["loc_before"],
-        "loc_after":        signals["loc_after"],
-        "syntax_valid":     signals["syntax_valid"],
-        "has_taint_source": signals["has_taint_source"],
-        "is_web_code":      signals["is_web_code"],
-        "has_cwe_sink":     signals["has_cwe_sink"],
-        "sink_pattern":     signals["sink_pattern"],
+        # ── Code quality signals ─────────────────────────────────────────
+        "framework":    fields.get("framework", "unknown"),
+        "sink_pattern": signals["sink_pattern"],
 
         # ── Dataset management ────────────────────────────────────────────
         "content_hash": hash_code(code_before),
         "pair_id":      fields.get("pair_id"),
 
-        # ── Pipeline state (populated by later phases) ────────────────────
-        "classifier_cwe":        None,    # Phase 2
-        "classifier_confidence": None,    # Phase 2
-        "nvd_enriched":          False,   # Phase 3
-        "split":                 None,    # Phase 4
+        # ── Pipeline state ────────────────────────────────────────────────
+        "nvd_enriched": False,   # Phase 3
+        "split":        None,    # Phase 4 (Phase 2 in current numbering)
 
         # ── Phase 2.5 — hard-negative provenance ─────────────────────────
         "is_hard_negative":        fields.get("is_hard_negative", False),

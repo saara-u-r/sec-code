@@ -21,16 +21,22 @@ VARIANTS: tuple[str, ...] = (
     "string_split",
     "variable_rename",
     "wrapper_extraction",
+    "sink_attr_obfuscate",
+    "sink_via_globals",
+    "taint_through_dict",
     "composed",
 )
 
 #: Mutator variants only — excludes ``clean`` and ``composed``. These are
-#: the four single-mutator variants the robustness drop averages over.
+#: the single-mutator variants the robustness drop averages over.
 SINGLE_MUTATORS: tuple[str, ...] = (
     "dead_code_injection",
     "string_split",
     "variable_rename",
     "wrapper_extraction",
+    "sink_attr_obfuscate",
+    "sink_via_globals",
+    "taint_through_dict",
 )
 
 

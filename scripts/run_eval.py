@@ -34,10 +34,12 @@ load_dotenv(_PROJECT_ROOT / ".env")
 
 from src.eval.cwe_map import TARGET_CWES  # noqa: E402
 from src.eval.detectors import DETECTORS, SAST_TOOLS  # noqa: E402
+from src.eval.detectors.graphcodebert import GraphCodeBERTDetector  # noqa: E402
 from src.eval.detectors.llm import LLMDetector  # noqa: E402
 from src.eval.samples import SINGLE_MUTATORS, VARIANTS, load_variant  # noqa: E402
 from src.eval.scoring import (  # noqa: E402
     PredictionRecord,
+    load_cvss_scores,
     robustness_drop,
     score_variant,
 )
@@ -52,6 +54,9 @@ _VARIANT_ABBR = {
     "string_split": "SS",
     "variable_rename": "VR",
     "wrapper_extraction": "WE",
+    "sink_attr_obfuscate": "SAO",
+    "sink_via_globals": "SVG",
+    "taint_through_dict": "TTD",
     "composed": "Comp",
 }
 
@@ -87,13 +92,20 @@ def run_tool(
     return records
 
 
-def build_summary(tool: str, records: list[PredictionRecord]) -> dict:
-    """Compute macro-F1 per variant, per-CWE F1 (clean), robustness drop."""
+def build_summary(
+    tool: str,
+    records: list[PredictionRecord],
+    cvss_scores: dict[str, float] | None = None,
+) -> dict:
+    """Compute macro-F1 per variant, per-CWE F1, robustness drop, and
+    the §3.6 profile additions (Detection MCC + Severity-Weighted Recall)."""
     by_variant: dict[str, list[PredictionRecord]] = {}
     for r in records:
         by_variant.setdefault(r.variant, []).append(r)
 
-    variant_scores = {v: score_variant(rs) for v, rs in by_variant.items()}
+    variant_scores = {
+        v: score_variant(rs, cvss_scores) for v, rs in by_variant.items()
+    }
 
     drops = {}
     if "clean" in by_variant:
@@ -106,6 +118,16 @@ def build_summary(tool: str, records: list[PredictionRecord]) -> dict:
         "tool": tool,
         "tool_version": records[0].tool_version if records else "",
         "macro_f1": {v: s.macro_f1 for v, s in variant_scores.items()},
+        "detection_mcc": {v: s.detection_mcc for v, s in variant_scores.items()},
+        "severity_weighted_recall": {
+            v: s.severity_weighted_recall for v, s in variant_scores.items()
+        },
+        "swr_pool_size": {v: s.swr.pool_size for v, s in variant_scores.items()},
+        "hcma": {v: s.hcma for v, s in variant_scores.items()},
+        "weighted_kappa": {v: s.weighted_kappa for v, s in variant_scores.items()},
+        "observed_agreement": {
+            v: s.observed_agreement for v, s in variant_scores.items()
+        },
         "n_samples": {v: s.n_samples for v, s in variant_scores.items()},
         "per_cwe_f1": {
             v: {cwe: s.per_cwe[cwe].f1 for cwe in TARGET_CWES}
@@ -133,6 +155,29 @@ def print_report(summary: dict) -> None:
     print(f"  {'macro-F1':<10}{vals}")
     ns = "  ".join(f"{summary['n_samples'][v]:>6}" for v in ordered)
     print(f"  {'n':<10}{ns}")
+
+    print("\nDetection profile (§3.6 — bounded, chance-corrected):")
+    mccs = "  ".join(
+        f"{m:>+6.3f}" if m is not None else f"{'—':>6}"
+        for m in (summary['detection_mcc'][v] for v in ordered)
+    )
+    print(f"  {'MCC':<10}{mccs}")
+    swrs = "  ".join(f"{summary['severity_weighted_recall'][v]:>6.3f}" for v in ordered)
+    print(f"  {'SWR':<10}{swrs}")
+    pool = "  ".join(f"{summary['swr_pool_size'][v]:>6}" for v in ordered)
+    print(f"  {'SWR n':<10}{pool}")
+    hcmas = "  ".join(f"{summary['hcma'][v]:>6.3f}" for v in ordered)
+    print(f"  {'HCMA':<10}{hcmas}")
+    kappas = "  ".join(
+        f"{k:>+6.3f}" if k is not None else f"{'—':>6}"
+        for k in (summary['weighted_kappa'][v] for v in ordered)
+    )
+    print(f"  {'kappa_w':<10}{kappas}")
+    agrees = "  ".join(
+        f"{a:>6.3f}" if a is not None else f"{'—':>6}"
+        for a in (summary['observed_agreement'][v] for v in ordered)
+    )
+    print(f"  {'p_obs':<10}{agrees}")
 
     if summary["robustness_drop"]:
         print("\nRobustness drop  (macro-F1 clean - mutator, positives-only):")
@@ -200,6 +245,10 @@ def main() -> int:
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Build the sample_id → cvss_score lookup once for SWR scoring.
+    cvss_scores = load_cvss_scores(args.raw_dir)
+    logger.info(f"Loaded {len(cvss_scores)} CVSS scores for SWR weighting")
+
     exit_code = 0
     for tool_name in tools:
         detector = DETECTORS[tool_name]()
@@ -210,9 +259,13 @@ def main() -> int:
             continue
 
         if not detector.is_available():
-            hint = ("set ANTHROPIC_API_KEY and `pip install anthropic`"
-                    if isinstance(detector, LLMDetector)
-                    else f"`pip install {tool_name}`")
+            if isinstance(detector, LLMDetector):
+                hint = "set ANTHROPIC_API_KEY and `pip install anthropic`"
+            elif isinstance(detector, GraphCodeBERTDetector):
+                hint = (f"a trained checkpoint at {detector.checkpoint} "
+                        "and `pip install torch transformers`")
+            else:
+                hint = f"`pip install {tool_name}`"
             logger.warning(f"{tool_name}: unavailable — skipping. Needs {hint}.")
             exit_code = 1
             continue
@@ -226,7 +279,7 @@ def main() -> int:
             for r in records:
                 fh.write(json.dumps(r.to_json()) + "\n")
 
-        summary = build_summary(detector.name, records)
+        summary = build_summary(detector.name, records, cvss_scores)
         print_report(summary)
 
         summary.pop("_variant_scores")

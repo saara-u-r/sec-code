@@ -140,9 +140,13 @@ def _pick_synonym(original: str, rng: random.Random) -> str:
     if lower in SYNONYMS and lower != original:
         # Preserve case style of the original (e.g. UserID → AccountId)
         return rng.choice(SYNONYMS[lower])
-    # Fallback: deterministic anonymized name. Hash so the same input
-    # always yields the same suffix within a single rng-seeded run.
-    return f"var_{abs(hash(original)) % 10000}"
+    # Fallback: deterministic anonymized name. SHA-256 instead of Python's
+    # built-in hash() because hash() is randomized per process via
+    # PYTHONHASHSEED, which would break byte-identical reruns of
+    # build_mutator_variants.py.
+    import hashlib
+    digest = hashlib.sha256(original.encode("utf-8")).digest()
+    return f"var_{int.from_bytes(digest[:4], 'big') % 10000}"
 
 
 # ---------------------------------------------------------------------------

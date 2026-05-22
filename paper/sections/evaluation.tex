@@ -1,10 +1,11 @@
 \section{Evaluation}
 \label{sec:evaluation}
 
-This section applies the benchmark to a set of detectors. The goal is
-not to crown a winner but to demonstrate what the benchmark measures:
-detection accuracy on sink-validated labels, and the robustness drop
-that the four adversarial mutators expose.
+This section applies the benchmark to a set of detectors. We do not
+rank detectors here. The purpose of the evaluation is to demonstrate
+what the benchmark measures: detection accuracy on sink-validated
+labels, and the robustness drop that the seven adversarial mutators
+expose.
 
 \subsection{Research questions}
 \label{sec:eval:rq}
@@ -12,11 +13,11 @@ that the four adversarial mutators expose.
 \begin{description}
   \item[RQ1] How accurately do free static analysis tools classify the
     seven sink-shaped CWE classes on the clean test set?
-  \item[RQ2] How much accuracy does each tool lose when the test
-    samples are rewritten by a semantics-preserving mutator, and which
-    mutator costs the most?
+  \item[RQ2] How does each tool's accuracy change when the test
+    samples are rewritten by a semantics-preserving mutator? Which
+    mutator, if any, exposes the most brittleness?
   \item[RQ3] Does the diff-based label filter (Section~\ref{sec:dataset})
-    change the picture a detector evaluation paints --- that is, are the
+    change the picture a detector evaluation paints? That is, are the
     tools being scored against labels they could plausibly satisfy?
 \end{description}
 
@@ -25,32 +26,57 @@ that the four adversarial mutators expose.
 
 \paragraph{Test set.} The held-out test split is 132 samples: 67
 vulnerable positives spanning the seven CWE classes and 65 \texttt{safe}
-hard negatives. The four single mutators and the composed mutator are
-applied to the 67 positives, producing five adversarial variant sets of
-67 samples each. The hard negatives are not mutated; they appear only in
-the \emph{clean} run, where they measure false positives.
+hard negatives. The seven single mutators and the composed mutator are
+applied to the 67 positives, producing eight adversarial variant sets
+of 67 samples each. The hard negatives are not mutated; they appear
+only in the \emph{clean} run, where they measure false positives.
 
-\paragraph{Metric.} Every detector prediction is scored one-vs-rest per
+\paragraph{Metrics.} Every detector prediction is scored one-vs-rest per
 CWE class: a sample labelled CWE-X that the tool flags as CWE-X is a
 true positive for that class, a sample of any other label flagged as
 CWE-X is a false positive, and so on (Section~\ref{sec:methodology}).
-From the per-class counts we compute precision, recall, and F1, and
-report the macro-average of F1 across the seven classes. Macro-averaging
-gives each class equal weight regardless of support, which matters here
-because class sizes in the test set range from 3 (CWE-22) to 32
-(CWE-89).
+Each detector is reported on five bounded statistics rather than a
+single composite score. Macro-F1 averages per-class F1 with equal
+weight across the seven CWE classes; macro-averaging matters here
+because class sizes range from 3 (CWE-22) to 32 (CWE-89). Detection
+MCC~\cite{chicco2020mcc} is the Matthews correlation coefficient on the
+binary vulnerable-versus-safe collapse of the same predictions; it lies
+in $[-1, +1]$, equals zero at chance agreement, and is the recommended
+imbalance-robust replacement for accuracy on this kind of corpus.
+Severity-Weighted Recall (SWR) is the CVSS-weighted fraction of
+positives the detector flagged, using each advisory's published CVSS
+base score as the weight; positives without a CVSS score are excluded
+from the SWR pool and the pool size is reported alongside the
+statistic. Hierarchical CWE Macro-Accuracy (HCMA) replaces flat
+exact-match accuracy with Wu-Palmer~\cite{wupalmer1994} similarity on
+a hand-coded subtree of MITRE CWE 4.14, so that close-sibling
+mis-classifications (e.g.\ predicting CWE-94 when the truth is
+CWE-78, both under CWE-74 Injection) receive partial credit. Weighted
+Cohen's $\kappa$~\cite{cohen1968kappa} aggregates the same partial
+credit into a single chance-corrected agreement number with
+disagreement weights $1 - \text{Wu-Palmer}$ between two CWEs and $1$
+between \emph{safe} and any CWE. The five measures answer separate
+questions (CWE identification, binary detection, severity-weighted
+recall, hierarchical-near-miss credit, and chance-corrected
+agreement); they are reported jointly rather than combined into a
+single composite, following the rationale of the project's evaluation
+methodology document.
 
 \paragraph{Robustness drop.} For a tool and a mutator, the robustness
 drop is the macro-F1 on the clean positives minus the macro-F1 on that
 mutator's output. Because the hard negatives are absent from the
 mutator variants, the clean baseline for this comparison is recomputed
-over the 67 positives only, so the subtraction is like-for-like. The
-aggregate robustness number is the mean drop across the four single
-mutators.
+over the 67 positives only, so the subtraction is like-for-like. Per
+mutator family (sink-preserving, sink-targeted, dataflow) we report
+both the per-mutator drop and, for sink-preserving, the mean across
+its four mutators.
 
 \paragraph{Detectors.} We report two free, locally-installable static
-analysis tools: Bandit 1.9.4 and Semgrep 1.163.0. Semgrep is run with
-the \texttt{p/python}, \texttt{p/security-audit}, and
+analysis tools (Bandit~1.9.4 and Semgrep~1.163.0) and one
+benchmark-trained learned detector (a fine-tuned GraphCodeBERT
+classifier; training schedule described in
+Section~\ref{sec:eval:model}). Semgrep is run with the
+\texttt{p/python}, \texttt{p/security-audit}, and
 \texttt{p/owasp-top-ten} registry rule packs. Each tool emits findings
 that we map to the seven CWE classes; for Bandit the mapping is by rule
 identifier rather than by Bandit's own \texttt{issue\_cwe} field, which
@@ -58,6 +84,109 @@ mislabels \texttt{eval} as CWE-78 and \texttt{yaml.load} as CWE-20.
 LLM detectors are evaluated through the same harness with a fixed
 classification prompt; those results are reported in
 Section~\ref{sec:eval:llm}.
+
+\subsection{Headline results}
+\label{sec:eval:headline}
+
+Table~\ref{tab:pyvulsev-results} summarizes detector performance on the
+PyVulSev benchmark. Each detector is reported on macro-F1 over the
+132-sample clean test set, detection MCC on the binary
+vulnerable-versus-safe collapse of the same predictions, and
+Severity-Weighted Recall on the 27-sample CVSS-scored pool of clean
+positives. The Comp.\ column gives macro-F1 on the composed-mutator
+variant of the 67 positives. The $\Delta$F1$^{\star}$ column reports
+the worst-case (largest) robustness drop in macro-F1 that any single
+mutator induces, computed on the positives only so that the
+subtraction is like-for-like; a value near zero means the detector is
+unaffected by any of the seven mutators in isolation, and a large
+positive value identifies the most brittle axis for that detector. The full per-family breakdown is in
+Table~\ref{tab:robustness-drop}.
+
+\begin{table*}[t]
+\centering
+\caption{PyVulSev results on the 132-sample clean test set.
+Tool versions: Bandit~1.9.4, Semgrep~1.163.0, GraphCodeBERT
+\texttt{phase3} checkpoint. Macro-F1 is averaged across the seven
+CWE classes under one-vs-rest scoring. MCC is the Matthews
+correlation coefficient on the binary vulnerable-versus-safe
+collapse. SWR is Severity-Weighted Recall on the 27 clean positives
+that carry a CVSS base score. HCMA is the hierarchical CWE
+macro-accuracy under Wu-Palmer~\cite{wupalmer1994} similarity on
+the hand-coded subtree of MITRE CWE 4.14
+(\texttt{src/eval/cwe\_map.py}). $\kappa_w$ is the weighted Cohen's
+$\kappa$ over the eight-label space (seven CWEs plus \emph{safe})
+with disagreement weights $1{-}$Wu-Palmer between two CWEs and $1$
+between \emph{safe} and any CWE. Comp.\ is macro-F1 on the
+composed-mutator variant of the 67 positives.
+$\Delta$F1$^{\star}$ is the worst-case drop in macro-F1
+across the seven single mutators (Table~\ref{tab:robustness-drop}),
+computed on the positives only.}
+\label{tab:pyvulsev-results}
+\small
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{l r r r r r r r}
+\hline
+Name & macro-F1 & MCC & SWR & HCMA & $\kappa_w$ & Comp. & $\Delta$F1$^{\star}$ \\
+\hline
+Bandit               & 0.491 & +0.473 & 0.745 & 0.564 & +0.562 & 0.589 & +0.187 \\
+Semgrep              & 0.315 & +0.149 & 0.634 & 0.353 & +0.224 & 0.375 & +0.132 \\
+\hline
+Claude Sonnet 4.6    & TBD   & TBD    & TBD   & TBD   & TBD    & TBD   & TBD    \\
+GPT-4o               & TBD   & TBD    & TBD   & TBD   & TBD    & TBD   & TBD    \\
+\hline
+GraphCodeBERT (ours) & 0.524 & +0.564 & 0.870 & 0.547 & +0.552 & 0.603 & $0.000$ \\
+\hline
+\end{tabular}
+\end{table*}
+
+The trained GraphCodeBERT detector leads on the three primary
+detection metrics: macro-F1 0.524 against Bandit's 0.491 and
+Semgrep's 0.315; MCC +0.564 against +0.473 and +0.149; SWR 0.870
+against 0.745 and 0.634 on the same 27-sample CVSS pool. The SWR
+gap is the largest of the three: the trained detector catches 87\%
+of the CVSS-weighted danger in that pool, against 74\% and 63\% for
+the two SAST baselines. Bandit and Semgrep occupy distinct points
+on the precision-recall plane: Bandit combines balanced precision
+and recall on the classes it covers, while Semgrep's stricter
+taint-shape rules drive precision up but miss many fragmentary
+positives, particularly on CWE-89.
+
+The hierarchical and agreement columns sharpen the comparison
+between Bandit and the trained detector. On macro-F1 Bandit
+(0.491) trails GraphCodeBERT (0.524) by 0.033, but on HCMA the gap
+inverts and Bandit (0.564) edges ahead of GraphCodeBERT (0.547)
+by 0.017. The mechanism is visible in the per-CWE breakdown:
+Bandit's confusions are dominated by close-sibling errors within
+the injection subtree (CWE-94 samples flagged as CWE-78 via the
+\texttt{B602}/\texttt{B603} subprocess rules; CWE-78 samples
+flagged as CWE-94 via the \texttt{B102}/\texttt{B307}
+\texttt{exec}/\texttt{eval} rules), which Wu-Palmer credits as
+partial matches but macro-F1 scores as flat misses. GraphCodeBERT's
+confusions are more diffuse and benefit less from partial credit.
+Weighted $\kappa$ converges on the same conclusion through a
+different route: Bandit and GraphCodeBERT are within 0.010 of each
+other ($+0.562$ vs $+0.552$), and both lead Semgrep by more than
+0.30. The single-number reading is that Bandit and GraphCodeBERT
+are comparable detectors on clean code under any partial-credit
+metric — the trained detector's headline win is most visible on
+SWR and disappears on the chance-corrected agreement statistic.
+
+The robustness column tells a sharper story. The two SAST tools
+each have a worst-case drop above 0.13 macro-F1: Bandit loses 0.187
+under \texttt{sink\_attr\_obfuscate} and Semgrep loses 0.132 under
+\texttt{sink\_via\_globals}. The trained detector's worst-case drop
+is $0.000$ — it is invariant to every mutator in the suite.
+Section~\ref{sec:eval:robustness} unpacks this contrast by mutator
+family: the SAST cliffs come from the sink-targeted family, all
+three detectors are invariant to the four sink-preserving mutators,
+and the dataflow mutator is invariant on every detector reported
+here because none of the three performs dataflow analysis.
+
+The remaining rows are reserved for LLM detectors
+(Section~\ref{sec:eval:llm}) and will be populated when those
+evaluations are authorized. Reporting clean and post-mutation scores
+side by side extends the CASTLE layout, which reports detection only,
+with the robustness axis the seven mutators measure.
 
 \subsection{Detection on the clean test set (RQ1)}
 \label{sec:eval:clean}
@@ -70,88 +199,193 @@ analysis tools on the clean test set.
 \caption{Per-CWE F1 on the clean test set. $n$ is the number of
 positive test samples in the class.}
 \label{tab:clean-percwe}
-\begin{tabular}{l r r r}
+\begin{tabular}{l r r r r}
 \hline
-CWE & $n$ & Bandit & Semgrep \\
+CWE & $n$ & Bandit & Semgrep & GCB \\
 \hline
-CWE-22  Path Traversal        &  3 & 0.00 & 0.00 \\
-CWE-78  OS Command Injection  &  4 & 0.38 & 0.29 \\
-CWE-79  Cross-site Scripting  &  7 & 0.60 & 0.33 \\
-CWE-89  SQL Injection         & 32 & 0.80 & 0.06 \\
-CWE-94  Code Injection        &  6 & 0.86 & 0.80 \\
-CWE-502 Insecure Deserial.    & 12 & 0.80 & 0.73 \\
-CWE-918 SSRF                  &  3 & 0.00 & 0.00 \\
+CWE-22  Path Traversal        &  3 & 0.00 & 0.00 & 0.00 \\
+CWE-78  OS Command Injection  &  4 & 0.38 & 0.29 & 0.40 \\
+CWE-79  Cross-site Scripting  &  7 & 0.60 & 0.33 & 0.67 \\
+CWE-89  SQL Injection         & 32 & 0.80 & 0.06 & 0.63 \\
+CWE-94  Code Injection        &  6 & 0.86 & 0.80 & 0.57 \\
+CWE-502 Insecure Deserial.    & 12 & 0.80 & 0.73 & 0.83 \\
+CWE-918 SSRF                  &  3 & 0.00 & 0.00 & 0.57 \\
 \hline
-Macro-F1 (positives + safe)   &    & 0.49 & 0.32 \\
+Macro-F1 (positives + safe)   &    & 0.49 & 0.32 & 0.52 \\
 \hline
 \end{tabular}
 \end{table}
 
-Two classes score zero for both tools. Neither Bandit nor Semgrep ships
-a path traversal (CWE-22) rule that fires on the test samples, and
-neither has a server-side request forgery (CWE-918) rule with usable
-CWE metadata; Bandit's closest signal, the \texttt{urllib.urlopen}
-check, produced five false positives and no true positives. These zeros
-are a real finding, not a harness artifact: the benchmark includes CWE
-classes that free static analysis does not cover, and the macro-average
-makes that gap visible rather than letting a well-covered class mask it.
+CWE-22 (path traversal) scores zero across all three detectors:
+neither Bandit nor Semgrep ships a usable path-traversal rule for the
+test samples, and the trained detector has only three CWE-22 positives
+in the test set, too few to learn from given the 15 CWE-22 samples in
+the entire training corpus. CWE-918 (SSRF) separates the detectors:
+both SAST tools score zero, but the trained GraphCodeBERT detector
+recovers F1 0.57. Bandit's closest CWE-918 signal, the
+\texttt{urllib.urlopen} check, produced five false positives and no
+true positives. The benchmark therefore covers one CWE class
+(CWE-918) on which free static analysis fails and a learned detector
+trained on the benchmark does not, and the macro-average reports the
+remaining CWE-22 gap rather than averaging it away.
 
-The two tools diverge most on SQL injection. Bandit reaches F1 0.80 on
-CWE-89; Semgrep reaches 0.06, flagging one of 32 positives. The cause is
-the composition of the CWE-89 sub-corpus: most of these samples are
-fragments drawn from the \texttt{vudenc} source and lack the
-framework-recognisable source-to-sink shape that Semgrep's taint rules
-require. Bandit's \texttt{B608} rule, which matches inline SQL string
-construction lexically, fires far more readily on such fragments. This
-divergence is itself a use of the benchmark: it separates lexical
-matching from taint-style reasoning on exactly the inputs where the two
-approaches disagree.
+The detectors diverge most on SQL injection. Bandit reaches F1 0.80
+on CWE-89; the trained detector reaches 0.63; Semgrep reaches 0.06,
+flagging one of 32 positives. The cause is the composition of the
+CWE-89 sub-corpus. Most of these samples are fragments drawn from
+the \texttt{vudenc} source and lack the framework-recognisable
+source-to-sink shape that Semgrep's taint rules require. Bandit's
+\texttt{B608} rule matches inline SQL string construction lexically
+and fires readily on such fragments. The trained detector, fine-tuned
+on the same fragments, sits between the two: it identifies fragmentary
+SQL injection more reliably than Semgrep's taint-shape rules but
+trails Bandit's broader lexical net. The divergence isolates lexical
+matching, taint-style reasoning, and learned representation on
+exactly the inputs where the three approaches disagree.
 
-The headline macro-F1 of 0.49 (Bandit) and 0.32 (Semgrep) is computed
-over all 132 clean samples, including the 65 hard negatives. Restricted
-to the 67 positives the same tools score 0.59 and 0.38; the gap is the
-F1 cost of false positives raised on safe code, and chiefly reflects
-Bandit's low-severity \texttt{subprocess} warnings (\texttt{B603},
-\texttt{B607}) firing on benign command-execution code.
+The headline macro-F1 of 0.49 (Bandit), 0.32 (Semgrep) and 0.52
+(trained) is computed over all 132 clean samples, including the 65
+hard negatives. Restricted to the 67 positives the same detectors
+score 0.59, 0.38 and 0.57; the gap between the all-132 and
+positives-only numbers is the F1 cost of false positives raised on
+safe code. Bandit's gap is the largest at 0.10 F1 points, chiefly
+reflecting low-severity \texttt{subprocess} warnings (\texttt{B603},
+\texttt{B607}) firing on benign command-execution code; the trained
+detector's gap is the smallest at 0.04 points, indicating a lower
+false-positive rate on hard negatives than either SAST tool achieves.
 
 \subsection{Adversarial robustness (RQ2)}
 \label{sec:eval:robustness}
 
-Table~\ref{tab:robustness} reports macro-F1 on the clean positives and
-on each mutator variant, with the robustness drop in the final column.
+The seven single mutators fall into three families. The
+\emph{sink-preserving} family — \texttt{dead\_code\_injection} (DC),
+\texttt{string\_split} (SS), \texttt{variable\_rename} (VR),
+\texttt{wrapper\_extraction} (WE) — modifies code around the sink but
+leaves the sink identifier (\texttt{os.system},
+\texttt{cursor.execute}, \texttt{eval},~\ldots) intact and the
+argument expressions reaching the sink unchanged. The
+\emph{sink-targeted} family — \texttt{sink\_attr\_obfuscate} (SAO),
+\texttt{sink\_via\_globals} (SVG) — rewrites the sink call itself.
+SAO replaces attribute-style sinks \texttt{os.system(x)} with
+\texttt{getattr(os, "system")(x)} (CWE-78/89/918/502), and SVG
+replaces bare-builtin sinks \texttt{eval(x)} with
+\texttt{\_\_import\_\_("builtins").\_\_dict\_\_["eval"](x)}
+(CWE-94). The \emph{dataflow} family —
+\texttt{taint\_through\_dict} (TTD) — leaves both the surrounding
+code and the sink identifier intact, and rewrites the first
+positional argument of every sink call as a one-entry
+dict-construction/subscript pair, breaking any direct static
+lineage from a parameter to the sink argument. All three
+sink-targeted and dataflow mutators are held out of training-time
+augmentation alongside \texttt{string\_split}.
+Table~\ref{tab:robustness} reports macro-F1 across all seven single
+variants and the composed variant; Table~\ref{tab:robustness-drop}
+reports the robustness drops grouped by family.
 
 \begin{table}[h]
 \centering
 \caption{Macro-F1 by variant, computed over the 67 positives.
 DC: dead code, SS: string split, VR: variable rename, WE: wrapper
-extraction, Comp: composed. Drop is the mean clean$-$mutator difference
-over the four single mutators.}
+extraction, SAO: sink attribute obfuscation, SVG: sink via globals,
+TTD: taint through dict, Comp: composed. Sink-preserving mutators
+are columns DC--WE; sink-targeted are SAO and SVG; dataflow is TTD.}
 \label{tab:robustness}
-\begin{tabular}{l r r r r r r r}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{l r r r r r r r r r}
 \hline
-Tool & Clean & DC & SS & VR & WE & Comp & Drop \\
+Tool & Clean & DC & SS & VR & WE & SAO & SVG & TTD & Comp \\
 \hline
-Bandit  & 0.59 & 0.59 & 0.59 & 0.59 & 0.59 & 0.59 & 0.00 \\
-Semgrep & 0.38 & 0.38 & 0.38 & 0.38 & 0.38 & 0.38 & 0.00 \\
+Bandit         & 0.59 & 0.59 & 0.59 & 0.59 & 0.59 & 0.40 & 0.45 & 0.59 & 0.58 \\
+Semgrep        & 0.38 & 0.38 & 0.38 & 0.38 & 0.38 & 0.28 & 0.25 & 0.37 & 0.38 \\
+GraphCodeBERT  & 0.57 & 0.59 & 0.60 & 0.60 & 0.61 & 0.60 & 0.57 & 0.60 & 0.60 \\
 \hline
 \end{tabular}
 \end{table}
 
-Both static analysis tools are essentially invariant to the four
-mutators: the mean robustness drop is 0.001 for Bandit and 0.004 for
-Semgrep, and no single mutator moves macro-F1 by more than 0.01. This is
-the expected result and it validates the mutator design from the
-negative side. Dead code injection, identifier rename, and wrapper
-extraction do not alter the lexical sink tokens that Bandit and Semgrep
-match on, so a rule-based detector that ignores everything except those
-tokens is unaffected. String splitting does break a contiguous SQL
-keyword, but Bandit's \texttt{B608} matches on the call shape
-(\texttt{cursor.execute} with a non-literal argument) as well as on
-keyword substrings, so it survives. A detector with zero robustness drop
-is not robust in any deep sense; it is simply not reading the parts of
-the program the mutators rewrite. The mutators are built to discriminate
-\emph{learned} detectors, where a non-trivial drop is expected; the
-static analysis rows establish the floor.
+\begin{table}[h]
+\centering
+\caption{Robustness drop (clean $-$ mutator) by family.
+$\Delta$F1\textsubscript{sink-preserve} is the mean of the four
+sink-preserving mutators; $\Delta$F1\textsubscript{SAO},
+$\Delta$F1\textsubscript{SVG}, and $\Delta$F1\textsubscript{TTD}
+are reported individually because each covers a different sink
+position or flow path. $\Delta$SWR is the corresponding drop in
+severity-weighted recall on the 27-sample CVSS pool.}
+\label{tab:robustness-drop}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{l r r r r r r r r}
+\hline
+& \multicolumn{2}{c}{Sink-preserve} & \multicolumn{2}{c}{SAO} & \multicolumn{2}{c}{SVG} & \multicolumn{2}{c}{TTD} \\
+Tool & $\Delta$F1 & $\Delta$SWR & $\Delta$F1 & $\Delta$SWR & $\Delta$F1 & $\Delta$SWR & $\Delta$F1 & $\Delta$SWR \\
+\hline
+Bandit         & $+$0.001 & $0.000$  & $+$0.187 & $+$0.347 & $+$0.143 & $+$0.246 & $0.000$  & $0.000$  \\
+Semgrep        & $+$0.005 & $0.000$  & $+$0.109 & $+$0.196 & $+$0.132 & $+$0.246 & $+$0.018 & $-$0.029 \\
+GraphCodeBERT  & $-$0.036 & $+$0.009 & $-$0.035 & $+$0.034 & $0.000$  & $0.000$  & $-$0.030 & $0.000$  \\
+\hline
+\end{tabular}
+\end{table}
+
+The three detectors separate sharply on the sink-targeted mutators.
+The pattern-matching SAST tools both show a robustness cliff: Bandit
+drops 0.187 macro-F1 under SAO and 0.143 under SVG, with
+severity-weighted recall drops of 0.347 and 0.246 — the SAO drop is
+a 47\% relative loss in SWR. Semgrep drops 0.109 and 0.132 macro-F1,
+and 0.196 and 0.246 SWR. The drops are consistent across the two
+sink-targeted mutators, evidence that the cliff is a property of the
+sink-token axis rather than an artifact of a single rewriting trick.
+The trained GraphCodeBERT detector is invariant to both sink-targeted
+mutators ($\Delta$F1 $-$0.035 and $0.000$; $\Delta$SWR $+$0.034 and
+$0.000$) and to the four sink-preserving mutators. Within the
+per-sample F1 swing of approximately $1.5\%$ that the 67-positive
+test set produces, the learned model treats every variant of a
+sample as the same class.
+
+On the four sink-preserving mutators all three detectors are
+invariant (mean $\Delta$F1 between $-$0.036 and $+$0.005, no single
+mutator larger than 0.05). The held-out \texttt{string\_split}
+produces a change indistinguishable from the three training-augmented
+mutators on the learned detector, supporting the conclusion that
+these four mutators occupy a common transformation axis: each
+preserves the sink token, so the lexical SAST tools see an unchanged
+sink and the learned detector, trained on similar augmentations,
+sees a distribution it has already adapted to.
+
+The dataflow mutator (TTD) is invariant on all three detectors
+($\Delta$F1 between $-$0.030 and $+$0.018; $\Delta$SWR between
+$-$0.029 and $0.000$). We read this as a property of the current
+detector set rather than a property of the TTD probe: Bandit
+performs no dataflow analysis, the Semgrep configurations used here
+do not enable taint mode, and the trained detector was not
+augmented with dataflow-perturbing variants during fine-tuning, so
+all three see the dict-wrapped argument as effectively equivalent
+to the original. The TTD column is included in the benchmark
+because the third axis is real even when the current detectors do
+not exercise it; it provides a slot for future dataflow-aware
+detectors (CodeQL, taint-mode Semgrep configurations, a learned
+detector trained on dict-flow augmentations) where the cliff would
+appear if the detector relies on lineage-tracking that does not
+propagate through dict reads.
+
+The contrast between the three families is the central robustness
+finding of this work. Mutator design must target sink syntax to
+exercise robustness against pattern-matching SAST; semantic features
+beyond the sink identifier are what carry the learned detector
+through that axis; and the dataflow axis is the right place to look
+for a robustness cliff in a third generation of detectors that this
+work does not evaluate.
+
+The SVG family is currently applicable to a small portion of the
+test set: only 6 of the 67 positives use a bare builtin sink (all
+CWE-94, all using \texttt{eval}); SAO applies to 46 and TTD to 49.
+The SVG drop numbers are therefore noisier than the SAO numbers,
+and we report them because they corroborate the direction and
+magnitude of the SAO cliff on the same two SAST tools and the same
+flat response on the learned detector. Section~\ref{sec:threats}
+discusses the implications for benchmark coverage and the remaining
+sink-targeted axis (dynamic dispatch on receiver objects) that this
+benchmark does not yet exercise.
 
 \subsection{LLM detectors}
 \label{sec:eval:llm}
@@ -159,22 +393,99 @@ static analysis rows establish the floor.
 The harness evaluates LLM detectors through the same interface: a fixed
 system prompt lists the seven CWE classes, the file contents form the
 user turn, and the first line of the response is parsed as the
-prediction. A full pass over the 132 clean samples and the five mutator
-variants is 467 model calls. These results are pending and will be added
-once the LLM evaluation is run; the SAST rows above are the established
+prediction. A full pass over the 132 clean samples and the eight
+mutator variants (seven single mutators plus composed) is 668
+model calls. These results are pending and will be added once the
+LLM evaluation is run. The SAST rows above are the established
 baseline against which the LLM robustness drop will be read.
+
+\subsection{Trained-model detector}
+\label{sec:eval:model}
+
+The benchmark's training split (607 samples) is used to fine-tune a
+dual-task GraphCodeBERT~\cite{graphcodebert} classifier that predicts
+the CWE class and the CVSS base score from \texttt{code\_before}.
+Training uses a three-phase schedule: a three-epoch supervised
+contrastive warmup, five epochs of LDAM~\cite{cao2019ldam} margin
+loss on a class-balanced sampler, and two epochs of deferred
+re-weighting~\cite{cao2019ldam} with Effective-Number~\cite{cui2019cb}
+class weights. Online augmentation applies three of the seven
+benchmark mutators (\texttt{dead\_code\_injection},
+\texttt{variable\_rename}, \texttt{wrapper\_extraction}) during
+training; the other four (\texttt{string\_split},
+\texttt{sink\_attr\_obfuscate}, \texttt{sink\_via\_globals},
+\texttt{taint\_through\_dict}) are held out as test-time robustness
+probes — \texttt{string\_split} for the sink-preserving axis,
+\texttt{sink\_attr\_obfuscate} and \texttt{sink\_via\_globals} for
+the sink-token axis, and \texttt{taint\_through\_dict} for the
+dataflow axis. The best checkpoint is selected by validation
+macro-F1.
+
+The trained detector reaches macro-F1 0.524 and detection MCC +0.564
+on the clean test set, leading both Bandit (MCC +0.473) and Semgrep
+(MCC +0.149). The advantage is most visible in per-CWE coverage: the
+trained detector recovers a non-zero CWE-918 signal (F1 0.57) on
+which neither SAST tool produces a true positive, and trails Bandit
+only on CWE-89 and CWE-94 (Table~\ref{tab:clean-percwe}). Its
+severity-weighted recall is 0.870 on the 27-sample CVSS pool,
+against 0.745 for Bandit and 0.634 for Semgrep; the trained
+detector therefore catches the largest fraction of CVSS-weighted
+danger of any detector reported here. We treat this as a defensible
+small-data result rather than a statement about a state-of-the-art
+detector: 607 training samples is small for a 126.6M-parameter model,
+and reviewers should read the result as an existence proof that a
+benchmark-tuned learned detector can outperform mature SAST baselines
+on Python sink-shaped CWEs, not as evidence that the trained detector
+generalizes outside this benchmark.
+
+Under the four sink-preserving mutators the trained detector's
+macro-F1 changes by between $-$0.024 and $-$0.044 (mean $-$0.036),
+i.e. the detector improves slightly under mutation; the held-out
+\texttt{string\_split} produces a $-$0.037 change, similar in
+magnitude to the three augmented mutators. Under the two sink-targeted
+mutators the change is $-$0.035 (SAO) and $0.000$ (SVG) in macro-F1
+and $+$0.034 and $0.000$ in SWR. Under the dataflow mutator (TTD)
+the change is $-$0.030 in macro-F1 and $0.000$ in SWR. The learned
+detector is therefore flat across all three mutator families, in
+contrast to the pattern-matching SAST tools which drop
+0.10--0.19 F1 and 0.20--0.35 SWR on the sink-targeted family
+(Section~\ref{sec:eval:robustness}). We read this as evidence that
+the learned detector relies on semantic features beyond the sink
+identifier and beyond a direct parameter-to-sink lineage, but
+caution that the SVG family applies to only 6 of 67 positives and
+that the dataflow probe is invariant on every detector reported
+here. Section~\ref{sec:threats} treats both points as scope
+caveats on the per-family numbers.
+
+\subsection{Per-framework breakdown}
+\label{sec:eval:framework}
+
+Every benchmark sample carries a \texttt{framework} field
+(Section~\ref{sec:dataset:schema}) identifying which Python web
+framework the source file uses: Flask, Django, FastAPI, Starlette,
+aiohttp, Tornado, Bottle, or none for non-web code. The evaluation
+harness reports per-tool metrics stratified by this field so that
+detectors with framework-specific rules (Bandit's Flask-aware checks,
+Semgrep's Django-aware rules) can be distinguished from detectors
+that perform identically across frameworks. The current static
+analysis numbers do not separate meaningfully across frameworks
+because Bandit and Semgrep apply largely framework-agnostic regex
+patterns to the file content. The per-framework comparison is
+expected to be informative once the LLM and trained-model rows are
+added, and the breakdown will be reported in the same headline table
+as a stacked row group.
 
 \subsection{Effect of the label filter (RQ3)}
 \label{sec:eval:labels}
 
 The numbers above are computed against the diff-filtered labels of
 Section~\ref{sec:dataset}, whose audited false-positive rate is 26\%.
-Run against the unfiltered labels, every tool's apparent precision falls
-by construction: a tool that correctly declines to flag a mislabelled
-sample is charged a false negative. The filter therefore does not flatter
-the tools --- it removes samples on which a correct detector and the
-label disagree because the label is wrong. Reporting detector accuracy
-against sink-validated labels is what separates this benchmark from an
-evaluation run directly on raw CVE-derived tags, where 30--50\% of the
-ground truth is noise and a tool is partly being scored on its agreement
+Run against the unfiltered labels, every tool's apparent precision
+falls by construction: a tool that correctly declines to flag a
+mislabelled sample is charged a false negative. The filter therefore
+does not flatter the tools. It removes samples on which a correct
+detector and the label disagree because the label is wrong. Detector
+accuracy against sink-validated labels separates this benchmark from
+an evaluation against raw CVE-derived tags, where 30 to 50\% of the
+ground truth is noise and a tool is partly scored on its agreement
 with that noise.

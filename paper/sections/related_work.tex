@@ -6,30 +6,30 @@
 
 The benchmarks the source-code vulnerability detection literature
 trains and evaluates on are heavily skewed toward C and C++.
-BigVul~\cite{TODO_bigvul} aggregates 264~CVEs across 348~open-source
+BigVul~\cite{bigvul} aggregates 264~CVEs across 348~open-source
 C/C++ projects with paired vulnerable and fixed function pairs.
-CVEfixes~\cite{TODO_cvefixes} extends this to multiple languages but
+CVEfixes~\cite{cvefixes} extends this to multiple languages but
 remains C-dominant in the resulting corpus, and the authors note that
 Python and other interpreted languages contribute only a small
-fraction of the labeled samples. CrossVul~\cite{TODO_crossvul} adds
+fraction of the labeled samples. CrossVul~\cite{crossvul} adds
 broader language coverage (forty languages) but the per-language
 sample counts for non-C languages are too small to support per-class
-evaluation. DiverseVul~\cite{TODO_diversevul} explicitly deduplicates
+evaluation. DiverseVul~\cite{diversevul} explicitly deduplicates
 across BigVul, Devign, ReVeal, CrossVul, and CVEfixes and reports that
 roughly eighteen percent of records are duplicated when sources are
 combined naively.
 
 Two further datasets are worth naming. The Juliet test suite from
-NIST~\cite{TODO_juliet} is hand-curated and synthetic, with one
+NIST~\cite{juliet} is hand-curated and synthetic, with one
 vulnerable and one fixed version per CWE-pattern combination. It is
 not a real-world distribution, and detectors that train on Juliet
-typically transfer poorly to natural code~\cite{TODO_juliet_limits}.
-Devign~\cite{TODO_devign} and ReVeal~\cite{TODO_reveal} are C-only
+typically transfer poorly to natural code~\cite{reveal}.
+Devign~\cite{devign} and ReVeal~\cite{reveal} are C-only
 corpora drawn from Chromium, FFmpeg, Linux, and similar large
 projects; they are influential for model-architecture comparisons
 but tell us nothing about Python.
 
-Within Python specifically, \texttt{vudenc}~\cite{TODO_vudenc} is the
+Within Python specifically, \texttt{vudenc}~\cite{vudenc} is the
 closest existing labeled corpus. It contains human-annotated
 vulnerable Python files across seven CWE classes (CWE-22, 78, 79, 89,
 352, 601, 94). The vudenc data is high-quality at the file level but
@@ -42,7 +42,7 @@ tier (Section~\ref{sec:dataset:final}).
 \label{sec:related:labelnoise}
 
 Mislabeled samples in CVE-fix-derived datasets are a recurring
-problem in the literature. Croft et al.~\cite{TODO_croft} audited
+problem in the literature. Croft et al.~\cite{croft} audited
 BigVul and reported a label-noise rate of approximately twenty-five
 percent on a manually reviewed sample. The root cause they identified
 is the same one our audit surfaces: a CVE fix commit touches multiple
@@ -51,7 +51,7 @@ vulnerability. The remaining files are co-changed for refactoring,
 test updates, documentation, or auxiliary cleanup, and inherit the
 CVE's CWE label by accident.
 
-Chakraborty et al.~\cite{TODO_reveal_critique} made a related
+Chakraborty et al.~\cite{reveal} made a related
 observation when evaluating ReVeal: they found that deep models
 trained on commit-level labels learn to match surface patterns of the
 co-changed files rather than the actual vulnerability pattern, and
@@ -61,7 +61,7 @@ generalization that vulnerability detectors exhibit.
 Neither study proposed an automated remediation. Our diff-based
 filter (Section~\ref{sec:dataset:diff}) is, to our knowledge, the
 first sink-anchored, evidence-based label-validity criterion in this
-literature. The closest prior approach is D2A~\cite{TODO_d2a}, which
+literature. The closest prior approach is D2A~\cite{d2a}, which
 uses differential analysis between a buggy and a fixed version of a
 program to assign labels, but D2A operates at the program-level rather
 than the line-level and does not target sinks specifically.
@@ -70,25 +70,25 @@ than the line-level and does not target sinks specifically.
 \label{sec:related:sast}
 
 The static analysis landscape for Python is smaller than for C/C++
-but includes several actively maintained tools. Bandit~\cite{TODO_bandit}
+but includes several actively maintained tools. Bandit~\cite{bandit}
 is the de-facto Python security linter; it ships approximately eighty
 rules covering common CWE patterns and operates as a single-file
-analyzer with no inter-procedural reasoning. Semgrep~\cite{TODO_semgrep}
+analyzer with no inter-procedural reasoning. Semgrep~\cite{semgrep}
 is a multi-language pattern matcher with a YAML-based rule format and
 a curated Python security ruleset (\texttt{p/python}, \texttt{p/security-audit}).
-CodeQL~\cite{TODO_codeql} is GitHub's database-backed static analyzer;
+CodeQL~\cite{codeql} is GitHub's database-backed static analyzer;
 it requires a built code database per project, which limits its
 applicability at the file level, but it performs richer dataflow
-analysis than the lighter-weight competitors. Pylint~\cite{TODO_pylint}
+analysis than the lighter-weight competitors. Pylint~\cite{pylint}
 and Pyflakes are general-purpose linters that flag a small subset of
 security-relevant patterns as a byproduct of code-quality checks.
 
 All four tools fall into the broad category that
-CASTLE~\cite{TODO_castle} labels ``Static Application Security
+CASTLE~\cite{castle} labels ``Static Application Security
 Tester'' or ``Generic Code Analyzer.'' They share a design philosophy:
 detect by matching the source against a curated rule set. This makes
 them fast and reproducible but exposes them to the surface-pattern
-attacks that our four mutators (Section~\ref{sec:methodology})
+attacks that our seven mutators (Section~\ref{sec:methodology})
 specifically probe.
 
 \subsection{Large language models for vulnerability detection}
@@ -96,16 +96,16 @@ specifically probe.
 
 Recent work uses large language models as vulnerability detectors
 directly, prompting the model to classify or localize vulnerabilities
-in source code. Khare et al.~\cite{TODO_khare_llm} evaluated GPT-3.5
+in source code. Khare et al.~\cite{khare_llm} evaluated GPT-3.5
 and GPT-4 on C/C++ samples from existing benchmarks and reported
 F1 scores competitive with fine-tuned transformer baselines, though
 they noted high variance across prompt phrasings. Steenhoek
-et al.~\cite{TODO_steenhoek} extended this comparison to ChatGPT,
+et al.~\cite{steenhoek} extended this comparison to ChatGPT,
 Claude, and several open-source models, finding that LLM accuracy
 scales with model size and that all models lose accuracy on
 real-world (vs. synthetic) code.
 
-The CASTLE benchmark~\cite{TODO_castle} is the most directly
+The CASTLE benchmark~\cite{castle} is the most directly
 relevant prior work. CASTLE evaluates fourteen static-analysis tools
 and ten LLMs on a hand-curated 250-program C/C++ corpus with a
 purpose-designed scoring formula (CASTLE Score) that combines true
@@ -122,23 +122,23 @@ does not cover Python.
 A separate line of work builds benchmarks whose purpose is to
 \emph{compare} detectors rather than to train them, and its recurring
 lesson is that benchmark construction decides the result.
-PrimeVul~\cite{TODO_primevul} demonstrated this directly: a code
+PrimeVul~\cite{primevul} demonstrated this directly: a code
 language model that scores 68.3\% F1 on BigVul scores 3.1\% on
-PrimeVul --- the same task evaluated on a de-duplicated corpus with
+PrimeVul, the same task evaluated on a de-duplicated corpus with
 chronological train/test splits and tightened labels. PrimeVul also
 argued that F1 is the wrong headline metric for a detector deployed
 against a stream of mostly-benign code, and proposed instead the
 false-negative rate at a fixed low false-positive rate, together with
 a pair-wise evaluation that scores a detector on its ability to
 separate a vulnerable function from its patched version.
-CleanVul~\cite{TODO_cleanvul} quantified the underlying problem:
+CleanVul~\cite{cleanvul} quantified the underlying problem:
 across widely used vulnerability datasets, between 40\% and 75\% of
 the labels are inaccurate. These two results are the direct motivation
 for the label-validation pipeline of Section~\ref{sec:dataset}. A
 benchmark built on raw CVE inheritance measures a detector's agreement
 with label noise as much as its detection ability.
 
-The closest prior work to ours is RealVuln~\cite{TODO_realvuln}, which
+The closest prior work to ours is RealVuln~\cite{realvuln}, which
 evaluates fifteen scanners on intentionally vulnerable real-world
 Python repositories and, like us, organizes detectors into tiers:
 rule-based static analysis, general-purpose LLMs, and
@@ -155,22 +155,22 @@ measures detection on unmodified code only, whereas we add the
 perpendicular axis of robustness under semantics-preserving rewriting.
 
 The IRIS system and its companion CWE-Bench-Java
-benchmark~\cite{TODO_iris} are relevant for two reasons. First, IRIS
+benchmark~\cite{iris} are relevant for two reasons. First, IRIS
 pairs an LLM with the CodeQL static analyzer and detects roughly twice
 as many real vulnerabilities as CodeQL alone, which establishes that
 the strongest current approach for real-world detection is a hybrid of
 learned and rule-based components rather than either in isolation.
-Second, CWE-Bench-Java scopes itself to ``sink-shaped'' CWEs --- path
-traversal, command injection, code injection, cross-site scripting ---
+Second, CWE-Bench-Java scopes itself to ``sink-shaped'' CWEs (path
+traversal, command injection, code injection, cross-site scripting),
 the same family we target, which supports the methodological
 separation we draw between sink-shaped and structural weaknesses.
 
-Finally, SecLLMHolmes~\cite{TODO_secllmholmes} is a benchmark built
+Finally, SecLLMHolmes~\cite{secllmholmes} is a benchmark built
 specifically to probe whether LLM detectors reason or pattern-match.
 It found that model verdicts are non-deterministic and that trivial,
-semantics-preserving edits --- renaming an identifier, inserting an
-unrelated function call --- are sufficient to flip a correct verdict
-to an incorrect one. This is the precedent for the four mutators of
+semantics-preserving edits such as renaming an identifier or inserting
+an unrelated function call are sufficient to flip a correct verdict
+to an incorrect one. This is the precedent for the seven mutators of
 Section~\ref{sec:methodology}; the difference is that SecLLMHolmes
 applied perturbations to hand-written scenarios as a single robustness
 score, whereas we apply targeted mutators to real CVE-derived code and
@@ -180,23 +180,24 @@ report a per-mutator, per-CWE breakdown.
 \label{sec:related:adv}
 
 Code-model robustness against semantics-preserving perturbations is
-an established subfield. Yefet et al.~\cite{TODO_yefet} showed that
+an established subfield. Yefet et al.~\cite{yefet} showed that
 identifier renaming alone is sufficient to flip the prediction of
 state-of-the-art code-summarization and bug-detection models on a
-substantial fraction of inputs. Bielik and Vechev~\cite{TODO_bielik}
+substantial fraction of inputs. Bielik and Vechev~\cite{bielik}
 formalized adversarial robustness for code as a refinement-type
 problem and developed defenses based on input invariance. Henkel
-et al.~\cite{TODO_henkel} applied program-transformation attacks
+et al.~\cite{henkel} applied program-transformation attacks
 (variable renaming, statement insertion, code splitting) to neural
 program-analysis tasks and reported large accuracy drops across the
 board.
 
-Our four mutators draw on this literature but are designed with a
+Our seven mutators draw on this literature but are designed with a
 different goal: rather than mounting the strongest possible attack
 on a single model, we want a stable, interpretable benchmark for
 comparing tools. Each mutator targets one specific shortcut
-(positional, substring, identifier, single-function) so that a
-per-mutator F1 drop is diagnostically meaningful. CASTLE evaluates
+(positional, substring, identifier, single-function, sink token,
+or dataflow) so that a per-mutator F1 drop is diagnostically
+meaningful. CASTLE evaluates
 detection accuracy at one level; we add the perpendicular axis of
 robustness under semantics-preserving rewriting.
 

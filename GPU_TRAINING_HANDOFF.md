@@ -15,10 +15,13 @@ Train the dual-task GraphCodeBERT vulnerability model end-to-end, using:
 - **SAM optimizer** wrapping AdamW (lr=2e-5, ρ=0.05).
 - **Online augmentation** — 3 mutators applied during training; the
   4th (`string_split`) is held out as the test-time robustness probe.
-- **Inputs (after Phase 2B re-scope, 2026-05-13):** **905 train / 185 val
-  / 182 test** = 1,272 trainable samples across **11 classes** (10 active
-  CWEs + safe). Split is repo-group stratified, anti-leakage verified.
-  See `PHASE_2B_RESCOPE_2026-05-13.md` for the per-CWE breakdown.
+- **Inputs (verified 2026-05-22):** **607 train / 127 val / 132 test**
+  = 866 trainable samples across **8 classes** (7 active CWEs + safe):
+  `CWE-89, 78, 22, 79, 94, 918, 502, safe`. Split is repo-group
+  stratified, anti-leakage verified. (An earlier draft of this doc
+  cited an 11-class rescope; that state was rolled back — CWE-77 was
+  merged into CWE-78 via `scripts/merge_cwe77_into_cwe78.py`, and
+  CWE-434 / CWE-798 never landed.)
 - **Outputs:** `best.pt` (highest val/cwe_macro_f1), `last.pt`,
   `history.json` (per-epoch metrics), TensorBoard event files.
 
@@ -26,10 +29,8 @@ Train the dual-task GraphCodeBERT vulnerability model end-to-end, using:
 8–14 hr on a T4. The model is 126.65M parameters; the bottleneck is
 the SAM double-pass.
 
-**Class vocabulary (11 outputs):** see `src/model/dataset.py:INDEX_TO_CWE`.
-Index order: CWE-89, 78, 22, 79, 94, 918, 502, 77, 434, 798, safe. v1/v2
-checkpoints are NOT compatible — the classifier head expanded from
-8 → 11 outputs.
+**Class vocabulary (8 outputs):** see `src/model/dataset.py:INDEX_TO_CWE`
+for the authoritative index order.
 
 ---
 

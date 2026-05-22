@@ -2,13 +2,35 @@
 \label{sec:methodology}
 
 To go beyond ``did the tool detect this vulnerability'' we generate
-four adversarial variants of every test sample. Each variant rewrites
-the code in a way that keeps its runtime behavior intact but breaks a
-specific shortcut that pattern-matching detectors rely on. If a tool's
-F1 score drops sharply on a given mutator's output, that tool was
-using the shortcut the mutator targets.
+seven adversarial variants of every test sample. Each variant
+rewrites the code in a way that keeps its runtime behavior intact but
+breaks a specific shortcut that pattern-matching detectors rely on.
+If a tool's F1 score drops sharply on a given mutator's output, that
+tool was using the shortcut the mutator targets.
 
-This section describes the four mutators, the AST-level invariants
+The seven mutators fall into three families. The first four are
+\emph{sink-preserving}: \texttt{dead\_code\_injection} (M1),
+\texttt{string\_split} (M2), \texttt{variable\_rename} (M3), and
+\texttt{wrapper\_extraction} (M4). They alter code around the sink
+but leave the sink identifier (\texttt{os.system}, \texttt{eval},
+\texttt{cursor.execute},~\ldots) intact and the argument expressions
+reaching the sink unchanged. The next two are \emph{sink-targeted}:
+\texttt{sink\_attr\_obfuscate} (M5) and \texttt{sink\_via\_globals}
+(M6). They rewrite the sink call itself via
+\texttt{getattr}-mediated attribute access or \texttt{\_\_dict\_\_}
+indexing on the builtins module. The last is a \emph{dataflow}
+mutator: \texttt{taint\_through\_dict} (M7) routes the first
+positional argument of every sink call through a one-entry dict
+literal, preserving the sink identifier but breaking any direct
+lineage between a parameter and a sink-argument expression. The
+three families probe disjoint detector shortcuts. A detector that
+fails on the sink-preserving family is doing positional or
+substring reasoning in the code around the sink; a detector that
+fails on the sink-targeted family is matching the sink token
+itself; a detector that fails on the dataflow family is doing
+taint-flow tracking that does not generalise past dict reads.
+
+This section describes the seven mutators, the AST-level invariants
 that keep them semantics-preserving, and the way they are composed at
 evaluation time. The mutators live in
 \texttt{src/red\_team/mutators/} and are deterministic given a sample
@@ -147,13 +169,13 @@ references.}
 \end{figure}
 
 The shortcut this attacks is identifier memorization. A classifier
-trained on labeled data can latch onto specific names: if eighty
+trained on labeled data can latch onto specific names. If eighty
 percent of the training-set SQL injection examples use a parameter
-named \texttt{user\_id}, the model can shortcut on the name itself
---- \emph{see \texttt{user\_id} flow into \texttt{execute}, predict
-CWE-89}. A real attacker, or any developer with a different style,
-might call that parameter \texttt{pk}, \texttt{customer\_id}, or
-\texttt{target}, and the shortcut breaks.
+named \texttt{user\_id}, the model can shortcut on the name itself:
+seeing \texttt{user\_id} flow into \texttt{execute} predicts CWE-89.
+A real attacker, or any developer with a different style, might call
+that parameter \texttt{pk}, \texttt{customer\_id}, or \texttt{target},
+and the shortcut breaks.
 
 Several identifiers are never renamed because doing so would change
 semantics. The mutator skips \texttt{self} and \texttt{cls} (would
@@ -216,9 +238,9 @@ this analysis, and at least some transformer architectures struggle
 with it because of attention cost.
 
 Several details ensure correctness. The wrapper uses
-\texttt{*\_a, **\_kw} argument forwarding, so any call to the
-original sink --- positional, keyword, defaults, or starred
-unpacking --- is forwarded unchanged. If the original call is
+\texttt{*\_a, **\_kw} argument forwarding, so any call to the original
+sink (positional, keyword, default, or starred-unpacking) is forwarded
+unchanged. If the original call is
 \texttt{await db.execute(...)}, the wrapper is generated as
 \texttt{async def} with \texttt{return await ...}. The wrapper
 name carries a random four-digit suffix so it cannot collide with
@@ -236,6 +258,178 @@ function with both \texttt{len(items)} and
 security-relevant call, not the harmless one. If a function has no
 eligible sink the mutator returns it unchanged.
 
+\subsection{Mutator 5: sink attribute obfuscation}
+\label{sec:method:sao}
+
+The fifth mutator targets the sink call directly. Attribute-style
+sinks of the form \texttt{value.attr(args)} are rewritten as
+\texttt{getattr(value, "attr")(args)}. The two forms are
+semantically equivalent under the Python attribute-lookup rules:
+\texttt{getattr(x, "y")} returns the same object that
+\texttt{x.y} resolves to, and applying that callable to the original
+arguments produces the same return value.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+def run_cmd(user_arg):
+    return os.system("ls " + user_arg)
+
+# After
+def run_cmd(user_arg):
+    return getattr(os, "system")("ls " + user_arg)
+\end{verbatim}
+\caption{Sink attribute obfuscation. The sink identifier
+\texttt{system} no longer appears as a syntactic call target; it
+lives only inside a string literal.}
+\label{lst:sao}
+\end{figure}
+
+The shortcut this attacks is token-level sink matching. Bandit and
+Semgrep both ship rules that anchor on the textual occurrence of
+sink identifiers (\texttt{B602} matches \texttt{os.system},
+\texttt{B608} matches \texttt{.execute} on cursor-shaped receivers,
+etc.). After the rewrite, the sink token only appears inside a
+string constant, which most lexical rules do not inspect.
+
+The mutator's target list covers attribute-style sinks across four
+CWE classes: \texttt{os.system}, \texttt{os.popen}, the
+\texttt{subprocess} module's call surface (CWE-78);
+\texttt{.execute}, \texttt{.executemany}, \texttt{.executescript},
+\texttt{.raw} on any receiver (CWE-89); the \texttt{requests} and
+\texttt{httpx} HTTP verbs and \texttt{urllib(2).urlopen} (CWE-918);
+and \texttt{pickle}, \texttt{cPickle}, \texttt{dill},
+\texttt{yaml.unsafe\_load}, \texttt{marshal}, and \texttt{shelve}
+deserialization entry points (CWE-502). Sinks where the receiver is
+a runtime object (\texttt{cursor.execute},
+\texttt{connection.executemany}) are handled with a wildcard
+receiver in the target list, since the attribute name is what makes
+the sink dangerous, not the import-time module. The full target
+list is in \texttt{src/red\_team/mutators/sink\_attr\_obfuscate.py}.
+
+CWE-94 (\texttt{eval}, \texttt{exec}, \texttt{compile},
+\texttt{\_\_import\_\_}) is a bare-builtin call rather than an
+attribute access, and CWE-22 path-traversal and CWE-79 XSS sinks
+are framework-specific calls that do not fit the
+\texttt{getattr} rewrite cleanly. CWE-94 is the target of Mutator 6;
+the remaining two CWE classes are not yet exercised by a
+sink-targeted mutator and are listed as a residual gap in
+Section~\ref{sec:threats:construct}.
+
+The mutator is held out of training-time augmentation, alongside
+\texttt{string\_split} and \texttt{sink\_via\_globals}.
+
+\subsection{Mutator 6: sink via globals}
+\label{sec:method:svg}
+
+The sixth mutator is the bare-builtin counterpart to M5. Bare
+builtin sinks of the form \texttt{eval(arg)} are rewritten as
+\texttt{\_\_import\_\_("builtins")} \texttt{.\_\_dict\_\_["eval"](arg)}.
+The two forms are runtime-identical: the
+\texttt{\_\_import\_\_("builtins")} call returns the same module
+object that supplies the bare name \texttt{eval} at lookup time, and
+its \texttt{\_\_dict\_\_} attribute exposes the builtin under the
+same key.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+def render_template(spec):
+    return eval(spec)
+
+# After
+def render_template(spec):
+    return __import__("builtins").__dict__["eval"](spec)
+\end{verbatim}
+\caption{Sink-via-globals rewrite for a CWE-94 \texttt{eval} sink.
+The sink token only appears as a string literal inside a
+\texttt{\_\_dict\_\_} subscript.}
+\label{lst:svg}
+\end{figure}
+
+The shortcut this attacks is the same token-level sink match that
+M5 attacks, exercised on a different syntactic position: M5 covers
+\texttt{ast.Attribute} sinks, M6 covers \texttt{ast.Name} sinks. We
+keep them as separate mutators rather than as a single mutator that
+covers both positions because they apply to disjoint CWE classes
+(M5 covers four CWEs; M6 covers one, CWE-94) and reporting their
+robustness drops separately preserves that information.
+
+The mutator's target set is the four CWE-94 bare builtins
+\texttt{eval}, \texttt{exec}, \texttt{compile}, and
+\texttt{\_\_import\_\_}. We chose \texttt{\_\_dict\_\_} indexing
+over \texttt{getattr}-style indirection deliberately: M5 already
+uses \texttt{getattr}, and a detector that learns to flag
+\texttt{getattr(\_, "eval")} would still miss
+\texttt{\_\_dict\_\_["eval"]}. Routing through a different
+indirection mechanism gives a distinct obfuscation axis. We did not
+use the naive \texttt{globals()["eval"](\ldots)} form despite the
+mutator name: bare builtins are not stored in the module's
+\texttt{globals()} dict, so the naive rewrite raises
+\texttt{KeyError} at runtime; \texttt{\_\_import\_\_("builtins").%
+\_\_dict\_\_["eval"]} is the semantically faithful counterpart.
+
+The mutator is held out of training-time augmentation alongside M2
+and M5.
+
+\subsection{Mutator 7: taint through dict}
+\label{sec:method:ttd}
+
+The seventh mutator targets a third shortcut, orthogonal to the
+sink-preserving and sink-targeted families. M1--M6 either change the
+code around the sink or change the sink identifier; M7 leaves both
+intact and instead breaks the \emph{flow} between a tainted source
+and the sink call. Every sink call's first positional argument is
+routed through a one-entry dict literal: \texttt{f(expr)} becomes
+\texttt{f(\{"\_a": expr\}["\_a"])}. The wrapped expression is
+constructed and immediately re-extracted, so the value reaching the
+sink is bitwise identical to the original argument.
+
+\begin{figure}[h]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    return cursor.execute(
+        "SELECT * FROM users WHERE id = " + user_id
+    )
+
+# After
+def get_user(user_id):
+    return cursor.execute(
+        {"_a": "SELECT * FROM users WHERE id = " + user_id}["_a"]
+    )
+\end{verbatim}
+\caption{Taint-through-dict rewrite. The sink identifier
+\texttt{cursor.execute} is unchanged and the sink argument
+evaluates to the same string; the static lineage from the
+\texttt{user\_id} parameter to the sink argument now passes
+through a dict construction and a subscript.}
+\label{lst:ttd}
+\end{figure}
+
+The shortcut this attacks is taint-flow tracking that does not
+propagate through dict reads. A pattern-matching SAST tool that
+flags any \texttt{cursor.execute(<expr>)} call sees the sink and
+fires regardless of how the argument was assembled; we therefore
+expect Bandit and the non-taint Semgrep configurations to be
+invariant to this mutator. A dataflow-aware detector that follows
+\texttt{user\_id} forward, however, must keep the taint label
+through the \texttt{\{"\_a": user\_id\}} dict construction and
+the subsequent \texttt{["\_a"]} subscript to flag the call; a
+detector that drops taint at the dict boundary will lose the
+sink. The mutator is included to (i) exercise this third axis in
+the benchmark, (ii) provide a probe that will distinguish
+dataflow-aware detectors from pure pattern-matching tools when
+those detectors (CodeQL, taint-mode Semgrep configurations) are
+added in future work.
+
+The mutator's target sinks are the union of the M5 and M6 sets:
+attribute-style sinks across CWE-78/89/918/502 plus bare-builtin
+sinks across CWE-94. Sinks whose first positional argument is a
+literal constant are skipped (there is no taint to flow), as are
+sinks called with kwargs only. The mutator is held out of
+training-time augmentation alongside M2, M5, and M6.
+
 \subsection{Composition}
 \label{sec:method:composition}
 
@@ -243,9 +437,9 @@ At evaluation time we apply between two and three mutators to each
 test sample. Two is the lower bound because a single mutator probes
 one shortcut at a time, and the aggregate robustness number is more
 informative when at least two shortcuts are in play. Three is the
-upper bound because applying all four at once over-mangles the code:
-even valid mutations stop being instructive, and the result is no
-longer plausibly a thing a real developer would write.
+upper bound because applying every mutator at once over-mangles the
+code: even valid mutations stop being instructive, and the result
+is no longer plausibly a thing a real developer would write.
 
 Mutator selection and application order are randomized per sample
 but seeded by the sample identifier, so re-running the evaluation
@@ -253,12 +447,26 @@ produces identical adversarial variants. The seed is published with
 the dataset.
 
 For the headline robustness table (Section~\ref{sec:evaluation}) we
-also report each mutator applied in isolation, producing four
+also report each mutator applied in isolation, producing seven
 single-mutator test sets in addition to the composed one. The
 single-mutator numbers tell us which shortcut breaks which tool: a
-tool whose F1 collapses on string-split but holds steady on the
-other three is doing substring matching, and the table makes that
-visible.
+tool whose F1 collapses on \texttt{sink\_attr\_obfuscate} but holds
+steady on the four sink-preserving mutators is doing token-level
+sink matching, and the per-mutator columns of
+Table~\ref{tab:robustness} make that visible.
+
+The three module-scope mutators (M5, M6, and M7) operate on the
+whole module's AST rather than the first function alone, because
+the sinks they target can live anywhere (helper functions, class
+methods, module-level statements). M1--M4 mutate only the first
+function in each module under the standard per-function pipeline.
+When the composed variant draws from all seven mutators through
+that pipeline, M5--M7 are scoped to the first function rather
+than the whole module, which weakens their effect in the composed
+condition. The single-mutator M5, M6, and M7 variants apply the
+full module-scope rewrite and are the authoritative source for the
+sink-targeted and dataflow robustness numbers reported in
+Section~\ref{sec:eval:robustness}.
 
 \subsection{Semantic equivalence}
 \label{sec:method:equivalence}
