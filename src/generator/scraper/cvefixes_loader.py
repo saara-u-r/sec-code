@@ -184,7 +184,7 @@ def run(output_dir: str = "data/raw", db_path: str = CVEFIXES_LOCAL) -> int:
                 continue
 
             # Phase 2B sink-presence filter — reject samples without a
-            # category-defining sink token (see PHASE_2B_DESIGN.md §2.2).
+            # category-defining sink token (see docs/design/PHASE_2B_DESIGN.md §2.2).
             sink_ok, _ = has_cwe_sink(code_before, cwe, file_path=row["filename"])
             if not sink_ok:
                 rejected_sink += 1

@@ -244,7 +244,7 @@ def main() -> int:
     from datetime import datetime, timezone
     parser = argparse.ArgumentParser()
     parser.add_argument("--raw-dir", default="data/raw")
-    parser.add_argument("--output", default="BENCHMARK_AUDIT_SAMPLES_2026-05-13.md")
+    parser.add_argument("--output", default="docs/audits/BENCHMARK_AUDIT_SAMPLES_2026-05-13.md")
     parser.add_argument("--per-cwe", type=int, default=10,
                         help="Samples per CWE for populous classes (default: 10)")
     parser.add_argument("--audit-all-below", type=int, default=30,

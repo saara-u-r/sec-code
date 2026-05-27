@@ -1,7 +1,7 @@
 """
 src/model/trainer.py — Phase 3 training loop.
 
-Implements the three-phase schedule from PHASE2_DESIGN.md §4.5b:
+Implements the three-phase schedule from docs/design/PHASE2_DESIGN.md §4.5b:
 
     Phase 0 — Warmup
         Loss   = SupCon (dominant) + CE on CWE (small weight)
@@ -85,7 +85,7 @@ logger = get_logger("trainer")
 
 @dataclass
 class TrainerConfig:
-    """Knobs for the training loop. Defaults match PHASE2_DESIGN.md."""
+    """Knobs for the training loop. Defaults match docs/design/PHASE2_DESIGN.md."""
 
     # ---- Schedule ----
     warmup_epochs:  int = 0    # SupCon-dominant phase (set > 0 to enable)

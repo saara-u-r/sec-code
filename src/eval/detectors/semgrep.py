@@ -21,7 +21,7 @@ from src.eval.cwe_map import normalize_cwe
 from src.eval.detectors.base import Detector, Prediction, find_executable
 from src.eval.samples import EvalSample
 
-#: Default Semgrep rulesets, per EVALUATION_METHODOLOGY.md section 5.1.
+#: Default Semgrep rulesets, per docs/reference/EVALUATION_METHODOLOGY.md section 5.1.
 #: ``p/python`` alone is mostly correctness lints; the security-audit
 #: and owasp-top-ten packs carry the injection/XSS/SSRF rules with CWE
 #: metadata. All three are fetched from the registry once and cached.

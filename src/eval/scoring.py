@@ -1,6 +1,6 @@
 """Scoring for the evaluation harness.
 
-Implements the metrics from EVALUATION_METHODOLOGY.md sections 3.1–3.4
+Implements the metrics from docs/reference/EVALUATION_METHODOLOGY.md sections 3.1–3.4
 (macro-F1 baseline) and 3.6 (the three-measure profile that replaces
 the macro-F1 headline for the next evaluation round).
 

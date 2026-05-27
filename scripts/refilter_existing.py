@@ -3,7 +3,7 @@
 refilter_existing.py — Apply Phase 2B sink-presence filter to existing data/raw/.
 
 Pre-Phase-2B samples were ingested without the sink filter, so data/raw/
-contains co-changed-file noise (see PHASE_2B_DAY1_REPORT.md). This script
+contains co-changed-file noise (see docs/progress/PHASE_2B_DAY1_REPORT.md). This script
 walks every meta.json, re-runs has_cwe_sink() against the code, and moves
 rejects to data/raw_rejected/ with a manifest documenting the reason.
 

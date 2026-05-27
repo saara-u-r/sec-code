@@ -4,7 +4,7 @@ rollback_weak_random.py — one-shot rollback of the 2026-05-11 weak_random_mine
 
 Moves every data/raw/weak_random_*.{py,meta.json} to data/raw_rejected/ and
 writes a manifest documenting the rollback. Triggered by the CWE-330 audit
-in PHASE_2B_OPEN_QUESTIONS.md: the original miner run used a file-wide
+in docs/design/PHASE_2B_OPEN_QUESTIONS.md: the original miner run used a file-wide
 security-context check which produced ~60-80% false positives. After the
 2026-05-12 fix (line-proximity + tightened keyword regex), the miner needs
 to be rerun from a clean slate.
@@ -25,7 +25,7 @@ from pathlib import Path
 
 ROLLBACK_REASON = (
     "CWE-330 file-wide security-context check produced ~60-80% FPs "
-    "(see PHASE_2B_OPEN_QUESTIONS.md, 2026-05-11). Rolled back 2026-05-12 "
+    "(see docs/design/PHASE_2B_OPEN_QUESTIONS.md, 2026-05-11). Rolled back 2026-05-12 "
     "ahead of weak_random_miner rerun with line-proximity filter."
 )
 

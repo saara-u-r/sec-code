@@ -1,6 +1,6 @@
 """
 red_team — semantics-preserving code mutators for adversarial robustness
-testing of vulnerability detection models. See PHASE2_5_AUGMENTATION_DESIGN.md.
+testing of vulnerability detection models. See docs/design/PHASE2_5_AUGMENTATION_DESIGN.md.
 """
 
 from src.red_team.base import (

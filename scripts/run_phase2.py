@@ -12,7 +12,7 @@ The split satisfies two correctness constraints:
   1. **No repo leakage** — same `repo` lands in same split
   2. **CWE stratification** — class proportions preserved across splits
 
-See ``PHASE2_DESIGN.md`` §6–§7 for the design.
+See ``docs/design/PHASE2_DESIGN.md`` §6–§7 for the design.
 
 Usage:
     python scripts/run_phase2.py                  # default seed=42

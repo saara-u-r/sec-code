@@ -159,9 +159,9 @@ CWE 4.14), and weighted Cohen's κ, computed per variant.
 - Dataset schema is 26 fields (schema 3.0, 2026-05-22), trimmed from
   the previous 53-field schema by removing derivable, filter-time-only,
   and removed-phase-tied fields. Per-field literature justification in
-  `FIELD_JUSTIFICATION.md`; "removed in 3.0" appendix lists each drop.
+  `docs/reference/FIELD_JUSTIFICATION.md`; "removed in 3.0" appendix lists each drop.
 - The evaluation methodology is documented at three levels of detail:
-  `EVALUATION_GUIDE.md` (plain-language for project use),
-  `EVALUATION_METHODOLOGY.md` (formal spec, paper-aligned),
-  `EVALUATION_TOOLS_SURVEY.md` (the broader tool landscape, most of
+  `docs/reference/EVALUATION_GUIDE.md` (plain-language for project use),
+  `docs/reference/EVALUATION_METHODOLOGY.md` (formal spec, paper-aligned),
+  `docs/reference/EVALUATION_TOOLS_SURVEY.md` (the broader tool landscape, most of
   which we did not select).

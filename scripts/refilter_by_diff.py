@@ -3,7 +3,7 @@
 refilter_by_diff.py — drop samples where the sink line is unchanged
 between code_before and code_after.
 
-Motivation: Stage-1 audit (BENCHMARK_AUDIT_REPORT_2026-05-13.md) found
+Motivation: Stage-1 audit (docs/audits/BENCHMARK_AUDIT_REPORT_2026-05-13.md) found
 that ~50% of CVE-fix-derived positives are commit-level noise — the
 labeled file was touched in the fix commit, but the *actual* sink line
 (`pickle.loads(...)`, `os.system(...)`, etc.) is identical in

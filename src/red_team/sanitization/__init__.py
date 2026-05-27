@@ -2,7 +2,7 @@
 red_team.sanitization — generates hard-negative samples from vulnerable code
 by applying CWE-specific canonical sanitization transforms.
 
-See PHASE2_5_AUGMENTATION_DESIGN.md §2 for the design rationale.
+See docs/design/PHASE2_5_AUGMENTATION_DESIGN.md §2 for the design rationale.
 """
 
 from src.red_team.sanitization.base import (

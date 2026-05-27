@@ -7,7 +7,7 @@ Phase 2B re-scope (2026-05-13): narrowed to the 9 *sink-shaped Top-25
 Python CWEs* — the set where a closed fix-pattern alphabet exists.
 Phase 2B finalize (2026-05-13, evening): dropped CWE-798 to land at
 exactly 10 labels (9 sink-shaped + safe) for the evaluation benchmark.
-See PHASE_2B_DESIGN.md §1 and the Top-25 taxonomy analysis for rationale.
+See docs/design/PHASE_2B_DESIGN.md §1 and the Top-25 taxonomy analysis for rationale.
 
 Sink-shaped Top-25 Python CWEs (active, the benchmark label set):
   CWE-79, CWE-89, CWE-22, CWE-78, CWE-94, CWE-502, CWE-918
@@ -30,7 +30,7 @@ Dropped 2026-05-13 (reversible via data/raw_rejected/ manifests + git):
       valid (100% FP rate). The vulnerability is the *absence* of
       validation around an upload sink, which is fundamentally a
       structural problem (like the deferred Top-25 CWEs in
-      STRUCTURAL_CWES_DEFERRED.md). Detection requires taint tracking
+      docs/design/STRUCTURAL_CWES_DEFERRED.md). Detection requires taint tracking
       across upload→validation→save, not file-level sink matching.
       Dropped from the benchmark. May revisit in Phase 2C with a
       proximity-filtered scraper.
