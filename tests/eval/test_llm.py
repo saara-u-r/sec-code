@@ -62,6 +62,54 @@ def test_parse_requires_cwe_at_line_start():
 
 
 # --------------------------------------------------------------------------
+# parse_llm_response — reasoning-model fallback
+# --------------------------------------------------------------------------
+
+def test_parse_reasoning_model_verdict_at_end():
+    # R1-style: prose lead, conclusion last with a CWE marker.
+    text = (
+        "Let me analyze this step by step.\n"
+        "1. The user input flows into a template.\n"
+        "2. Django escapes by default, but mark_safe is used.\n"
+        "\n"
+        "Conclusion:\n"
+        "CWE-79: Cross-site Scripting"
+    )
+    assert parse_llm_response(text) == {"CWE-79"}
+
+
+def test_parse_reasoning_model_safe_at_end():
+    # R1-style "safe" verdict at the end of a long reasoning trace.
+    text = (
+        "The application sanitizes all user input through Flask's "
+        "request handling. No SQL injection, no XSS.\n"
+        "\n"
+        "safe"
+    )
+    assert parse_llm_response(text) == set()
+
+
+def test_parse_reasoning_uses_last_verdict_not_intermediate():
+    # If the model enumerates rejected candidates at line-start and
+    # concludes with a different CWE, the conclusion (last) wins.
+    text = (
+        "Checking each class:\n"
+        "CWE-89: not applicable, no SQL queries here.\n"
+        "CWE-78: not applicable, no subprocess calls.\n"
+        "CWE-22: matches — the path is built from user input."
+    )
+    assert parse_llm_response(text) == {"CWE-22"}
+
+
+def test_parse_first_line_wins_for_instruction_models():
+    # Sanity: the fallback never overrides a first-line verdict. An
+    # instruction model that emits its answer first is unaffected even
+    # if it mentions other CWEs in its justification.
+    text = "CWE-78\nNote: CWE-89 also briefly considered."
+    assert parse_llm_response(text) == {"CWE-78"}
+
+
+# --------------------------------------------------------------------------
 # LLMDetector — naming, availability, offline cost estimate
 # --------------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 """LLM detector — classify a Python file's CWE via the Anthropic Messages API.
 
-Implements the protocol in EVALUATION_METHODOLOGY.md section 6.2: a fixed
+Implements the protocol in docs/reference/EVALUATION_METHODOLOGY.md section 6.2: a fixed
 system prompt lists the 7 target CWEs, the file contents go in the user
 turn, and the model answers with a single line (a CWE identifier or
 "safe"). The first non-empty line of the response is parsed.
@@ -19,6 +19,7 @@ Notes on Opus 4.7 (the default model):
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import time
@@ -27,7 +28,9 @@ from src.eval.cwe_map import normalize_cwe
 from src.eval.detectors.base import Detector, Prediction
 from src.eval.samples import EvalSample
 
-DEFAULT_MODEL = "claude-opus-4-7"
+logger = logging.getLogger(__name__)
+
+DEFAULT_MODEL = "claude-sonnet-4-6"
 
 SYSTEM_PROMPT = """\
 You are a security code reviewer. Given a Python source file, identify
@@ -63,22 +66,38 @@ _CWE_AT_LINE_START = re.compile(r"^CWE[-\s]?(\d+)", re.IGNORECASE)
 def parse_llm_response(text: str) -> set[str]:
     """Parse a model response into a predicted-CWE set.
 
-    Per the methodology: take the first non-empty line. If it starts
-    with a CWE identifier, that is the prediction (folded onto the 7
-    target classes; an out-of-scope CWE yields no prediction). Otherwise
-    the line is treated as "safe" or "no answer" — both score as an
-    empty prediction set.
+    Primary rule (methodology): the first non-empty line is the verdict.
+    If it starts with a CWE identifier, that's the prediction (folded
+    onto the 7 target classes; out-of-scope CWEs yield no prediction).
+    If it starts with "safe" or anything else, the prediction is empty.
+
+    Reasoning-model fallback: when the first line is neither a CWE nor
+    "safe" (a chain-of-thought model leading with prose), scan from the
+    end for the last line that starts with a CWE marker or "safe".
+    Reasoning models conclude *after* their reasoning, so the last
+    verdict-shaped line is the answer. This path never activates for
+    instruction-following models that emit the verdict on line 1.
     """
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line:
-            continue
+    lines = [raw.strip() for raw in text.splitlines() if raw.strip()]
+    if not lines:
+        return set()
+
+    first = lines[0]
+    m = _CWE_AT_LINE_START.match(first)
+    if m:
+        norm = normalize_cwe(int(m.group(1)))
+        return {norm} if norm else set()
+    if first.lower().startswith("safe"):
+        return set()
+
+    # First line wasn't a verdict — reasoning-model trace. Scan upward.
+    for line in reversed(lines):
         m = _CWE_AT_LINE_START.match(line)
         if m:
             norm = normalize_cwe(int(m.group(1)))
             return {norm} if norm else set()
-        # First non-empty line was not a CWE — "safe" or unparseable.
-        return set()
+        if line.lower().startswith("safe"):
+            return set()
     return set()
 
 
@@ -110,7 +129,12 @@ class LLMDetector(Detector):
     def _get_client(self):
         if self._client is None:
             import anthropic
-            self._client = anthropic.Anthropic()
+            # max_retries=8 lets the SDK respect the server's retry-after
+            # header on 429 (rate-limit) and 529 (overloaded) responses
+            # before bubbling up. Default is 2, which is too low for the
+            # 30K-tokens-per-minute free-tier rate limit on a 132-sample
+            # clean run.
+            self._client = anthropic.Anthropic(max_retries=8)
         return self._client
 
     def estimate_cost(self, samples: list[EvalSample]) -> dict:
@@ -134,7 +158,17 @@ class LLMDetector(Detector):
 
     def run(self, samples: list[EvalSample]) -> dict[str, Prediction]:
         """Classify each sample with one Messages API call. Bills the
-        account — gate real runs behind explicit authorization."""
+        account — gate real runs behind explicit authorization.
+
+        Rate limiting: the SDK's built-in retry (``max_retries=8`` on the
+        client) absorbs 429/529 responses by sleeping for the server's
+        ``retry-after`` header. For free-tier accounts whose
+        tokens-per-minute ceiling is below the harness's natural throughput
+        (e.g. 30K TPM against ~7K tokens/call), this means most calls will
+        retry rather than fail; total wall time stretches accordingly but
+        the run completes.
+        """
+        import anthropic as _anthropic
         if not self.is_available():
             raise RuntimeError(
                 "LLM detector unavailable — needs the `anthropic` package "
@@ -142,9 +176,9 @@ class LLMDetector(Detector):
             )
         client = self._get_client()
         predictions: dict[str, Prediction] = {}
-        for s in samples:
-            t0 = time.monotonic()
-            msg = client.messages.create(
+
+        def _call(code: str):
+            return client.messages.create(
                 model=self.model,
                 max_tokens=256,
                 # Opus 4.7: no `temperature` (removed), thinking off by default.
@@ -153,8 +187,27 @@ class LLMDetector(Detector):
                     "text": SYSTEM_PROMPT,
                     "cache_control": {"type": "ephemeral"},
                 }],
-                messages=[{"role": "user", "content": s.code}],
+                messages=[{"role": "user", "content": code}],
             )
+
+        for s in samples:
+            t0 = time.monotonic()
+            try:
+                try:
+                    msg = _call(s.code)
+                except _anthropic.RateLimitError:
+                    # SDK already retried max_retries times. Sleep 60s
+                    # (one rate-limit window) and try once more.
+                    time.sleep(60)
+                    msg = _call(s.code)
+            except Exception as e:
+                logger.warning(f"{self.name}: skipping {s.id} — {type(e).__name__}: {e}")
+                predictions[s.id] = Prediction(
+                    predicted=set(),
+                    raw={"error": f"{type(e).__name__}: {e}"},
+                    latency_ms=int((time.monotonic() - t0) * 1000),
+                )
+                continue
             elapsed_ms = int((time.monotonic() - t0) * 1000)
             answer = next(
                 (b.text for b in msg.content if b.type == "text"), ""

@@ -36,6 +36,9 @@ from src.eval.cwe_map import TARGET_CWES  # noqa: E402
 from src.eval.detectors import DETECTORS, SAST_TOOLS  # noqa: E402
 from src.eval.detectors.graphcodebert import GraphCodeBERTDetector  # noqa: E402
 from src.eval.detectors.llm import LLMDetector  # noqa: E402
+from src.eval.detectors.ollama_llm import OllamaLLMDetector  # noqa: E402
+from src.eval.detectors.openai_llm import OpenAILLMDetector  # noqa: E402
+from src.eval.detectors.openrouter_llm import OpenRouterLLMDetector  # noqa: E402
 from src.eval.samples import SINGLE_MUTATORS, VARIANTS, load_variant  # noqa: E402
 from src.eval.scoring import (  # noqa: E402
     PredictionRecord,
@@ -61,17 +64,64 @@ _VARIANT_ABBR = {
 }
 
 
+def _load_checkpoint(path: Path) -> list[PredictionRecord]:
+    """Read an existing predictions JSONL back into PredictionRecords."""
+    if not path.exists():
+        return []
+    out: list[PredictionRecord] = []
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if line:
+                out.append(PredictionRecord.from_json(json.loads(line)))
+    return out
+
+
 def run_tool(
     detector,
     variants: list[str],
     variants_dir: str,
     raw_dir: str,
     max_samples: int | None = None,
+    checkpoint_path: Path | None = None,
+    resume: bool = False,
 ) -> list[PredictionRecord]:
-    """Run one detector over every requested variant; return all records."""
+    """Run one detector over every requested variant; return all records.
+
+    Checkpointing: if `checkpoint_path` is set, the JSONL is rewritten
+    after each variant completes. A long run that dies mid-variant then
+    loses only the in-flight variant, not the entire sweep.
+
+    Resume: with `resume=True` and an existing checkpoint, variants whose
+    record count already matches the expected sample count are skipped.
+    Variants with a partial record count (the in-flight variant from a
+    previous crash) are re-run from scratch — partial samples can't be
+    safely interleaved, and a clean re-run is cheap compared to losing
+    the completed ones.
+    """
     records: list[PredictionRecord] = []
+    variants_to_run = list(variants)
+    if resume and checkpoint_path is not None:
+        existing = _load_checkpoint(checkpoint_path)
+        for v in list(variants_to_run):
+            samples = load_variant(v, variants_dir, raw_dir)
+            n_expected = (
+                len(samples) if max_samples is None
+                else min(len(samples), max_samples)
+            )
+            n_have = sum(1 for r in existing if r.variant == v)
+            if n_have == n_expected and n_expected > 0:
+                logger.info(f"  resume: {v} complete ({n_have} records) — skipping")
+                records.extend(r for r in existing if r.variant == v)
+                variants_to_run.remove(v)
+            elif n_have > 0:
+                logger.info(f"  resume: {v} partial ({n_have}/{n_expected}) — "
+                            "re-running variant from scratch")
+                # The partial records are dropped; they won't be in `records`
+                # so the rewrite below replaces them with the fresh run.
+
     version = detector.version
-    for variant in variants:
+    for variant in variants_to_run:
         samples = load_variant(variant, variants_dir, raw_dir)
         if max_samples is not None:
             samples = samples[:max_samples]
@@ -89,6 +139,12 @@ def run_tool(
                 latency_ms=pred.latency_ms if pred else 0,
                 tool_version=version,
             ))
+        if checkpoint_path is not None:
+            with checkpoint_path.open("w", encoding="utf-8") as fh:
+                for r in records:
+                    fh.write(json.dumps(r.to_json()) + "\n")
+            logger.info(f"  checkpoint: wrote {len(records)} records "
+                        f"after {variant}")
     return records
 
 
@@ -196,7 +252,11 @@ def print_report(summary: dict) -> None:
                   f"{c.f1:>7.3f}{c.support:>7}{c.tp:>5}{c.fp:>5}{c.fn:>5}")
 
 
-def dry_run_llm(detector: LLMDetector, variants: list[str],
+def dry_run_llm(detector: (
+                    LLMDetector | OpenAILLMDetector
+                    | OpenRouterLLMDetector | OllamaLLMDetector
+                ),
+                variants: list[str],
                 variants_dir: str, raw_dir: str,
                 max_samples: int | None) -> None:
     """Offline cost projection for an LLM detector — no API call."""
@@ -218,10 +278,26 @@ def dry_run_llm(detector: LLMDetector, variants: list[str],
               f"≈ ${est['est_cost_usd']:.2f}")
     print(f"  {'TOTAL':<22} {total_calls:>4} calls"
           f"{'':>27}≈ ${total_cost:.2f}")
-    print("\nThis is an offline chars/4 estimate. A real run needs "
-          "ANTHROPIC_API_KEY and `pip install anthropic`,\nand bills the "
-          "account — run `--tool claude` (optionally `--max-samples N`) "
-          "to execute it.")
+    if isinstance(detector, OllamaLLMDetector):
+        key_hint = ("a running `ollama serve` and "
+                    f"`ollama pull {detector.model}` (already $0, unlimited)")
+    elif isinstance(detector, OpenRouterLLMDetector):
+        key_hint = ("OPENROUTER_API_KEY and `pip install openai` — free tier "
+                    "is rate-limited (~20/min, ~200-1000/day)")
+    elif isinstance(detector, OpenAILLMDetector):
+        key_hint = "OPENAI_API_KEY and `pip install openai`"
+    else:
+        key_hint = "ANTHROPIC_API_KEY and `pip install anthropic`"
+    # `claude_opus` -> `claude`, `deepseek_r1` -> `deepseek`,
+    # `deepseek_local` -> `deepseek_local` (kept verbatim).
+    cli_name = (
+        detector.name if detector.name.endswith("_local")
+        else detector.name.split("_")[0]
+    )
+    print(f"\nThis is an offline chars/4 estimate. A real run needs "
+          f"{key_hint},\n"
+          f"and hits the provider — run `--tool {cli_name}` "
+          f"(optionally `--max-samples N`) to execute it.")
 
 
 def main() -> int:
@@ -237,6 +313,10 @@ def main() -> int:
     parser.add_argument("--dry-run", action="store_true",
                         help="LLM tools: print an offline cost projection, "
                              "make no API calls.")
+    parser.add_argument("--resume", action="store_true",
+                        help="Skip variants already fully present in the "
+                             "existing predictions JSONL. Partial variants "
+                             "are re-run from scratch.")
     args = parser.parse_args()
 
     # `all` runs the free local SAST tools only — never an LLM (real LLM
@@ -253,7 +333,11 @@ def main() -> int:
     for tool_name in tools:
         detector = DETECTORS[tool_name]()
 
-        if args.dry_run and isinstance(detector, LLMDetector):
+        if args.dry_run and isinstance(
+            detector,
+            (LLMDetector, OpenAILLMDetector,
+             OpenRouterLLMDetector, OllamaLLMDetector),
+        ):
             dry_run_llm(detector, args.variants,
                         args.variants_dir, args.raw_dir, args.max_samples)
             continue
@@ -261,6 +345,13 @@ def main() -> int:
         if not detector.is_available():
             if isinstance(detector, LLMDetector):
                 hint = "set ANTHROPIC_API_KEY and `pip install anthropic`"
+            elif isinstance(detector, OpenAILLMDetector):
+                hint = "set OPENAI_API_KEY and `pip install openai`"
+            elif isinstance(detector, OpenRouterLLMDetector):
+                hint = "set OPENROUTER_API_KEY and `pip install openai`"
+            elif isinstance(detector, OllamaLLMDetector):
+                hint = (f"`ollama serve` running and "
+                        f"`ollama pull {detector.model}`")
             elif isinstance(detector, GraphCodeBERTDetector):
                 hint = (f"a trained checkpoint at {detector.checkpoint} "
                         "and `pip install torch transformers`")
@@ -271,10 +362,12 @@ def main() -> int:
             continue
 
         logger.info(f"Running {tool_name} (v{detector.version})")
-        records = run_tool(detector, args.variants, args.variants_dir,
-                           args.raw_dir, args.max_samples)
-
         pred_path = out_dir / f"{detector.name}_predictions.jsonl"
+        records = run_tool(detector, args.variants, args.variants_dir,
+                           args.raw_dir, args.max_samples,
+                           checkpoint_path=pred_path, resume=args.resume)
+        # Final write — usually a no-op since run_tool already checkpointed
+        # after the last variant, but ensures atomicity if it didn't.
         with pred_path.open("w", encoding="utf-8") as fh:
             for r in records:
                 fh.write(json.dumps(r.to_json()) + "\n")
