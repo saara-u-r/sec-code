@@ -1,0 +1,17 @@
+# Since our design has a clock with name clk,
+## specify that name under [get_port ]
+create_clock -period 40 -waveform {0 20} [get_ports clk]
+
+# Setting a 'delay' on the clock:
+set_clock_latency 0.3 clk
+
+# Setting up constraints on your I/P and O/P pins
+set_input_delay 2.0 -clock clk [all_inputs]!\tikz[remember picture]\node[](c1){};!
+set_output_delay 1.65 -clock clk [all_outputs]!\tikz[remember picture]\node[](c2){};!
+
+# Set realistic 'loads' on each output pin
+set_load 0.1 [all_outputs]
+
+# Set 'maximum' fanin and fan-out for the input and output pins
+set_max_fanout 1 [all_inputs]
+set_fanout_load 8 [all_outputs]
