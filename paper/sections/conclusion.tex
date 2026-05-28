@@ -37,24 +37,35 @@ first Python vulnerability benchmark that publishes an automated,
 sink-anchored label-validity criterion and an adversarial robustness
 probe alongside detection accuracy.
 
-The current evaluation reports two static-analysis baselines
-(Bandit, Semgrep) and one benchmark-trained learned detector
-(a fine-tuned GraphCodeBERT classifier) on the clean test set and
-the seven adversarial variants under a five-measure profile
-(macro-F1, detection MCC, severity-weighted recall, hierarchical
-CWE macro-accuracy, weighted Cohen's $\kappa$). The headline finding
-is that the sink-token mutator family separates the detector tiers
-cleanly: the two SAST tools drop 0.11--0.19 macro-F1 and
-0.20--0.35 severity-weighted recall under attribute-access
-obfuscation and bare-builtin indirection, while the trained detector
-is invariant to every mutator in the suite. Three follow-up tracks
-are planned. First, an LLM detector row (Anthropic Claude) is
-built into the harness and reserved for an authorized run. Second,
-the multi-model learned-detector evaluation (a second Transformer
-encoder and a non-Transformer baseline) is the natural extension to
-generalize the single-checkpoint robustness claim. Third, the
-deferred structural CWE track (CWE-352, CWE-862, CWE-863, CWE-306,
-CWE-284, CWE-639, CWE-200) will be evaluated separately because the
+The current evaluation reports seven detectors across four tiers:
+two pattern-matching SAST tools (Bandit, Semgrep), one cloud-backed
+dataflow SAST product (Snyk Code), three frontier LLMs (Claude
+Sonnet 4.6, GPT-4o, DeepSeek R1), and one benchmark-trained learned
+detector (a fine-tuned GraphCodeBERT classifier) on the clean test
+set and the seven adversarial variants under a five-measure profile
+(macro-F1, detection MCC, severity-weighted recall, hierarchical CWE
+macro-accuracy, weighted Cohen's $\kappa$). The headline finding is
+that the sink-token mutator family separates the detector tiers
+cleanly: the two pattern-matching SAST tools drop 0.11--0.19 macro-F1
+and 0.20--0.35 severity-weighted recall under attribute-access
+obfuscation and bare-builtin indirection, while the trained, LLM,
+and cloud-dataflow detectors are all invariant to every mutator in
+the suite. No single detector dominates the clean-set leaderboard:
+DeepSeek R1 narrowly leads macro-F1 (0.596), Sonnet leads SWR
+(0.903) and HCMA (0.805), GraphCodeBERT leads MCC ($+0.556$),
+Bandit leads weighted Cohen's $\kappa$ ($+0.567$). Snyk Code, as
+the only whole-project dataflow detector reported, returns
+predictions on every sample but underperforms every other detector
+on every metric; we read this as the snippet-format ceiling on
+dataflow-aware detection rather than a property of the tool, and
+document the bound in Section~\ref{sec:threats:external} alongside
+the CodeQL attempt that produced zero findings for the same reason.
+Two follow-up tracks are planned. First, the multi-model
+learned-detector evaluation (a second Transformer encoder and a
+non-Transformer baseline) is the natural extension to generalize
+the single-checkpoint robustness claim. Second, the deferred
+structural CWE track (CWE-352, CWE-862, CWE-863, CWE-306, CWE-284,
+CWE-639, CWE-200) will be evaluated separately because the
 sink-anchored detection methodology cannot reliably detect the
 absence-of-a-check vulnerability shape; a structural-CWE benchmark
 requires a different methodology built around application-level

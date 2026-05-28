@@ -24,12 +24,18 @@ expose.
 \subsection{Setup}
 \label{sec:eval:setup}
 
-\paragraph{Test set.} The held-out test split is 132 samples: 67
-vulnerable positives spanning the seven CWE classes and 65 \texttt{safe}
-hard negatives. The seven single mutators and the composed mutator are
-applied to the 67 positives, producing eight adversarial variant sets
-of 67 samples each. The hard negatives are not mutated; they appear
-only in the \emph{clean} run, where they measure false positives.
+\paragraph{Test set.} The held-out test split is 129 samples: 67
+vulnerable positives spanning the seven CWE classes and 62 \texttt{safe}
+hard negatives. Three hard negatives from the underlying split are
+excluded from active evaluation because their source files exceed the
+practical context window of current LLM detectors (the largest is a
+1.79~MB bundled artifact equivalent to roughly 448K tokens); the
+exclusion is applied uniformly across all detectors so the reported
+numbers remain like-for-like. The seven single mutators and the composed
+mutator are applied to the 67 positives, producing eight adversarial
+variant sets of 67 samples each. The hard negatives are not mutated;
+they appear only in the \emph{clean} run, where they measure false
+positives.
 
 \paragraph{Metrics.} Every detector prediction is scored one-vs-rest per
 CWE class: a sample labelled CWE-X that the tool flags as CWE-X is a
@@ -71,26 +77,32 @@ mutator family (sink-preserving, sink-targeted, dataflow) we report
 both the per-mutator drop and, for sink-preserving, the mean across
 its four mutators.
 
-\paragraph{Detectors.} We report two free, locally-installable static
-analysis tools (Bandit~1.9.4 and Semgrep~1.163.0) and one
-benchmark-trained learned detector (a fine-tuned GraphCodeBERT
-classifier; training schedule described in
-Section~\ref{sec:eval:model}). Semgrep is run with the
-\texttt{p/python}, \texttt{p/security-audit}, and
-\texttt{p/owasp-top-ten} registry rule packs. Each tool emits findings
-that we map to the seven CWE classes; for Bandit the mapping is by rule
-identifier rather than by Bandit's own \texttt{issue\_cwe} field, which
-mislabels \texttt{eval} as CWE-78 and \texttt{yaml.load} as CWE-20.
-LLM detectors are evaluated through the same harness with a fixed
-classification prompt; those results are reported in
-Section~\ref{sec:eval:llm}.
+\paragraph{Detectors.} We report seven detectors spanning four tiers.
+Two free, locally-installable pattern-matching SAST tools: Bandit~1.9.4
+and Semgrep~1.163.0. One cloud-backed, ML-augmented SAST tool: Snyk
+Code~1.1305.0, included to test the snippet-format fit of a
+whole-project dataflow detector against the on-disk function extracts.
+Three frontier LLM detectors: Claude Sonnet 4.6 (Anthropic), GPT-4o
+(OpenAI), and DeepSeek R1 (via OpenRouter, paid endpoint). One
+benchmark-trained learned detector: a fine-tuned GraphCodeBERT
+classifier (training schedule in Section~\ref{sec:eval:model}). Semgrep
+is run with the \texttt{p/python}, \texttt{p/security-audit}, and
+\texttt{p/owasp-top-ten} registry rule packs. Each SAST tool emits
+findings that we map to the seven CWE classes; for Bandit the mapping
+is by rule identifier rather than by Bandit's own \texttt{issue\_cwe}
+field, which mislabels \texttt{eval} as CWE-78 and \texttt{yaml.load}
+as CWE-20; for Snyk Code and Semgrep the mapping is read from each
+rule's CWE tags. LLM detectors share a fixed classification prompt;
+each response's first non-empty line is parsed as the prediction, with
+a reasoning-model fallback that scans backward for the verdict line if
+the model leads with chain-of-thought prose.
 
 \subsection{Headline results}
 \label{sec:eval:headline}
 
 Table~\ref{tab:pyvulsev-results} summarizes detector performance on the
 PyVulSev benchmark. Each detector is reported on macro-F1 over the
-132-sample clean test set, detection MCC on the binary
+129-sample clean test set, detection MCC on the binary
 vulnerable-versus-safe collapse of the same predictions, and
 Severity-Weighted Recall on the 27-sample CVSS-scored pool of clean
 positives. The Comp.\ column gives macro-F1 on the composed-mutator
@@ -104,9 +116,10 @@ Table~\ref{tab:robustness-drop}.
 
 \begin{table*}[t]
 \centering
-\caption{PyVulSev results on the 132-sample clean test set.
-Tool versions: Bandit~1.9.4, Semgrep~1.163.0, GraphCodeBERT
-\texttt{phase3} checkpoint. Macro-F1 is averaged across the seven
+\caption{PyVulSev results on the 129-sample clean test set.
+Tool versions: Bandit~1.9.4, Semgrep~1.163.0, Snyk Code~1.1305.0,
+GraphCodeBERT \texttt{phase3} checkpoint, Claude Sonnet 4.6, GPT-4o,
+DeepSeek R1 (OpenRouter \texttt{deepseek/deepseek-r1}, paid endpoint). Macro-F1 is averaged across the seven
 CWE classes under one-vs-rest scoring. MCC is the Matthews
 correlation coefficient on the binary vulnerable-versus-safe
 collapse. SWR is Severity-Weighted Recall on the 27 clean positives
@@ -128,32 +141,44 @@ computed on the positives only.}
 \hline
 Name & macro-F1 & MCC & SWR & HCMA & $\kappa_w$ & Comp. & $\Delta$F1$^{\star}$ \\
 \hline
-Bandit               & 0.491 & +0.473 & 0.745 & 0.564 & +0.562 & 0.589 & +0.187 \\
-Semgrep              & 0.315 & +0.149 & 0.634 & 0.353 & +0.224 & 0.375 & +0.132 \\
+Bandit               & 0.510 & +0.478 & 0.745 & 0.564 & +0.567 & 0.589 & +0.187 \\
+Semgrep              & 0.315 & +0.157 & 0.634 & 0.353 & +0.227 & 0.375 & +0.132 \\
+Snyk Code            & 0.063 & $-$0.235 & 0.143 & 0.069 & $-$0.097 & 0.088 & +0.036 \\
 \hline
-Claude Sonnet 4.6    & TBD   & TBD    & TBD   & TBD   & TBD    & TBD   & TBD    \\
-GPT-4o               & TBD   & TBD    & TBD   & TBD   & TBD    & TBD   & TBD    \\
+Claude Sonnet 4.6    & 0.585 & +0.117 & 0.903 & 0.805 & +0.396 & 0.867 & $0.000$ \\
+GPT-4o               & 0.356 & +0.047 & 0.420 & 0.419 & +0.295 & 0.565 & +0.026 \\
+DeepSeek R1          & 0.596 & +0.410 & 0.691 & 0.646 & +0.539 & 0.567 & +0.068 \\
 \hline
-GraphCodeBERT (ours) & 0.524 & +0.564 & 0.870 & 0.547 & +0.552 & 0.603 & $0.000$ \\
+GraphCodeBERT (ours) & 0.524 & +0.556 & 0.870 & 0.547 & +0.548 & 0.603 & $0.000$ \\
 \hline
 \end{tabular}
 \end{table*}
 
-The trained GraphCodeBERT detector leads on the three primary
-detection metrics: macro-F1 0.524 against Bandit's 0.491 and
-Semgrep's 0.315; MCC +0.564 against +0.473 and +0.149; SWR 0.870
-against 0.745 and 0.634 on the same 27-sample CVSS pool. The SWR
-gap is the largest of the three: the trained detector catches 87\%
-of the CVSS-weighted danger in that pool, against 74\% and 63\% for
-the two SAST baselines. Bandit and Semgrep occupy distinct points
-on the precision-recall plane: Bandit combines balanced precision
-and recall on the classes it covers, while Semgrep's stricter
-taint-shape rules drive precision up but miss many fragmentary
-positives, particularly on CWE-89.
+The seven detectors separate on different axes; no single tool leads
+on every measure. DeepSeek R1 narrowly leads on macro-F1 (0.596,
+ahead of Sonnet 4.6 at 0.585 and the trained GraphCodeBERT at 0.524).
+Sonnet 4.6 leads on severity-weighted recall (0.903 — 90\% of
+CVSS-weighted danger on the 27-sample pool) and on the hierarchical
+HCMA measure (0.805). GraphCodeBERT leads on detection MCC
+($+0.556$), the binary-collapse statistic; DeepSeek R1 is the only
+LLM with a comparable MCC ($+0.410$), while Sonnet ($+0.117$) and
+GPT-4o ($+0.047$) sit far below the SAST and learned tiers on this
+axis because both LLMs over-flag hard negatives. Bandit edges all
+other detectors on weighted Cohen's $\kappa$ ($+0.567$); Bandit and
+Semgrep occupy distinct points on the precision-recall plane:
+Bandit combines balanced precision and recall on the classes it
+covers, while Semgrep's stricter taint-shape rules drive precision
+up but miss many fragmentary positives, particularly on CWE-89.
+Snyk Code is an outlier on every detection metric — macro-F1 0.063,
+MCC $-0.235$, SWR 0.143 — and we treat the row as a methodological
+signal rather than a tool ranking; the discussion in
+Section~\ref{sec:eval:llm} returns to why a snippet-format benchmark
+is unfair to whole-project dataflow detectors like Snyk Code and
+CodeQL (see Section~\ref{sec:threats:external}).
 
 The hierarchical and agreement columns sharpen the comparison
 between Bandit and the trained detector. On macro-F1 Bandit
-(0.491) trails GraphCodeBERT (0.524) by 0.033, but on HCMA the gap
+(0.510) trails GraphCodeBERT (0.524) by 0.014, but on HCMA the gap
 inverts and Bandit (0.564) edges ahead of GraphCodeBERT (0.547)
 by 0.017. The mechanism is visible in the per-CWE breakdown:
 Bandit's confusions are dominated by close-sibling errors within
@@ -164,8 +189,8 @@ flagged as CWE-94 via the \texttt{B102}/\texttt{B307}
 partial matches but macro-F1 scores as flat misses. GraphCodeBERT's
 confusions are more diffuse and benefit less from partial credit.
 Weighted $\kappa$ converges on the same conclusion through a
-different route: Bandit and GraphCodeBERT are within 0.010 of each
-other ($+0.562$ vs $+0.552$), and both lead Semgrep by more than
+different route: Bandit and GraphCodeBERT are within 0.019 of each
+other ($+0.567$ vs $+0.548$), and both lead Semgrep by more than
 0.30. The single-number reading is that Bandit and GraphCodeBERT
 are comparable detectors on clean code under any partial-credit
 metric — the trained detector's headline win is most visible on
@@ -182,17 +207,32 @@ three detectors are invariant to the four sink-preserving mutators,
 and the dataflow mutator is invariant on every detector reported
 here because none of the three performs dataflow analysis.
 
-The remaining rows are reserved for LLM detectors
-(Section~\ref{sec:eval:llm}) and will be populated when those
-evaluations are authorized. Reporting clean and post-mutation scores
-side by side extends the CASTLE layout, which reports detection only,
-with the robustness axis the seven mutators measure.
+The three LLM rows tell a different story from the SAST and learned
+detectors, and they separate sharply from each other. DeepSeek R1
+takes the macro-F1 lead (0.596) and pairs it with a relatively high
+MCC ($+0.410$), indicating that its CWE assignments and its
+binary vulnerable/safe decision agree more often than either Sonnet's
+or GPT-4o's. Sonnet 4.6 ranks just below DeepSeek on macro-F1 (0.585)
+but takes the SWR and HCMA leads of the entire table; its MCC
+($+0.117$) is low because it over-flags hard negatives as CWE-22 and
+CWE-918. GPT-4o sits at the opposite extreme: macro-F1 (0.356) below
+Bandit's, MCC ($+0.047$) near chance, SWR (0.420) the lowest of the
+six well-fit detectors (excluding Snyk Code; see
+Section~\ref{sec:eval:wholeproject}). Section~\ref{sec:eval:llm} unpacks all three
+findings by CWE. The robustness columns are flat for every LLM:
+Sonnet's worst-case drop is $0.000$, GPT-4o's is $+0.026$, DeepSeek
+R1's is $+0.068$. Reporting clean and post-mutation scores side by
+side extends the CASTLE layout, which reports detection only, with
+the robustness axis the seven mutators measure.
 
 \subsection{Detection on the clean test set (RQ1)}
 \label{sec:eval:clean}
 
-Table~\ref{tab:clean-percwe} gives the per-class F1 of the two static
-analysis tools on the clean test set.
+Table~\ref{tab:clean-percwe} gives the per-class F1 of the two
+pattern-matching SAST tools and the trained GraphCodeBERT detector
+on the clean test set. The three LLM detectors and Snyk Code are
+discussed by CWE in their respective subsections
+(Sections~\ref{sec:eval:llm} and~\ref{sec:eval:wholeproject}).
 
 \begin{table}[h]
 \centering
@@ -207,11 +247,11 @@ CWE-22  Path Traversal        &  3 & 0.00 & 0.00 & 0.00 \\
 CWE-78  OS Command Injection  &  4 & 0.38 & 0.29 & 0.40 \\
 CWE-79  Cross-site Scripting  &  7 & 0.60 & 0.33 & 0.67 \\
 CWE-89  SQL Injection         & 32 & 0.80 & 0.06 & 0.63 \\
-CWE-94  Code Injection        &  6 & 0.86 & 0.80 & 0.57 \\
-CWE-502 Insecure Deserial.    & 12 & 0.80 & 0.73 & 0.83 \\
+CWE-94  Code Injection        &  6 & 0.92 & 0.80 & 0.57 \\
+CWE-502 Insecure Deserial.    & 12 & 0.83 & 0.73 & 0.83 \\
 CWE-918 SSRF                  &  3 & 0.00 & 0.00 & 0.57 \\
 \hline
-Macro-F1 (positives + safe)   &    & 0.49 & 0.32 & 0.52 \\
+Macro-F1 (positives + safe)   &    & 0.51 & 0.32 & 0.52 \\
 \hline
 \end{tabular}
 \end{table}
@@ -243,15 +283,15 @@ trails Bandit's broader lexical net. The divergence isolates lexical
 matching, taint-style reasoning, and learned representation on
 exactly the inputs where the three approaches disagree.
 
-The headline macro-F1 of 0.49 (Bandit), 0.32 (Semgrep) and 0.52
-(trained) is computed over all 132 clean samples, including the 65
+The headline macro-F1 of 0.51 (Bandit), 0.32 (Semgrep) and 0.52
+(trained) is computed over all 129 clean samples, including the 62
 hard negatives. Restricted to the 67 positives the same detectors
-score 0.59, 0.38 and 0.57; the gap between the all-132 and
+score 0.59, 0.38 and 0.57; the gap between the all-129 and
 positives-only numbers is the F1 cost of false positives raised on
-safe code. Bandit's gap is the largest at 0.10 F1 points, chiefly
+safe code. Bandit's gap is the largest at 0.08 F1 points, chiefly
 reflecting low-severity \texttt{subprocess} warnings (\texttt{B603},
 \texttt{B607}) firing on benign command-execution code; the trained
-detector's gap is the smallest at 0.04 points, indicating a lower
+detector's gap is the smallest at 0.05 points, indicating a lower
 false-positive rate on hard negatives than either SAST tool achieves.
 
 \subsection{Adversarial robustness (RQ2)}
@@ -387,17 +427,119 @@ discusses the implications for benchmark coverage and the remaining
 sink-targeted axis (dynamic dispatch on receiver objects) that this
 benchmark does not yet exercise.
 
+\subsection{Whole-project dataflow detectors}
+\label{sec:eval:wholeproject}
+
+Snyk Code is a cloud-backed, ML-augmented SAST product designed for
+whole-application analysis: the engine ingests an entire repository,
+resolves cross-file dataflow, and reports findings keyed to recognised
+framework sources. On the function-extract benchmark we report here it
+underperforms every other detector on every detection metric (macro-F1
+0.063, MCC $-0.235$, SWR 0.143, HCMA 0.069). Two observations together
+explain the result. First, the per-CWE breakdown shows that Snyk Code
+flags 1 of 32 CWE-89 positives, 0 of 12 CWE-502 positives, and 0 of 4
+CWE-78 positives — the classes whose flow shapes most depend on the
+framework-source-to-application-sink lineage that whole-project
+analysis is built to track. Second, the detector produces a high
+volume of false positives on the hard negatives (11 false positives on
+CWE-22, 11 on CWE-79, 5 on CWE-918), consistent with a dataflow engine
+guessing at sources when none are recognised. Like the LLM and learned
+detectors, Snyk Code is essentially invariant to the seven mutators
+(worst-case macro-F1 drop $+0.036$ under SVG), so the result is not a
+robustness story; it is a shape-fit story. We attempted CodeQL~2.25.5
+with the \texttt{codeql/python-queries} suite as a second whole-project
+tool and observed the same root cause in its strongest form: CodeQL
+returned zero findings on the clean set, because its source model
+requires application-level entry points (Flask routes, Django views)
+that are absent from the function extracts. We document the CodeQL
+attempt and the shape-fit conclusion in
+Section~\ref{sec:threats:external} as an external-validity bound:
+single-file extracts are not a fair benchmark format for
+dataflow-aware detectors whose semantics require whole-application
+context. The Snyk Code row appears in Table~\ref{tab:pyvulsev-results}
+to make this bound empirically visible rather than only argumentative.
+
 \subsection{LLM detectors}
 \label{sec:eval:llm}
 
-The harness evaluates LLM detectors through the same interface: a fixed
-system prompt lists the seven CWE classes, the file contents form the
-user turn, and the first line of the response is parsed as the
-prediction. A full pass over the 132 clean samples and the eight
-mutator variants (seven single mutators plus composed) is 668
-model calls. These results are pending and will be added once the
-LLM evaluation is run. The SAST rows above are the established
-baseline against which the LLM robustness drop will be read.
+The harness evaluates LLM detectors through the same interface: a
+fixed system prompt lists the seven CWE classes, the file contents
+form the user turn, and the first non-empty line of the response is
+parsed as the prediction. A full pass over the 129 clean samples and
+the eight mutator variants (seven single mutators plus composed) is
+665 model calls per detector. We evaluate three LLMs: Claude
+Sonnet 4.6 (Anthropic), GPT-4o (OpenAI), and DeepSeek R1 (via
+OpenRouter, paid endpoint). All three share the same system prompt
+and the same one-line-CWE parsing rule; the implementation is one
+Messages-API or Chat-Completions call per sample, with
+provider-specific rate-limit handling and a per-sample error fallback
+that records an empty prediction rather than crashing the sweep.
+DeepSeek R1 is a reasoning model that emits a chain-of-thought
+before the answer; the parser strips inline \texttt{<think>...</think>}
+blocks (OpenRouter usually places them in a separate
+\texttt{message.reasoning} field, but not always) and reads the first
+verdict-shaped line.
+
+\paragraph{Claude Sonnet 4.6.} On macro-F1, Sonnet leads the table at
+0.585 (against 0.524 for GraphCodeBERT, 0.510 for Bandit, 0.356 for
+GPT-4o, 0.315 for Semgrep). Severity-Weighted Recall is also the
+highest in the table at 0.903 on the 27-sample CVSS pool — Sonnet
+catches the largest fraction of CVSS-weighted danger of any detector
+reported. Detection MCC, however, is only $+0.117$, the second-lowest
+in the table. The mechanism is visible in the per-CWE breakdown:
+Sonnet over-flags hard negatives as CWE-22 (15 false positives against
+the 3 CWE-22 positives) and CWE-918 (17 false positives against 3
+positives), so the binary vulnerable-versus-safe collapse that
+underpins MCC absorbs a heavy false-positive rate that macro-F1
+averages across the seven CWE classes. Hierarchical accuracy (HCMA
+0.805) and weighted $\kappa$ ($+0.396$) are both the highest LLM
+values in the table; Sonnet's confusions stay close to the correct
+CWE subtree even when it over-flags.
+
+\paragraph{GPT-4o.} GPT-4o is the weakest of the three LLM detectors
+on every clean-set metric: macro-F1 0.356 (below Bandit's 0.510), MCC
+$+0.047$ (near chance), HCMA 0.419, and SWR 0.420. The aggregate
+result masks a sharp per-class imbalance. GPT-4o reaches F1 0.915 on
+CWE-89 — higher than every other detector in the table except DeepSeek
+R1's 0.935 — but scores zero on CWE-94, missing all six code-injection
+positives, and produces 15 and 16 false positives on CWE-22 and
+CWE-918 respectively. The pattern suggests a miscalibration rather
+than a systemic weakness: GPT-4o recognizes the canonical SQL-injection
+shape but over-applies path-traversal and SSRF labels to safe code
+and fails to apply the code-injection label at all.
+
+\paragraph{DeepSeek R1.} DeepSeek R1 posts the highest macro-F1 in
+the table (0.596, narrowly above Sonnet) and the highest CWE-89 F1
+of any detector (0.935 against 32 positives, exceeding GPT-4o's 0.915
+and the trained GraphCodeBERT's 0.625). Its detection MCC ($+0.410$)
+is by far the highest of the three LLMs and approaches the SAST and
+learned tiers (Bandit $+0.478$, GraphCodeBERT $+0.556$), indicating
+that its CWE assignments and its binary vulnerable/safe decision are
+more consistent than the other LLMs'. The per-CWE breakdown shows
+strong performance on the four high-support classes (CWE-89 F1 0.935,
+CWE-94 0.923, CWE-78 0.857, CWE-502 0.700) with the same
+over-flagging pattern on CWE-22 (10 false positives, F1 0.308) and
+CWE-918 (10 false positives, F1 0.143) that the other LLMs exhibit
+on those small classes. Treating CWE-22 and CWE-918 as conditional
+labels rather than absolute classifications would close most of the
+calibration gap between DeepSeek R1 and the trained detector, but
+that re-scoring is not part of the harness reported here.
+
+\paragraph{Robustness.} All three LLMs are essentially invariant to
+the seven mutators. Sonnet's worst-case macro-F1 drop is exactly
+$0.000$, GPT-4o's is $+$0.026 under SAO, and DeepSeek R1's is
+$+$0.068 under \texttt{string\_split} — the largest LLM drop in the
+table but still well below the SAST cliffs ($+$0.187 for Bandit
+under SAO, $+$0.132 for Semgrep under SVG). Like the trained
+GraphCodeBERT detector, all three LLMs treat each mutator variant
+of a sample as the same class as the original. The sink-token cliff
+that pattern-matching SAST tools exhibit
+(Section~\ref{sec:eval:robustness}) is absent for every learned or
+LLM detector reported here; the cliff is a property of lexical
+sink-matching rather than a property of the mutator suite. The
+caveats from the learned-detector discussion apply equally to the
+LLM rows: SVG applies to only 6 of 67 positives, and the dataflow
+probe (TTD) is invariant on every non-SAST detector evaluated.
 
 \subsection{Trained-model detector}
 \label{sec:eval:model}
@@ -421,22 +563,29 @@ the sink-token axis, and \texttt{taint\_through\_dict} for the
 dataflow axis. The best checkpoint is selected by validation
 macro-F1.
 
-The trained detector reaches macro-F1 0.524 and detection MCC +0.564
-on the clean test set, leading both Bandit (MCC +0.473) and Semgrep
-(MCC +0.149). The advantage is most visible in per-CWE coverage: the
-trained detector recovers a non-zero CWE-918 signal (F1 0.57) on
-which neither SAST tool produces a true positive, and trails Bandit
-only on CWE-89 and CWE-94 (Table~\ref{tab:clean-percwe}). Its
-severity-weighted recall is 0.870 on the 27-sample CVSS pool,
-against 0.745 for Bandit and 0.634 for Semgrep; the trained
-detector therefore catches the largest fraction of CVSS-weighted
-danger of any detector reported here. We treat this as a defensible
-small-data result rather than a statement about a state-of-the-art
-detector: 607 training samples is small for a 126.6M-parameter model,
-and reviewers should read the result as an existence proof that a
-benchmark-tuned learned detector can outperform mature SAST baselines
-on Python sink-shaped CWEs, not as evidence that the trained detector
-generalizes outside this benchmark.
+The trained detector reaches macro-F1 0.524 and detection MCC
+$+0.556$ on the clean test set, leading both pattern-matching SAST
+baselines (Bandit MCC $+0.478$, Semgrep $+0.157$) and all three LLM
+detectors (DeepSeek R1 $+0.410$, Sonnet $+0.117$, GPT-4o $+0.047$)
+on the chance-corrected binary statistic. The advantage on MCC
+reflects the trained detector's lower false-positive rate on hard
+negatives — DeepSeek R1 (macro-F1 0.596) and Sonnet (macro-F1 0.585)
+both exceed the trained detector's 0.524 on the per-CWE macro
+average, but both LLMs over-flag \texttt{safe} samples as CWE-22 and
+CWE-918, so the binary collapse rewards GraphCodeBERT's calibration
+even where it loses on the per-CWE macro. Per-CWE coverage is also distinctive: the trained detector
+recovers a non-zero CWE-918 signal (F1 0.57) on which the two SAST
+tools produce no true positives, and trails Bandit on CWE-89 and
+CWE-94 (Table~\ref{tab:clean-percwe}). Severity-weighted recall is
+0.870 on the 27-sample CVSS pool — second only to Sonnet's 0.903,
+and ahead of Bandit (0.745), Semgrep (0.634), and GPT-4o (0.420).
+We treat this as a defensible small-data result rather than a
+statement about a state-of-the-art detector: 607 training samples
+is small for a 126.6M-parameter model, and reviewers should read
+the result as an existence proof that a benchmark-tuned learned
+detector can compete with mature SAST baselines and frontier LLMs
+on Python sink-shaped CWEs, not as evidence that the trained
+detector generalizes outside this benchmark.
 
 Under the four sink-preserving mutators the trained detector's
 macro-F1 changes by between $-$0.024 and $-$0.044 (mean $-$0.036),
@@ -463,17 +612,16 @@ caveats on the per-family numbers.
 Every benchmark sample carries a \texttt{framework} field
 (Section~\ref{sec:dataset:schema}) identifying which Python web
 framework the source file uses: Flask, Django, FastAPI, Starlette,
-aiohttp, Tornado, Bottle, or none for non-web code. The evaluation
-harness reports per-tool metrics stratified by this field so that
-detectors with framework-specific rules (Bandit's Flask-aware checks,
-Semgrep's Django-aware rules) can be distinguished from detectors
-that perform identically across frameworks. The current static
-analysis numbers do not separate meaningfully across frameworks
-because Bandit and Semgrep apply largely framework-agnostic regex
-patterns to the file content. The per-framework comparison is
-expected to be informative once the LLM and trained-model rows are
-added, and the breakdown will be reported in the same headline table
-as a stacked row group.
+aiohttp, Tornado, Bottle, or none for non-web code. The released
+prediction artifacts (\texttt{reports/eval/*\_predictions.jsonl})
+carry one record per (detector, variant, sample) and can be
+re-aggregated by framework off-line; we omit the per-framework table
+from this presentation because the SAST detectors apply largely
+framework-agnostic regex patterns and the LLM and learned-detector
+per-framework counts fall within the per-class confidence intervals
+already flagged in Section~\ref{sec:threats}. The artifact-level
+breakdown remains available in the released JSONL files for
+downstream analysis.
 
 \subsection{Effect of the label filter (RQ3)}
 \label{sec:eval:labels}

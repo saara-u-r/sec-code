@@ -118,15 +118,17 @@ The evaluation uses a single seed for the splitter (seed=42) and a
 single run per detector. We do not report multi-seed mean and standard
 deviation. For the static analysis detectors this is sound because
 their output is deterministic given the input and the rule set. For
-the LLM and trained-model detectors that will be added in the
-evaluation phase this is a residual risk, and the planned multi-seed
-protocol is documented as future work
-(Section~\ref{sec:conclusion}). Detector hyperparameters are pinned to
-their default values for the static tools (Bandit~1.9.4, Semgrep~1.163.0
-with the three published rulesets named in
-Section~\ref{sec:eval:setup}); for the LLM and trained-model
-detectors that will be added later, hyperparameters and prompts will be
-fixed and released with the evaluation script.
+the LLM and trained-model detectors reported here this is a residual
+risk: GraphCodeBERT is deterministic given its fixed checkpoint, and
+the two LLMs use temperature 0 (GPT-4o) or have the temperature
+parameter removed (Sonnet 4.6) so per-call drift is small in
+practice but not bit-for-bit zero. The planned multi-seed protocol
+is documented as future work (Section~\ref{sec:conclusion}).
+Detector hyperparameters are pinned to their default values for the
+static tools (Bandit~1.9.4, Semgrep~1.163.0 with the three published
+rulesets named in Section~\ref{sec:eval:setup}); the LLM prompts and
+parsing rule and the trained-model checkpoint are released with the
+evaluation script.
 
 \subsection{External validity}
 \label{sec:threats:external}
@@ -146,6 +148,44 @@ structural CWEs well is not measurable on this benchmark, and the
 scores reported here are not a comprehensive Python vulnerability
 detection ranking.
 
+\paragraph{Detector-shape limit.} The benchmark presents single-file
+function extracts: a vulnerable function and its surrounding helpers,
+without the application-level entry points (route handlers, view
+functions, dispatcher tables) that the original repository carries
+elsewhere. This is fair to the pattern-matching SAST tools (Bandit,
+Semgrep) and to learned and LLM detectors evaluated here, which all
+operate at the file-or-function level. It is, however, an unfair
+benchmark format for dataflow-aware detectors whose taint-source
+model relies on application-level annotations. Two of the seven
+detectors in the headline table sit on this axis. Snyk
+Code~1.1305.0, a cloud-backed ML-augmented SAST product, is included
+in the headline table and underperforms every other detector on
+every detection metric (macro-F1 0.063, MCC $-0.235$,
+Table~\ref{tab:pyvulsev-results}). We attempted to add CodeQL~2.25.5
+with the \texttt{codeql/python-queries} pack (security-extended
+suite, 54 queries) as a third dataflow-aware tool; on the clean test
+set CodeQL returned zero findings, including on samples that import
+Flask or Django and that the SAST and LLM detectors flag correctly,
+and the result is unchanged when the Flask and Django runtimes are
+installed in the extractor's Python environment so that imports
+resolve. The root cause is identical for both tools: their source
+models mark specific framework objects (\texttt{flask.request.*},
+\texttt{django.HttpRequest.*}, \ldots) and a few stdlib accessors as
+taint sources, and the function extracts in our benchmark do not
+contain those source patterns — the taint enters the extracted
+function via a parameter from elsewhere in the original codebase
+that the extract does not include. Snyk Code differs from CodeQL
+only in returning low-confidence guesses where CodeQL returns
+nothing. We read this as a property of the benchmark format rather
+than a property of either detector: a snippet-level benchmark cannot
+fairly score a detector whose semantics require whole-application
+context. The CodeQL and Snyk Code detector implementations are
+included in the released harness for downstream benchmarks that
+preserve entry points; for this paper, the third axis of the mutator
+suite (\texttt{taint\_through\_dict}) remains a coverage slot for
+dataflow-aware detectors to be re-evaluated under an
+application-level benchmark format in future work.
+
 The scraped sample set is biased by the repositories present in CVEfixes,
 GHSA Advisory DB, OSV, PyPA, and NVD-targeted scrapes. Popular Python
 projects (Django, Flask, FastAPI applications) are over-represented;
@@ -155,7 +195,7 @@ this by introducing textbook examples that no real repository may
 contain in idiomatic form, but they account for only 20 of the 871
 positives.
 
-Finally, the 132-sample test set is small. Per-class test sizes range
+Finally, the 129-sample test set is small. Per-class test sizes range
 from 3 (CWE-22) to 32 (CWE-89). For the smallest classes the per-class
 F1 carries a wide confidence interval, which we flag in
 Table~\ref{tab:per-cwe-counts} and the per-class results table. A
@@ -172,11 +212,11 @@ because the rule-based detectors are deterministic and the per-class
 counts are exhaustively enumerated. The trained-model row reports a
 single run with a fixed seed and is deterministic given the seed and
 training data; the protocol does not yet include multi-seed
-re-training. For the LLM rows that will be added later, point estimates
-without intervals would be inappropriate; the evaluation protocol for
-those rows requires multiple runs and bootstrap confidence intervals on
-the headline metric, and that protocol is documented in
-Section~\ref{sec:conclusion}.
+re-training. For the two LLM rows, the reported numbers are also
+single-run point estimates: temperature is fixed at 0 (GPT-4o) or
+removed by the provider (Sonnet 4.6), so per-call drift is small but
+not zero, and a multi-run bootstrap confidence-interval protocol is
+documented as future work in Section~\ref{sec:conclusion}.
 
 A related concern is the size of the test set. The 67-positive
 mutator-eligible subset produces a per-sample F1 swing of approximately
@@ -231,8 +271,8 @@ discussed in detail in the subsections above; we surface them here
 because either alone bounds the conclusions a reader can draw from
 this work.
 
-\paragraph{Test-set size.} The 132-sample test set
-(67 positives plus 65 hard negatives, distributed across seven CWE
+\paragraph{Test-set size.} The 129-sample test set
+(67 positives plus 62 hard negatives, distributed across seven CWE
 classes) is small by the standards of post-PrimeVul vulnerability
 benchmarks: PrimeVul~\cite{primevul} ships approximately 7{,}000
 vulnerable samples, and RealVuln~\cite{realvuln} reports 796.

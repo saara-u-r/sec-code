@@ -422,7 +422,14 @@ sink-shaped CWEs plus 429 \texttt{safe} hard negatives, totaling
 are stratified by CWE with a repo-group constraint: samples sharing
 a repository are placed together in the same split, eliminating
 cross-split repository leakage. Repo-leakage verification reports
-zero overlap across all three splits.
+zero overlap across all three splits. Three hard negatives in the
+test split are kept on disk for provenance but excluded from active
+evaluation because their source files exceed the practical context
+window of current LLM detectors (the largest is a 1.79~MB bundled
+artifact from a real-world Flask application). The exclusion is
+applied uniformly across SAST, learned, and LLM detectors, so the
+active test set used in Section~\ref{sec:evaluation} is 129 samples
+(67 positives plus 62 hard negatives).
 
 \begin{table}[h]
 \centering

@@ -94,21 +94,30 @@ label-validity criteria.
     each tool depends on, a finer-grained diagnosis than CASTLE's
     aggregate detection rates allow.
 
-  \item \textbf{A comparative evaluation} of free static analyzers
-    (Bandit, Semgrep) and a benchmark-trained learned detector
-    (a fine-tuned GraphCodeBERT classifier) across the clean test
-    set and the eight adversarial variants (seven single mutators
-    plus a composed variant), reporting per-CWE accuracy under a
-    five-measure detection profile (macro-F1, detection MCC,
+  \item \textbf{A comparative evaluation} of seven detectors spanning
+    four tiers: pattern-matching SAST (Bandit, Semgrep), cloud-backed
+    dataflow SAST (Snyk Code), frontier LLMs (Claude Sonnet 4.6,
+    GPT-4o, DeepSeek R1), and a benchmark-trained learned detector
+    (a fine-tuned GraphCodeBERT classifier). The harness covers the
+    clean test set and the eight adversarial variants (seven single
+    mutators plus a composed variant), reporting per-CWE accuracy
+    under a five-measure detection profile (macro-F1, detection MCC,
     severity-weighted recall, hierarchical CWE macro-accuracy, and
     weighted Cohen's $\kappa$) and per-mutator robustness drop. The
     headline finding is that the sink-token family separates the
     detector tiers cleanly: Bandit drops 0.187 macro-F1 (a $47\%$
     relative loss in severity-weighted recall) under attribute
-    obfuscation and Semgrep 0.132, while the trained detector is
-    invariant to every mutator in the suite. An LLM detector row
-    (Claude) is built into the harness and reserved for an
-    authorized future run.
+    obfuscation and Semgrep 0.132, while the trained and LLM detectors
+    are all invariant to every mutator in the suite. The detector
+    tiers also separate on clean-set leadership without any single
+    tool dominating: DeepSeek R1 narrowly leads macro-F1, Sonnet
+    leads severity-weighted recall and hierarchical accuracy,
+    GraphCodeBERT leads detection MCC, and Bandit leads weighted
+    Cohen's $\kappa$. Snyk Code underperforms every other detector
+    on every detection metric, a result we treat as an
+    external-validity bound on the benchmark format rather than a
+    statement about the tool: single-file function extracts are not
+    a fair benchmark for whole-project dataflow detectors.
 
   \item \textbf{A scope justification} documenting which Top-25 CWEs
     admit sink-anchored detection and which are structural
