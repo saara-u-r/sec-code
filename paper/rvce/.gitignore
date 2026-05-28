@@ -1,6 +1,7 @@
 # LaTeX build artifacts
 *.aux
 *.log
+*.bak
 *.bbl
 *.blg
 *.bcf
@@ -21,3 +22,4 @@
 *.acr
 *.alg
 *.synctex.gz
+*.listing

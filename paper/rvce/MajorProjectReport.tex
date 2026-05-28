@@ -6,8 +6,8 @@
 %% Document settings
 \title{PyVulSev: A Benchmark for Adversarial Robustness in Python Vulnerability Detection}
 \subCode{TODO Subject Code}
-% TODO: Update \Department to match your branch (CSE / ISE / AIML / ECE / etc.).
-\Department[TODO]{TODO Department Full Name}
+% Note: \Department cmd is not used in IDP. Certificate page uses \guideDeptA[]{} for IDP.
+\Department[CSE]{Computer Science and Engineering}
 \academicYear{2025-26}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,28 +24,17 @@
 \pgProgramName{VLSI Design \& Embedded Systems}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Student Details %%%
-%% TODO: Fill in your name and USN below. If this is a solo project,
-%% comment out stuNameB through stuNameF (and their USNs).
+%% Student Details %%
+%% TODO: Fill in your name and USN.
 \stuNameA{TODO Your Full Name}
 \stuUSNA{TODO Your USN}
-%\stuNameB{}
-%\stuUSNB{}
-%\stuNameC{}
-%\stuUSNC{}
-%\stuNameD{}
-%\stuUSND{}
-%\stuNameE{}
-%\stuUSNE{}
-%\stuNameF{}
-%\stuUSNF{}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Guide Related commands
-%% Internal Guide %% TODO: replace with actual guide details.
+%% Internal Guide %% TODO: replace with your guide's details.
 \guideNameA{TODO Internal Guide Name}
 \guideDesignationA{TODO Designation}
-\guideDeptA[TODO]{TODO Department Full Name}
+\guideDeptA[CSE]{Computer Science and Engineering}
 \guideOrgA{RV College of Engineering}
 
 %% External Guide — comment this block out if you don't have one.
@@ -54,33 +43,34 @@
 %\guideDeptB{TODO Dept.}
 %\guideOrgB{TODO Organisation}
 
-%\guideNameC{}
-%\guideDesignationC{}
-%\guideDeptC{}
-%\guideOrgC{}
+%\guideNameC{Dr. Ramavenkateshwaran}
+%\guideDesignationC{Assistant Professor}
+%\guideDeptC{Dept. of ECE}
+%\guideOrgC{RV College of Engineering}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Esteemed members %% TODO: replace with your department's actuals.
+%% Esteemed members %% TODO: confirm with your CSE department.
 %% Panel Members
 \panelMemberNameA{TODO Panel Member A}
 \panelMemberDesigA{TODO Designation}
-\panelMemberDeptA[TODO]{TODO Department Full Name}
+\panelMemberDeptA[CSE]{Computer Science and Engineering}
 \panelMemberNameB{TODO Panel Member B}
 \panelMemberDesigB{TODO Designation}
-\panelMemberDeptB[TODO]{TODO Department Full Name}
+\panelMemberDeptB[CSE]{Computer Science and Engineering}
 
 %% Project co-ordinators
 \projectCoOrdNameA{TODO Project Co-ordinator A}
 \projectCoOrdDesigA{TODO Designation}
-\projectCoOrdDeptA[TODO]{TODO Department Full Name}
+\projectCoOrdDeptA[CSE]{Computer Science and Engineering}
 \projectCoOrdNameB{TODO Project Co-ordinator B}
 \projectCoOrdDesigB{TODO Designation}
-\projectCoOrdDeptB[TODO]{TODO Department Full Name}
+\projectCoOrdDeptB[CSE]{Computer Science and Engineering}
 
-%%%%%%%%%%%%%%%%% College officials — verify the current incumbents %%%%%%%%%%%%%%%%%%
-\HOD{TODO HoD Name}
+%%%%%%%%%%%%%%%%% Esteemed Members %%%%%%%%%%%%%%%%%%
+\HOD{Dr. Shanta Rangaswamy}
 \Principal{Dr. K. N. Subramanya}
-% For IDP only — harmless to leave in for Major Project
+\DeanCS{Dr. Ramakanth Kumar P}
+% For IDP only
 \DeanAcademics{Dr. M.V. Renukadevi}
 \VicePrincipal{Dr. Geetha K S}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -116,6 +106,7 @@
 \end{tikzpicture}
 }}
 
+\usepackage{tabularx}
 \begin{document}
 	\NoBgThispage% Don't remove this command, even if you want logo on the first page.	
 	\maketitle
@@ -138,6 +129,9 @@
 		
 		\chapter*{Abstract}
 		\input{./CoverPages/Abstract}
+
+		\newpage
+		\input{./CoverPages/Publications}
 		
 	\end{spacing}
 	\newpage
@@ -167,26 +161,43 @@
 	\glsresetall
 	\begin{spacing}{1.5}
 		%Chapter 1 
-		\input{./Chapter1/chapter1-Intro}
+		% \input{./Chapter1/chapter1-Intro}
+		\input{./Chapter1/01_introduction}
 		
 		%Chapter 2
-		\input{./Chapter2/chapter2-Funda}
+		% \input{./Chapter2/chapter2-Funda}
+		\input{./Chapter2/02_theory}
 		
 		%Chapter 3
-		\input{./Chapter3/chapter3-design}
+		% \input{./Chapter3/chapter3-design}
+		\input{./Chapter3/03_srs}
 		
 		%Chapter 4
-		\input{./Chapter4/chapter4-implement}
+		% \input{./Chapter4/chapter4-implement}
+		\input{./Chapter4/04_hld}
 		
 		%Chapter 5
-		\input{./Chapter5/chapter5-result}
+		% \input{./Chapter5/chapter5-result}
+		\input{./Chapter5/05_detailed_design}
 		
 		%Chapter 6
-		\input{./Chapter6/chapter6-conclution}
+		% \input{./Chapter6/chapter6-conclution}
+		\input{./Chapter6/06_implementation}
+
+		%Chapter 7
+		\input{./Chapter7/07_SoftwareTesting}
+
+		%Chapter 8
+		\input{./Chapter8/08_ExpResults}
+
+		%Chapter 9
+		\input{./Chapter9/09_Conclusion}
 		
 		%% Uncomment the following 2 commands to add Appendix chapters
 		\appendix
-		\input{./Appendix/Apndx}%Appendix Chapter 1
+		\input{./Appendix/ApndxA}%Appendix for Plagiarism
+		\input{./Appendix/ApndxB}%Appendix for Paper publication
+		\input{./Appendix/ApndxC}%Appendix for Codes 
 		
 		\backmatter
 		\ifDrf
