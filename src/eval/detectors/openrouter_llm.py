@@ -17,6 +17,7 @@ the run across days or use --max-samples for a smoke test first.
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import time
@@ -24,6 +25,8 @@ import time
 from src.eval.detectors.base import Detector, Prediction
 from src.eval.detectors.llm import SYSTEM_PROMPT, parse_llm_response
 from src.eval.samples import EvalSample
+
+logger = logging.getLogger(__name__)
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
@@ -110,13 +113,24 @@ class OpenRouterLLMDetector(Detector):
         for s in samples:
             t0 = time.monotonic()
             try:
-                msg = self._call(s.code)
-            except _openai.RateLimitError:
-                # Free tier's per-minute window resets in 60s; the daily
-                # cap is harder to recover from, but one extra try is
-                # cheap and the run already exhausted SDK-level retries.
-                time.sleep(60)
-                msg = self._call(s.code)
+                try:
+                    msg = self._call(s.code)
+                except _openai.RateLimitError:
+                    # Free tier's per-minute window resets in 60s; the
+                    # daily cap is harder to recover from, but one extra
+                    # try is cheap and the SDK retries are exhausted.
+                    time.sleep(60)
+                    msg = self._call(s.code)
+            except Exception as e:
+                # One bad call (provider 5xx, timeout, content-policy
+                # refusal, etc.) must not abort the 665-call sweep.
+                logger.warning(f"{self.name}: skipping {s.id} — {type(e).__name__}: {e}")
+                predictions[s.id] = Prediction(
+                    predicted=set(),
+                    raw={"error": f"{type(e).__name__}: {e}"},
+                    latency_ms=int((time.monotonic() - t0) * 1000),
+                )
+                continue
             elapsed_ms = int((time.monotonic() - t0) * 1000)
             answer = msg.choices[0].message.content or ""
             predictions[s.id] = Prediction(
@@ -137,7 +151,10 @@ class OpenRouterLLMDetector(Detector):
 
 
 class DeepSeekR1Detector(OpenRouterLLMDetector):
-    model = "deepseek/deepseek-r1:free"
+    # The `:free` variant was deprecated by OpenRouter; the canonical
+    # DeepSeek R1 endpoint is paid (~$0.70/$2.50 per 1M tokens as of
+    # May 2026). A full 665-call sweep is ~$4.50 at current rates.
+    model = "deepseek/deepseek-r1"
     name = "deepseek_r1"
 
 

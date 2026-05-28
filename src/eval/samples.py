@@ -3,7 +3,7 @@
 The adversarial test set lives in ``data/test_variants/``. Each variant
 directory holds one ``{sample_id}.py`` per test-split positive (67 of
 them); only ``clean/`` also carries the ``{sample_id}.meta.json`` label
-files. The 65 ``safe`` hard negatives are not mutated — they live in
+files. The 62 ``safe`` hard negatives are not mutated — they live in
 ``data/raw/`` and are loaded into the ``clean`` variant only, so the
 ``clean`` run measures false positives while the mutator runs measure
 robustness on the 67 positives.
@@ -14,6 +14,20 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+
+#: Hard-negative samples excluded from the benchmark. Each entry is a
+#: legitimate hardneg in ``data/raw/`` whose source file exceeds the
+#: practical context window of current LLM detectors (chars/4 estimate
+#: > 25K tokens; ``markup_to_escape_296506d7974aea62`` is a 1.79 MB
+#: bundled artifact from docassemble). Files are kept on disk for audit
+#: and provenance; the load path filters them out of every variant so
+#: SAST, GraphCodeBERT, and LLM detectors all score the same 129-sample
+#: test set. Documented in paper §3 (dataset construction).
+EXCLUDED_SAMPLE_IDS: frozenset[str] = frozenset({
+    "hardneg_markup_to_escape_296506d7974aea62",
+    "hardneg_insert_url_allowlist_guard_5183615b0d6ce175",
+    "hardneg_wrap_with_secure_filename_a77f0dd698a4d64c",
+})
 
 VARIANTS: tuple[str, ...] = (
     "clean",
@@ -83,6 +97,8 @@ def _load_safe_samples(raw_dir: str | Path) -> list[EvalSample]:
         if meta.get("split") != "test":
             continue
         if meta.get("cwe") != "safe" and not meta.get("is_hard_negative"):
+            continue
+        if meta["id"] in EXCLUDED_SAMPLE_IDS:
             continue
         py_path = meta_path.with_name(meta_path.name.replace(".meta.json", ".py"))
         code = _read_code(py_path, meta)

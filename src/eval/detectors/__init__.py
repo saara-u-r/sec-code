@@ -4,7 +4,9 @@ from collections.abc import Callable
 
 from src.eval.detectors.bandit import BanditDetector
 from src.eval.detectors.base import Detector, Prediction, find_executable
+from src.eval.detectors.codeql import CodeQLDetector
 from src.eval.detectors.graphcodebert import GraphCodeBERTDetector
+from src.eval.detectors.snyk_code import SnykCodeDetector
 from src.eval.detectors.llm import LLMDetector
 from src.eval.detectors.openai_llm import OpenAILLMDetector
 from src.eval.detectors.ollama_llm import (
@@ -21,7 +23,9 @@ from src.eval.detectors.semgrep import SemgrepDetector
 
 #: Tools run by `--tool all`. Free, local, no API cost. `graphcodebert`
 #: needs a local checkpoint and CPU inference cycles but no external
-#: services, so it joins the SAST sweep.
+#: services, so it joins the SAST sweep. `codeql` is kept out of `all`
+#: because per-batch database creation makes it 10-100x slower than the
+#: other SAST tools — opt in explicitly via `--tool codeql`.
 SAST_TOOLS: tuple[str, ...] = ("bandit", "semgrep", "graphcodebert")
 
 #: Registry of all detectors, keyed by CLI name. Values are factories
@@ -33,6 +37,8 @@ SAST_TOOLS: tuple[str, ...] = ("bandit", "semgrep", "graphcodebert")
 DETECTORS: dict[str, Callable[[], Detector]] = {
     "bandit": BanditDetector,
     "semgrep": SemgrepDetector,
+    "codeql": CodeQLDetector,
+    "snyk": SnykCodeDetector,
     "graphcodebert": GraphCodeBERTDetector,
     "claude": LLMDetector,
     "gpt": OpenAILLMDetector,
@@ -48,6 +54,8 @@ __all__ = [
     "find_executable",
     "BanditDetector",
     "SemgrepDetector",
+    "CodeQLDetector",
+    "SnykCodeDetector",
     "GraphCodeBERTDetector",
     "LLMDetector",
     "OpenAILLMDetector",
