@@ -1,0 +1,185 @@
+{
+  "tool": "snyk_code",
+  "tool_version": "1.1305.0",
+  "macro_f1": {
+    "clean": 0.06320346320346319,
+    "dead_code_injection": 0.09199134199134198,
+    "string_split": 0.09199134199134198,
+    "variable_rename": 0.07034632034632035,
+    "wrapper_extraction": 0.09199134199134198,
+    "sink_attr_obfuscate": 0.08766233766233766,
+    "sink_via_globals": 0.05627705627705627,
+    "taint_through_dict": 0.09199134199134198,
+    "composed": 0.08766233766233766
+  },
+  "detection_mcc": {
+    "clean": -0.23490776900417915,
+    "dead_code_injection": null,
+    "string_split": null,
+    "variable_rename": null,
+    "wrapper_extraction": null,
+    "sink_attr_obfuscate": null,
+    "sink_via_globals": null,
+    "taint_through_dict": null,
+    "composed": null
+  },
+  "severity_weighted_recall": {
+    "clean": 0.1425379803395889,
+    "dead_code_injection": 0.1425379803395889,
+    "string_split": 0.1425379803395889,
+    "variable_rename": 0.1425379803395889,
+    "wrapper_extraction": 0.1425379803395889,
+    "sink_attr_obfuscate": 0.1425379803395889,
+    "sink_via_globals": 0.09874888293118854,
+    "taint_through_dict": 0.17068811438784626,
+    "composed": 0.1425379803395889
+  },
+  "swr_pool_size": {
+    "clean": 27,
+    "dead_code_injection": 27,
+    "string_split": 27,
+    "variable_rename": 27,
+    "wrapper_extraction": 27,
+    "sink_attr_obfuscate": 27,
+    "sink_via_globals": 27,
+    "taint_through_dict": 27,
+    "composed": 27
+  },
+  "hcma": {
+    "clean": 0.06909013605442176,
+    "dead_code_injection": 0.06909013605442176,
+    "string_split": 0.06909013605442176,
+    "variable_rename": 0.048681972789115645,
+    "wrapper_extraction": 0.06909013605442176,
+    "sink_attr_obfuscate": 0.06462585034013604,
+    "sink_via_globals": 0.045280612244897954,
+    "taint_through_dict": 0.06909013605442176,
+    "composed": 0.06462585034013604
+  },
+  "weighted_kappa": {
+    "clean": -0.0973456987527983,
+    "dead_code_injection": -0.0023475998006754484,
+    "string_split": -0.0023475998006754484,
+    "variable_rename": -0.009798752087178286,
+    "wrapper_extraction": -0.0023475998006754484,
+    "sink_attr_obfuscate": -0.004646717637753595,
+    "sink_via_globals": -0.009876407580335034,
+    "taint_through_dict": -0.009321929951717989,
+    "composed": -0.004646717637753595
+  },
+  "observed_agreement": {
+    "clean": 0.35658914728682173,
+    "dead_code_injection": 0.029850746268656716,
+    "string_split": 0.029850746268656716,
+    "variable_rename": 0.014925373134328358,
+    "wrapper_extraction": 0.029850746268656716,
+    "sink_attr_obfuscate": 0.029850746268656716,
+    "sink_via_globals": 0.014925373134328358,
+    "taint_through_dict": 0.029850746268656716,
+    "composed": 0.029850746268656716
+  },
+  "n_samples": {
+    "clean": 129,
+    "dead_code_injection": 67,
+    "string_split": 67,
+    "variable_rename": 67,
+    "wrapper_extraction": 67,
+    "sink_attr_obfuscate": 67,
+    "sink_via_globals": 67,
+    "taint_through_dict": 67,
+    "composed": 67
+  },
+  "per_cwe_f1": {
+    "clean": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.2,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.1818181818181818,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "dead_code_injection": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.3333333333333333,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "string_split": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.3333333333333333,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "variable_rename": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.18181818181818182,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "wrapper_extraction": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.3333333333333333,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "sink_attr_obfuscate": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.36363636363636365,
+      "CWE-89": 0.0,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "sink_via_globals": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.3333333333333333,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.0,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "taint_through_dict": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.3333333333333333,
+      "CWE-89": 0.06060606060606061,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    },
+    "composed": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.36363636363636365,
+      "CWE-89": 0.0,
+      "CWE-94": 0.25,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    }
+  },
+  "robustness_drop": {
+    "dead_code_injection": 0.0,
+    "string_split": 0.0,
+    "variable_rename": 0.021645021645021634,
+    "wrapper_extraction": 0.0,
+    "sink_attr_obfuscate": 0.004329004329004321,
+    "sink_via_globals": 0.03571428571428571,
+    "taint_through_dict": 0.0
+  },
+  "mean_single_mutator_drop": 0.008812615955473096
+}

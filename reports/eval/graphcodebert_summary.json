@@ -13,7 +13,7 @@
     "composed": 0.6029716315430601
   },
   "detection_mcc": {
-    "clean": 0.563712803469843,
+    "clean": 0.5557130497892914,
     "dead_code_injection": null,
     "string_split": null,
     "variable_rename": null,
@@ -57,7 +57,7 @@
     "composed": 0.6497307256235827
   },
   "weighted_kappa": {
-    "clean": 0.5524583124597438,
+    "clean": 0.5475862196600259,
     "dead_code_injection": 0.6319192399992066,
     "string_split": 0.6413650505323774,
     "variable_rename": 0.6413650505323774,
@@ -68,7 +68,7 @@
     "composed": 0.6413650505323774
   },
   "observed_agreement": {
-    "clean": 0.7196969696969697,
+    "clean": 0.7131782945736435,
     "dead_code_injection": 0.7761194029850746,
     "string_split": 0.7761194029850746,
     "variable_rename": 0.7761194029850746,
@@ -79,7 +79,7 @@
     "composed": 0.7761194029850746
   },
   "n_samples": {
-    "clean": 132,
+    "clean": 129,
     "dead_code_injection": 67,
     "string_split": 67,
     "variable_rename": 67,

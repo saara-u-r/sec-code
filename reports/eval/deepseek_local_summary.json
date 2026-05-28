@@ -1,0 +1,41 @@
+{
+  "tool": "deepseek_local",
+  "tool_version": "deepseek-r1:7b",
+  "macro_f1": {
+    "clean": 0.0
+  },
+  "detection_mcc": {
+    "clean": null
+  },
+  "severity_weighted_recall": {
+    "clean": 0.0
+  },
+  "swr_pool_size": {
+    "clean": 0
+  },
+  "hcma": {
+    "clean": 0.0
+  },
+  "weighted_kappa": {
+    "clean": 0.0
+  },
+  "observed_agreement": {
+    "clean": 0.0
+  },
+  "n_samples": {
+    "clean": 3
+  },
+  "per_cwe_f1": {
+    "clean": {
+      "CWE-22": 0.0,
+      "CWE-78": 0.0,
+      "CWE-79": 0.0,
+      "CWE-89": 0.0,
+      "CWE-94": 0.0,
+      "CWE-502": 0.0,
+      "CWE-918": 0.0
+    }
+  },
+  "robustness_drop": {},
+  "mean_single_mutator_drop": null
+}
