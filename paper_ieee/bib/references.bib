@@ -1,0 +1,361 @@
+% Bibliography for the Computers & Security submission.
+% Style: elsarticle-num (Vancouver numbered).
+%
+% Keys are stable and match \cite{...} usage in the .tex files.
+% Entries flagged "% VERIFY" still need authoritative confirmation of
+% one or more fields before camera-ready submission. The body of each
+% such entry contains correct citation information sufficient to compile
+% the paper; only the listed fields are pending.
+
+% ============================================================================
+% MITRE / Standards / Tools
+% ============================================================================
+
+@misc{mitre_top25,
+  author = {{MITRE Corporation}},
+  title  = {{CWE Top 25 Most Dangerous Software Weaknesses}},
+  year   = 2024,
+  note   = {\url{https://cwe.mitre.org/top25/}}
+}
+
+@misc{bandit,
+  author = {{PyCQA}},
+  title  = {Bandit: a security linter for {P}ython},
+  year   = 2024,
+  note   = {\url{https://bandit.readthedocs.io/}}
+}
+
+@misc{semgrep,
+  author = {{Semgrep, Inc.}},
+  title  = {Semgrep: lightweight static analysis for many languages},
+  year   = 2024,
+  note   = {\url{https://semgrep.dev/}}
+}
+
+@misc{codeql,
+  author = {{GitHub, Inc.}},
+  title  = {{CodeQL}: semantic code analysis},
+  year   = 2024,
+  note   = {\url{https://codeql.github.com/}}
+}
+
+@misc{pylint,
+  author = {{Pylint contributors}},
+  title  = {Pylint: a static code analyzer for {P}ython},
+  year   = 2024,
+  note   = {\url{https://pylint.readthedocs.io/}}
+}
+
+@misc{juliet,
+  author = {{National Institute of Standards and Technology}},
+  title  = {Juliet Test Suite for {P}ython, {C}/{C}++, and {J}ava},
+  year   = 2017,
+  note   = {\url{https://samate.nist.gov/SARD/test-suites}}
+}
+
+% ============================================================================
+% Methodology references
+% ============================================================================
+
+@book{wohlin,
+  author    = {Wohlin, Claes and Runeson, Per and H{\"o}st, Martin and
+               Ohlsson, Magnus C. and Regnell, Bj{\"o}rn and Wessl{\'e}n, Anders},
+  title     = {Experimentation in Software Engineering},
+  publisher = {Springer},
+  year      = 2012,
+  doi       = {10.1007/978-3-642-29044-2}
+}
+
+@article{sokolova2009,
+  author  = {Sokolova, Marina and Lapalme, Guy},
+  title   = {A systematic analysis of performance measures for classification tasks},
+  journal = {Information Processing \& Management},
+  year    = 2009,
+  volume  = 45,
+  number  = 4,
+  pages   = {427--437},
+  doi     = {10.1016/j.ipm.2009.03.002}
+}
+
+% ============================================================================
+% Vulnerability datasets
+% ============================================================================
+
+@inproceedings{bigvul,
+  author    = {Fan, Jiahao and Li, Yi and Wang, Shaohua and Nguyen, Tien N.},
+  title     = {A {C}/{C}++ Code Vulnerability Dataset with Code Changes and {CVE} Summaries},
+  booktitle = {Proceedings of the 17th International Conference on Mining Software Repositories (MSR '20)},
+  year      = 2020,
+  pages     = {508--512},
+  publisher = {ACM},
+  doi       = {10.1145/3379597.3387501}
+}
+
+@inproceedings{cvefixes,
+  author    = {Bhandari, Guru and Naseer, Amara and Moonen, Leon},
+  title     = {{CVEfixes}: automated collection of vulnerabilities and their fixes from open-source software},
+  booktitle = {Proceedings of the 17th International Conference on Predictive Models and Data Analytics in Software Engineering (PROMISE '21)},
+  year      = 2021,
+  pages     = {30--39},
+  publisher = {ACM},
+  doi       = {10.1145/3475960.3475985}
+}
+
+@inproceedings{crossvul,
+  author    = {Nikitopoulos, Georgios and Dritsa, Konstantina and Louridas, Panos and Mitropoulos, Dimitris},
+  title     = {{CrossVul}: a cross-language vulnerability dataset with commit data},
+  booktitle = {Proceedings of the 29th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE '21)},
+  year      = 2021,
+  pages     = {1565--1569},
+  publisher = {ACM},
+  doi       = {10.1145/3468264.3473122}
+}
+
+@inproceedings{diversevul,
+  author    = {Chen, Yizheng and Ding, Yuhan and Alowain, Lukas and Chen, Xueying and Wagner, David},
+  title     = {{DiverseVul}: a new vulnerable source code dataset for deep learning based vulnerability detection},
+  booktitle = {Proceedings of the 26th International Symposium on Research in Attacks, Intrusions and Defenses (RAID '23)},
+  year      = 2023,
+  pages     = {654--668},
+  publisher = {ACM},
+  doi       = {10.1145/3607199.3607242}
+}
+
+@inproceedings{devign,
+  author    = {Zhou, Yaqin and Liu, Shangqing and Siow, Jingkai and Du, Xiaoning and Liu, Yang},
+  title     = {{Devign}: effective vulnerability identification by learning comprehensive program semantics via graph neural networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = 2019,
+  pages     = {10197--10207}
+}
+
+@article{reveal,
+  author  = {Chakraborty, Saikat and Krishna, Rahul and Ding, Yangruibo and Ray, Baishakhi},
+  title   = {Deep learning based vulnerability detection: are we there yet?},
+  journal = {IEEE Transactions on Software Engineering},
+  year    = 2022,
+  volume  = 48,
+  number  = 9,
+  pages   = {3280--3296},
+  doi     = {10.1109/TSE.2021.3087402}
+}
+
+@inproceedings{linevul,
+  author    = {Fu, Michael and Tantithamthavorn, Chakkrit},
+  title     = {{LineVul}: a transformer-based line-level vulnerability prediction},
+  booktitle = {Proceedings of the 19th International Conference on Mining Software Repositories (MSR '22)},
+  year      = 2022,
+  pages     = {608--620},
+  publisher = {IEEE}
+}
+
+@inproceedings{d2a,
+  author    = {Zheng, Yunhui and Pujar, Saurabh and Burdet, Bryan and Buratti, Luca and Epstein, Edward and Yang, Bo and Lewis, Jim and Zhang, Carl and Farchi, Eitan},
+  title     = {{D2A}: a dataset built for {AI}-based vulnerability detection methods using differential analysis},
+  booktitle = {2021 IEEE/ACM 43rd International Conference on Software Engineering: Software Engineering in Practice (ICSE-SEIP)},
+  year      = 2021,
+  pages     = {111--120},
+  publisher = {IEEE},
+  doi       = {10.1109/ICSE-SEIP52600.2021.00020}
+}
+
+@article{vudenc,
+  author  = {Wartschinski, Laura and Noller, Yannic and Vogel, Thomas and Kehrer, Timo and Grunske, Lars},
+  title   = {{VUDENC}: vulnerability detection with deep learning on a natural codebase for {P}ython},
+  journal = {Information and Software Technology},
+  year    = 2022,
+  volume  = 144,
+  pages   = {106809},
+  doi     = {10.1016/j.infsof.2021.106809}
+}
+
+@inproceedings{morefixes,
+  author    = {Akhoundali, Jafar and Rahim Nouri, Sajad and Rietveld, Kristian and Gadyatskaya, Olga},
+  title     = {{MoreFixes}: a Large-Scale Dataset of {CVE} Fix Commits Mined through Enhanced Repository Discovery},
+  booktitle = {Proceedings of the 20th International Conference on Predictive Models and Data Analytics in Software Engineering (PROMISE '24)},
+  year      = 2024,
+  publisher = {ACM}
+}
+
+% ============================================================================
+% Label quality and dataset criticism
+% ============================================================================
+
+@inproceedings{croft,
+  author    = {Croft, Roland and Babar, M. Ali and Kholoosi, M. Mehdi},
+  title     = {Data quality for software vulnerability datasets},
+  booktitle = {Proceedings of the 45th International Conference on Software Engineering (ICSE '23)},
+  year      = 2023,
+  pages     = {121--133},
+  publisher = {IEEE},
+  doi       = {10.1109/ICSE48619.2023.00022}
+}
+
+% VERIFY: complete author list and venue if accepted to a conference proceedings
+@misc{cleanvul,
+  author = {Li, Yikun and Zhang, Yufei and {et al.}},
+  title  = {{CleanVul}: Automatic Function-Level Vulnerability Detection in Code Commits Using {LLM} Heuristics},
+  year   = 2024,
+  note   = {arXiv:2411.17274}
+}
+
+% ============================================================================
+% Models
+% ============================================================================
+
+@inproceedings{graphcodebert,
+  author    = {Guo, Daya and Ren, Shuo and Lu, Shuai and Feng, Zhangyin and Tang, Duyu and Liu, Shujie and Zhou, Long and Duan, Nan and Svyatkovskiy, Alexey and Fu, Shengyu and Tufano, Michele and Deng, Shao Kun and Clement, Colin and Drain, Dawn and Sundaresan, Neel and Yin, Jian and Jiang, Daxin and Zhou, Ming},
+  title     = {{GraphCodeBERT}: pre-training code representations with data flow},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = 2021
+}
+
+@inproceedings{codebert,
+  author    = {Feng, Zhangyin and Guo, Daya and Tang, Duyu and Duan, Nan and Feng, Xiaocheng and Gong, Ming and Shou, Linjun and Qin, Bing and Liu, Ting and Jiang, Daxin and Zhou, Ming},
+  title     = {{CodeBERT}: a pre-trained model for programming and natural languages},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2020},
+  year      = 2020,
+  pages     = {1536--1547}
+}
+
+% ============================================================================
+% Benchmarks for tool evaluation
+% ============================================================================
+
+% VERIFY: page range in TASE 2025 proceedings (not blocking for project submission; venue + year is enough to cite)
+@inproceedings{castle,
+  author    = {Dubniczky, Rich{\'a}rd Antal and Horv{\'a}t, Krisztofer Zolt{\'a}n and Bisztray, Tam{\'a}s and Ferrag, Mohamed Amine and Cordeiro, Lucas C. and Tihanyi, Norbert},
+  title     = {{CASTLE}: Benchmarking Dataset for Static Code Analyzers and {LLMs} towards {CWE} Detection},
+  booktitle = {Proceedings of the International Symposium on Theoretical Aspects of Software Engineering (TASE '25)},
+  year      = 2025
+}
+
+% VERIFY: page range in ICSE 2025 proceedings
+@inproceedings{primevul,
+  author    = {Ding, Yangruibo and Fu, Yanjun and Ibrahim, Omniyyah and Sitawarin, Chawin and Chen, Xinyun and Alomair, Basel and Wagner, David and Ray, Baishakhi and Chen, Yizheng},
+  title     = {Vulnerability Detection with Code Language Models: How Far Are We?},
+  booktitle = {Proceedings of the 47th International Conference on Software Engineering (ICSE '25)},
+  year      = 2025,
+  note      = {arXiv:2403.18624}
+}
+
+% VERIFY: complete author list, exact title, and venue. arXiv identifier from the
+% internal evaluation tools literature survey (2026-05-18); cross-check before
+% any venue submission. Acceptable for project submission as an arXiv preprint.
+@misc{realvuln,
+  author = {{RealVuln authors}},
+  title  = {{RealVuln}: benchmarking vulnerability scanners on real-world {P}ython repositories},
+  year   = 2026,
+  note   = {arXiv:2604.13764}
+}
+
+@inproceedings{iris,
+  author    = {Li, Ziyang and Dutta, Saikat and Naik, Mayur},
+  title     = {{IRIS}: {LLM}-assisted static analysis for detecting security vulnerabilities},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = 2025,
+  note      = {arXiv:2405.17238}
+}
+
+% ============================================================================
+% LLM evaluations for vulnerability detection
+% ============================================================================
+
+@misc{khare_llm,
+  author = {Khare, Avishree and Dutta, Saikat and Li, Ziyang and Solko-Breslin, Alaia and Alur, Rajeev and Naik, Mayur},
+  title  = {Understanding the effectiveness of large language models in detecting security vulnerabilities},
+  year   = 2023,
+  note   = {arXiv:2311.16169}
+}
+
+% VERIFY: ICSE NIER 2024 or other accepted venue
+@misc{steenhoek,
+  author = {Steenhoek, Benjamin and Rahman, Md Mahbubur and Roy, Monoshi Kumar and Alam, Mirza Sanjida and Barr, Earl T. and Le, Wei},
+  title  = {A comprehensive study of the capabilities of large language models for vulnerability detection},
+  year   = 2024,
+  note   = {arXiv:2403.17218}
+}
+
+% VERIFY: page range in S&P 2024 proceedings
+@inproceedings{secllmholmes,
+  author    = {Ullah, Saad and Han, Mingji and Pujar, Saurabh and Pearce, Hammond and Coskun, Ayse and Stringhini, Gianluca},
+  title     = {{LLMs} Cannot Reliably Identify and Reason About Security Vulnerabilities (Yet?): A Comprehensive Evaluation, Framework, and Benchmarks},
+  booktitle = {2024 IEEE Symposium on Security and Privacy (S\&P)},
+  year      = 2024,
+  note      = {arXiv:2312.12575}
+}
+
+% ============================================================================
+% Adversarial robustness for code models
+% ============================================================================
+
+@article{yefet,
+  author  = {Yefet, Noam and Alon, Uri and Yahav, Eran},
+  title   = {Adversarial examples for models of code},
+  journal = {Proceedings of the ACM on Programming Languages (OOPSLA)},
+  year    = 2020,
+  volume  = 4,
+  pages   = {1--30},
+  doi     = {10.1145/3428230}
+}
+
+@inproceedings{bielik,
+  author    = {Bielik, Pavol and Vechev, Martin},
+  title     = {Adversarial robustness for code},
+  booktitle = {Proceedings of the 37th International Conference on Machine Learning (ICML)},
+  year      = 2020,
+  pages     = {896--907}
+}
+
+@inproceedings{henkel,
+  author    = {Henkel, Jordan and Ramakrishnan, Goutham and Wang, Zi and Albarghouthi, Aws and Jha, Somesh and Reps, Thomas},
+  title     = {Semantic robustness of models of source code},
+  booktitle = {2022 IEEE International Conference on Software Analysis, Evolution and Reengineering (SANER)},
+  year      = 2022,
+  pages     = {526--537},
+  publisher = {IEEE}
+}
+
+@article{chicco2020mcc,
+  author  = {Chicco, Davide and Jurman, Giuseppe},
+  title   = {The advantages of the {Matthews} correlation coefficient ({MCC}) over {F1} score and accuracy in binary classification evaluation},
+  journal = {BMC Genomics},
+  volume  = 21,
+  number  = 6,
+  year    = 2020,
+  doi     = {10.1186/s12864-019-6413-7}
+}
+
+@inproceedings{cao2019ldam,
+  author    = {Cao, Kaidi and Wei, Colin and Gaidon, Adrien and Arechiga, Nikos and Ma, Tengyu},
+  title     = {Learning imbalanced datasets with label-distribution-aware margin loss},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = 2019,
+  pages     = {1567--1578}
+}
+
+@inproceedings{cui2019cb,
+  author    = {Cui, Yin and Jia, Menglin and Lin, Tsung-Yi and Song, Yang and Belongie, Serge},
+  title     = {Class-balanced loss based on effective number of samples},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = 2019,
+  pages     = {9268--9277}
+}
+
+@inproceedings{wupalmer1994,
+  author    = {Wu, Zhibiao and Palmer, Martha},
+  title     = {Verb semantics and lexical selection},
+  booktitle = {Proceedings of the 32nd Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year      = 1994,
+  pages     = {133--138}
+}
+
+@article{cohen1968kappa,
+  author  = {Cohen, Jacob},
+  title   = {Weighted kappa: Nominal scale agreement with provision for scaled disagreement or partial credit},
+  journal = {Psychological Bulletin},
+  volume  = {70},
+  number  = {4},
+  pages   = {213--220},
+  year    = 1968
+}
