@@ -10,6 +10,11 @@ expose.
 \subsection{Research questions}
 \label{sec:eval:rq}
 
+The evaluation is organized around three questions that separate what
+a detector achieves on clean, sink-validated code from how that
+performance survives semantics-preserving rewriting, and from the
+effect of the label filter itself.
+
 \begin{description}
   \item[RQ1] How accurately do free static analysis tools classify the
     seven sink-shaped CWE classes on the clean test set?
@@ -23,6 +28,54 @@ expose.
 
 \subsection{Setup}
 \label{sec:eval:setup}
+
+This subsection fixes the protocol shared by every detector: the test
+split they are scored on, the five metrics each result is reported on,
+how the robustness drop is computed, and the seven detectors
+themselves. Holding these constant across the four tiers is what makes
+the cross-detector numbers in the rest of the section comparable;
+Figure~\ref{fig:harness} sketches the harness end to end.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners, align=center, fill=gray!8,
+    minimum height=9mm, text width=34mm},
+  src/.style={draw, align=center, fill=gray!4, minimum height=26mm,
+    text width=27mm},
+  met/.style={draw, align=center, fill=gray!4, minimum height=26mm,
+    text width=24mm},
+  arr/.style={-{Stealth[length=2.5mm]}, thick, gray!55},
+]
+\node[src] (bench) {\textbf{Benchmark}\\129 clean\\(67 pos $+$ 62 safe)\\[3pt]$+$ 8 mutator\\variants of the\\67 positives};
+
+\node[box, right=16mm of bench, yshift=17mm] (sast) {\textbf{SAST}\\Bandit, Semgrep};
+\node[box, below=2.5mm of sast] (wp) {\textbf{Whole-project}\\Snyk Code, CodeQL};
+\node[box, below=2.5mm of wp] (llm) {\textbf{LLM}\\Sonnet 4.6, GPT-4o,\\DeepSeek R1};
+\node[box, below=2.5mm of llm] (trained) {\textbf{Trained}\\GraphCodeBERT};
+
+\node[met, right=16mm of llm, yshift=8.5mm] (metrics) {\textbf{Metrics}\\macro-F1\\detection MCC\\SWR\\HCMA\\weighted $\kappa$};
+
+\draw[arr] (bench.east) -- (sast.west);
+\draw[arr] (bench.east) -- (wp.west);
+\draw[arr] (bench.east) -- (llm.west);
+\draw[arr] (bench.east) -- (trained.west);
+\draw[arr] (sast.east) -- (metrics.west);
+\draw[arr] (wp.east) -- (metrics.west);
+\draw[arr] (llm.east) -- (metrics.west);
+\draw[arr] (trained.east) -- (metrics.west);
+\end{tikzpicture}}
+\caption{The evaluation harness. The same 129-sample clean set and the
+eight mutator variants of the 67 positives are scored against seven
+detectors spanning four tiers, and every detector is reported on the
+same five bounded metrics. Snyk Code and CodeQL (the whole-project
+tier) are scored on the identical inputs but, as
+Section~\ref{sec:eval:wholeproject} discusses, the snippet format is
+unfavourable to their whole-application source models.}
+\label{fig:harness}
+\end{figure*}
 
 \paragraph{Test set.} The held-out test split is 129 samples: 67
 vulnerable positives spanning the seven CWE classes and 62 \texttt{safe}
@@ -544,7 +597,7 @@ probe (TTD) is invariant on every non-SAST detector evaluated.
 \subsection{Trained-model detector}
 \label{sec:eval:model}
 
-The benchmark's training split (607 samples) is used to fine-tune a
+The benchmark's training split (610 samples) is used to fine-tune a
 dual-task GraphCodeBERT~\cite{graphcodebert} classifier that predicts
 the CWE class and the CVSS base score from \texttt{code\_before}.
 Training uses a three-phase schedule: a three-epoch supervised
@@ -580,7 +633,7 @@ CWE-94 (Table~\ref{tab:clean-percwe}). Severity-weighted recall is
 0.870 on the 27-sample CVSS pool — second only to Sonnet's 0.903,
 and ahead of Bandit (0.745), Semgrep (0.634), and GPT-4o (0.420).
 We treat this as a defensible small-data result rather than a
-statement about a state-of-the-art detector: 607 training samples
+statement about a state-of-the-art detector: 610 training samples
 is small for a 126.6M-parameter model, and reviewers should read
 the result as an existence proof that a benchmark-tuned learned
 detector can compete with mature SAST baselines and frontier LLMs

@@ -15,6 +15,10 @@
 \usepackage{multirow}
 \usepackage{microtype}
 \usepackage{xspace}
+\usepackage{tikz}
+\usetikzlibrary{positioning,shapes.geometric,arrows.meta,fit,calc,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
 
@@ -65,8 +69,9 @@ exists for Python, the dominant language for security tooling, ML
 pipelines, and modern web applications.
 
 We construct an evaluation benchmark for Python vulnerability detection
-covering seven sink-shaped MITRE Top-25 CWE classes (871 audit-validated
-positives + 429 safe hard negatives; 607 train / 127 val / 132 test after
+covering seven sink-shaped MITRE Top-25 CWE classes (869 samples:
+440 audit-validated real-world positives and 429 synthesized safe hard
+negatives; 610 train / 127 val / 132 test after
 repo-group stratification with zero cross-split repo leakage). Labels are
 validated through a three-layer methodology: (1) a pre-ingest
 sink-presence filter rejects samples without category-defining code

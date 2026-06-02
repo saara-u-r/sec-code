@@ -47,9 +47,9 @@ transformations, so its reported scores are an upper bound that may
 not survive trivial rewriting of the input.
 
 This paper introduces a Python vulnerability-detection benchmark
-covering seven sink-shaped MITRE Top-25 CWE classes (CWE-89, CWE-79,
-CWE-22, CWE-78, CWE-94, CWE-918, and CWE-502) plus a ``safe''
-hard-negative class. We address the label-noise problem with a
+covering seven sink-shaped MITRE Top-25~\cite{mitre_top25} CWE classes
+(CWE-89, CWE-79, CWE-22, CWE-78, CWE-94, CWE-918, and CWE-502) plus a
+``safe'' hard-negative class. We address the label-noise problem with a
 three-layer validation methodology that reduces the audited
 false-positive rate from 52\% to 26\%, comparable to manually audited
 security datasets at a fraction of the human-hour cost. We additionally extend CASTLE's evaluation framing in two
@@ -65,12 +65,16 @@ label-validity criteria.
 \paragraph{Contributions}
 \begin{itemize}
   \item \textbf{An audit-validated Python vulnerability benchmark.}
-    1{,}300 samples (871 positives plus 429 safe hard negatives) across
-    seven sink-shaped MITRE Top-25 CWE classes, with repo-group-stratified
-    train / validation / test splits (607 / 127 / 132) and zero
-    cross-split repository leakage. Distributed with full per-sample
-    metadata, content-hash deduplication, and rejection manifests for
-    every dropped sample.
+    869 samples (440 real-world positives plus 429 synthesized safe
+    hard negatives) across seven sink-shaped MITRE
+    Top-25~\cite{mitre_top25} CWE classes, with repo-group-stratified
+    train / validation / test splits (610 / 127 / 132) and zero
+    cross-split repository leakage. Positives are scraped from CVE and
+    advisory fix commits; hard negatives are safe twins constructed by
+    applying each vulnerability's canonical remediation to its positive,
+    preserving surface structure and sink names. Distributed with full
+    per-sample metadata, content-hash deduplication, and rejection
+    manifests for every dropped sample.
 
   \item \textbf{A three-layer label-validation methodology.} A pre-ingest
     sink-presence filter, a three-round adversarial audit by independent

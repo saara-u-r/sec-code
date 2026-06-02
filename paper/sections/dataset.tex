@@ -8,10 +8,62 @@ The three-layer label validation methodology
 and~\ref{sec:dataset:diff}) is the principal methodological
 contribution; the final composition (Section~\ref{sec:dataset:final})
 is the artifact that downstream evaluation (Section~\ref{sec:evaluation})
-operates on.
+operates on. Figure~\ref{fig:pipeline} gives the construction at a
+glance: a raw advisory feed is narrowed by three successive validation
+layers into the final benchmark, with the audited false-positive rate
+falling from 52\% to 26\% along the way.
+
+\begin{figure*}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=8mm and 11mm,
+  stage/.style={draw, rounded corners, align=center, fill=gray!8,
+    minimum height=13mm, text width=23mm, font=\small},
+  data/.style={draw, align=center, minimum height=13mm,
+    text width=19mm, font=\small},
+  arr/.style={-{Stealth[length=2.5mm]}, thick},
+  note/.style={font=\footnotesize, align=center}
+]
+\node[data] (raw) {raw feed\\\textbf{1{,}982}};
+\node[stage, right=of raw] (l1) {Layer 1\\sink-presence\\filter};
+\node[data, right=of l1] (d1) {\textbf{1{,}233}};
+\node[stage, right=of d1] (l2) {Layer 2\\3-round\\adversarial audit};
+\node[stage, right=of l2] (l3) {Layer 3\\diff-based\\filter};
+\node[data, right=of l3] (final) {\textbf{440} pos.\\$+$\,\textbf{429} safe\\$=$\,\textbf{869}};
+
+\draw[arr] (raw)--(l1);
+\draw[arr] (l1)--(d1) node[midway,above,note]{$-749$};
+\draw[arr] (d1)--(l2);
+\draw[arr] (l2)--(l3);
+\draw[arr] (l3)--(final) node[midway,above,note]{$-316$};
+
+\node[note, below=4mm of d1] {audit FP\\\textbf{52\%}};
+\node[note, below=4mm of l2] {$\rightarrow$ \textbf{51\%}};
+\node[note, below=4mm of l3] {$\rightarrow$ \textbf{26\%}};
+\end{tikzpicture}}
+\caption{The three-layer label-validation pipeline. Layer~1 rejects
+samples lacking the category-defining sink token; Layer~2's
+independent audit rounds drive the pattern tightenings and the
+removal of two unworkable CWE classes; Layer~3 keeps a positive only
+if the sink line itself changed between \texttt{code\_before} and
+\texttt{code\_after}. The audited false-positive rate (measured on
+disjoint samples each round) falls from 52\% to 26\%. The final
+\texttt{safe} class is constructed separately as minimal-pair twins
+(Section~\ref{sec:dataset:hardneg}).}
+\label{fig:pipeline}
+\end{figure*}
 
 \subsection{Scope and CWE selection}
 \label{sec:dataset:scope}
+
+Before describing how samples are gathered and validated, we fix what
+the benchmark is \emph{about}: which weakness classes it covers and,
+equally important, which it deliberately leaves out. This subsection
+partitions the Python-relevant CWEs into the sink-shaped classes the
+benchmark targets and the structural classes it excludes, and states
+the reasoning behind each cut so that the scope reads as a deliberate
+design choice rather than an artifact of what was convenient to scrape.
 
 The MITRE Top-25 Most Dangerous Software Weaknesses~\cite{mitre_top25}
 lists 25 CWE classes by aggregate severity-weighted exploit prevalence
@@ -142,6 +194,66 @@ exclusion) are textbook OWASP and SANS exemplars rewritten as
 self-contained Python files. They serve as benchmark calibration
 points: a detector that misses these samples is broken regardless
 of its CVE-corpus performance.
+
+\subsection{Hard-negative construction}
+\label{sec:dataset:hardneg}
+
+The 429 \texttt{safe} samples are not scraped. They are
+\emph{constructed safe twins}: for each negative we take a real
+vulnerable function and apply the canonical remediation for its CWE,
+replacing the dangerous operation with its secure equivalent
+(\texttt{yaml.load}~$\rightarrow$~\texttt{yaml.safe\_load},
+\texttt{pickle.loads}~$\rightarrow$~\texttt{json.loads},
+string-formatted SQL~$\rightarrow$~parameterized query,
+\texttt{os.system}~$\rightarrow$~\texttt{subprocess.run(\ldots,
+shell=False)}, unguarded path joins~$\rightarrow$~\texttt{secure\_filename}
+/ allowlist guard, and the analogous fixes for XSS, code injection,
+and SSRF). The transformation is applied at the AST level and
+preserves surface structure, data-flow positions, and sink
+\emph{names}; only the security-relevant behavior at the sink
+changes. We deliberately choose this design over scraping arbitrary
+safe code for three reasons.
+
+\paragraph{There is no reliable feed of negative labels.} Advisory
+databases index \emph{vulnerabilities}; there is no corresponding
+authority that certifies a function as safe. Any safe class assembled
+by sampling unrelated repositories inherits the same label-noise
+problem we eliminate on the positive side (Sections~\ref{sec:dataset:audit}--\ref{sec:dataset:diff}),
+only now in the opposite direction: ``safe'' code drawn at random may
+contain latent, unreported sinks. Constructing negatives from a known
+fix gives each negative a \emph{provable} safe label---the sink has
+been demonstrably neutralized---which is the negative-class analogue
+of our diff-anchored positive labels.
+
+\paragraph{A useful negative must be a minimal pair.} Random safe code
+differs from vulnerable code along dozens of confounded axes---domain,
+length, identifiers, imported libraries, coding style---any of which a
+classifier can latch onto as a shortcut that has nothing to do with
+security. A detector can then post a high score on such a negative
+class while having learned only superficial corpus statistics. Our
+safe twins are \emph{counterfactuals}: they hold every confound fixed
+and vary only the sink's safety. This isolates the security-relevant
+difference and is the same minimal-pair / contrast-set discipline used
+to expose shortcut learning in NLP and in metamorphic software
+testing.
+
+\paragraph{They target the dominant detector failure mode directly.}
+The characteristic error of pattern-matching SAST tools---and, as
+Section~\ref{sec:evaluation} shows, of frontier LLMs---is to fire on
+the \emph{presence} of a sink token (\texttt{cursor.execute},
+\texttt{yaml.load}) regardless of whether the tainted value is
+actually neutralized. A safe twin keeps the sink name and its
+neighborhood identical but renders the call safe, so a detector that
+merely spots the token is forced into a false positive. The safe
+class is therefore not padding for the precision denominator; it is
+the discriminative core of the benchmark, and the gap between a
+tool's recall on positives and its false-positive rate on the twins
+measures exactly how much of its apparent detection is real reasoning
+versus keyword matching. Constructing the twins from real CVE
+functions rather than synthesizing them from scratch (as
+Juliet~\cite{juliet} does) further preserves authentic framework
+idiom and application context, avoiding the realism gap that limits
+synthetic suites while retaining full counterfactual control.
 
 \subsection{Sample schema}
 \label{sec:dataset:schema}
@@ -413,12 +525,53 @@ The estimate carries over residual noise from
 \texttt{vudenc}-sourced samples retained under the no-diff-data tier.}
 \end{table}
 
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=\linewidth, height=5.4cm,
+  ybar, bar width=3.2pt,
+  ymin=0, ymax=88,
+  ylabel={Audit FP rate (\%)},
+  ylabel style={font=\footnotesize},
+  symbolic x coords={502,94,78,22,918,89,79,All},
+  xtick=data,
+  x tick label style={font=\footnotesize},
+  ytick={0,20,40,60,80},
+  y tick label style={font=\footnotesize},
+  legend style={at={(0.5,1.04)}, anchor=south, legend columns=3,
+    font=\footnotesize, draw=none, /tikz/every even column/.append style={column sep=4pt}},
+  enlarge x limits=0.07,
+  tick align=inside,
+]
+\addplot+[fill=gray!25, draw=gray!55] coordinates {(502,40)(94,40)(78,20)(22,80)(918,50)(89,40)(79,60)(All,52)};
+\addplot+[fill=gray!55, draw=gray!75] coordinates {(502,20)(94,50)(78,30)(22,70)(918,70)(89,30)(79,70)(All,51)};
+\addplot+[fill=black!80, draw=black]   coordinates {(502,0)(94,0)(78,12)(22,27)(918,36)(89,50)(79,50)(All,26)};
+\legend{Round 1 (raw), Round 2 (patterns), Round 3 ($+$diff)}
+\end{axis}
+\end{tikzpicture}
+\caption{Per-CWE audit false-positive rate across the three
+validation rounds (x-axis labels are CWE numbers; \emph{All} is the
+aggregate of Table~\ref{tab:audit-progression}). The diff-based
+filter (Round~3) collapses the co-changed-file classes (CWE-502,
+CWE-94 to 0\%; CWE-22 from 80\% to 27\%) while the residual
+concentrates on CWE-89 and CWE-79, where \texttt{vudenc} samples
+are retained without diff validation.}
+\label{fig:fp-progression}
+\end{figure}
+
 \subsection{Final composition and label-confidence tiers}
 \label{sec:dataset:final}
 
-The final benchmark consists of 871 positives across seven
+This subsection reports the benchmark the three validation layers
+produce: its size, how it is split for training and evaluation, and
+the confidence tier each sample inherits from its source and the
+layers it survived. These are the numbers the evaluation in
+Section~\ref{sec:evaluation} is run against.
+
+The final benchmark consists of 440 positives across seven
 sink-shaped CWEs plus 429 \texttt{safe} hard negatives, totaling
-1{,}300 samples. Train/validation/test splits (607~/~127~/~132)
+869 samples. Train/validation/test splits (610~/~127~/~132)
 are stratified by CWE with a repo-group constraint: samples sharing
 a repository are placed together in the same split, eliminating
 cross-split repository leakage. Repo-leakage verification reports
@@ -434,31 +587,26 @@ active test set used in Section~\ref{sec:evaluation} is 129 samples
 \begin{table}[h]
 \centering
 \caption{Final per-CWE distribution. All CWE classes have $\ge 7$
-test samples except CWE-22 ($n_{\text{test}}=3$); the small-$n$
-classes are flagged for confidence-interval reporting in
+test samples except CWE-22 and CWE-918 ($n_{\text{test}}=3$); the
+small-$n$ classes are flagged for confidence-interval reporting in
 Section~\ref{sec:evaluation}.}
 \label{tab:per-cwe-counts}
 \begin{tabular}{lrrrr}
 \toprule
 \textbf{Label} & \textbf{Total} & \textbf{Train} & \textbf{Val} & \textbf{Test} \\
 \midrule
-CWE-89 (SQL Injection)         & 212 & 148 & 32 & 32 \\
-CWE-502 (Insecure Deserialization) & 78 & 51 & 11 & 12 \\
+CWE-89 (SQL Injection)         & 213 & 149 & 32 & 32 \\
+CWE-502 (Insecure Deserialization) & 75 & 52 & 11 & 12 \\
 CWE-79 (XSS)                    & 54 & 40 & 7 & 7 \\
-CWE-94 (Code Injection)         & 36 & 24 & 5 & 6 \\
-CWE-78 (OS Command Injection)   & 25 & 17 & 4 & 4 \\
+CWE-94 (Code Injection)         & 35 & 24 & 5 & 6 \\
+CWE-78 (OS Command Injection)   & 26 & 18 & 4 & 4 \\
 CWE-918 (SSRF)                  & 22 & 17 & 2 & 3 \\
 CWE-22 (Path Traversal)         & 15 & 10 & 2 & 3 \\
 \texttt{safe} (hard negatives)  & 429 & 300 & 64 & 65 \\
 \midrule
-\textbf{Total}                  & \textbf{871}$^\dagger$ & \textbf{607} & \textbf{127} & \textbf{132} \\
+\textbf{Total}                  & \textbf{869} & \textbf{610} & \textbf{127} & \textbf{132} \\
 \bottomrule
 \end{tabular}
-\\[1ex]
-{\footnotesize $^\dagger$The 5-sample discrepancy from the row sum is
-content-hash deduplication: duplicate \texttt{code\_before} strings
-across sources are collapsed at training time but retained on disk
-for provenance.}
 \end{table}
 
 \paragraph{Label-confidence tiers.}
@@ -469,8 +617,9 @@ combination of source and Layer-3 validity:
 \item \textbf{HIGH (provable)}: \texttt{label\_source = advisory}
   \emph{and} the diff-based filter (Layer~3) recorded a modified sink
   line. The label is anchored on direct evidence: the fix commit
-  changed the sink. Approximately 442 of 871 positives are in this
-  tier.
+  changed the sink. 201 of the 440 positives are in this tier; a
+  further 10 advisory-sourced positives are retained at lower
+  confidence where Layer~3 could not confirm a sink change.
 
 \item \textbf{HIGH (curated)}: \texttt{label\_source = canonical}.
   20 hand-written textbook samples; correctness by construction.

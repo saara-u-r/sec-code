@@ -35,7 +35,48 @@ that keep them semantics-preserving, and the way they are composed at
 evaluation time. The mutators live in
 \texttt{src/red\_team/mutators/} and are deterministic given a sample
 identifier and a random seed, so the resulting evaluation is fully
-reproducible.
+reproducible. Figure~\ref{fig:mutator-tax} lays out the seven mutators
+under the three families.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  root/.style={draw, fill=gray!18, align=center, text width=15mm, minimum height=8mm},
+  fam/.style={draw, rounded corners, fill=gray!10, align=center, text width=16mm, minimum height=6mm},
+  leaf/.style={draw, align=left, text width=44mm, minimum height=5mm, inner sep=3pt},
+  arr/.style={-{Stealth[length=1.8mm]}, gray!60},
+]
+\node[leaf] (m1) {M1\ \ dead-code injection};
+\node[leaf, below=1mm of m1] (m2) {M2\ \ string-literal split$^{\dagger}$};
+\node[leaf, below=1mm of m2] (m3) {M3\ \ identifier rename};
+\node[leaf, below=1mm of m3] (m4) {M4\ \ wrapper extraction};
+\node[leaf, below=5mm of m4] (m5) {M5\ \ sink attr obfuscation$^{\dagger}$};
+\node[leaf, below=1mm of m5] (m6) {M6\ \ sink via builtins$^{\dagger}$};
+\node[leaf, below=5mm of m6] (m7) {M7\ \ taint-through-dict$^{\dagger}$};
+
+\node[fam, anchor=east] (f1) at ($(m1.west)!0.5!(m4.west) + (-9mm,0)$) {sink-\\preserving};
+\node[fam, anchor=east] (f2) at ($(m5.west)!0.5!(m6.west) + (-9mm,0)$) {sink-\\targeted};
+\node[fam, anchor=east] (f3) at ($(m7.west) + (-9mm,0)$) {dataflow};
+
+\node[root, anchor=east] (r) at ($(f2.west) + (-10mm,0)$) {7\\mutators};
+
+\draw[arr] (r.east) -- (f1.west);
+\draw[arr] (r.east) -- (f2.west);
+\draw[arr] (r.east) -- (f3.west);
+\foreach \l in {m1,m2,m3,m4} \draw[arr] (f1.east) -- (\l.west);
+\foreach \l in {m5,m6} \draw[arr] (f2.east) -- (\l.west);
+\draw[arr] (f3.east) -- (m7.west);
+\end{tikzpicture}
+\caption{The seven adversarial mutators grouped by the detector
+shortcut each family probes. The sink-preserving family alters code
+around the sink; the sink-targeted family rewrites the sink call
+itself; the dataflow family breaks the static lineage from a
+parameter to the sink argument. Mutators marked $\dagger$ are held
+out of training-time augmentation and used only as test-time
+robustness probes (Section~\ref{sec:eval:model}).}
+\label{fig:mutator-tax}
+\end{figure}
 
 \subsection{Design principles}
 \label{sec:method:principles}
