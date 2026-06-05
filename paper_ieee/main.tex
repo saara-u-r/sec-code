@@ -16,50 +16,49 @@
 
 \title{A Sink-Validated Python Vulnerability Detection Benchmark with Adversarial Robustness Probes}
 
-\author{\IEEEauthorblockN{1\textsuperscript{st} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\author{\IEEEauthorblockN{Saara Unnathi R}
+\IEEEauthorblockA{\textit{Dept. of CSE} \\
+\textit{RV College of Engineering}\\
+Bengaluru, India \\
+saaraunnathir.cs22@rvce.edu.in}
 \and
-\IEEEauthorblockN{2\textsuperscript{nd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\IEEEauthorblockN{Dr. Holger Schmidt}
+\IEEEauthorblockA{\textit{Dept. of Computer Science} \\
+\textit{Fachhochschule Dortmund}\\
+Dortmund, Germany \\
+holger.schmidt004@fh-dortmund.de}
 \and
-\IEEEauthorblockN{3\textsuperscript{rd} Given Name Surname}
-\IEEEauthorblockA{\textit{dept. name of organization (of Aff.)} \\
-\textit{name of organization (of Aff.)}\\
-City, Country \\
-email address or ORCID}
+\IEEEauthorblockN{Dr. Klaus Kaiser}
+\IEEEauthorblockA{\textit{Dept. of Computer Science} \\
+\textit{Fachhochschule Dortmund}\\
+Dortmund, Germany \\
+klaus.kaiser@fh-dortmund.de}
 }
 
 \maketitle
 
 \begin{abstract}
 Most automated Python vulnerability detectors are evaluated on labels
-inherited from CVE fix commits, where empirical audits report 25--50\%
+inherited from CVE fix commits, where empirical audits report 25\% to 50\%
 label noise from co-changed files. The CASTLE benchmark addressed this
 for C/C++ with a hand-curated corpus and a static-analyzer-versus-LLM
-study, but no comparable evaluation substrate exists for Python. We
-construct a benchmark for Python vulnerability detection covering seven
-sink-shaped MITRE Top-25 CWE classes (869 samples: 440 audit-validated
-real-world positives and 429 synthesized safe hard negatives). Labels
-are validated by a three-layer methodology: a pre-ingest sink-presence
-filter, a three-round adversarial audit by independent reviewers, and a
-diff-based filter that requires the sink line itself to change between
-the vulnerable and fixed versions. The combined pipeline reduces the
-audited false-positive rate from 52\% to 26\%. We pair the benchmark
-with seven semantics-preserving adversarial mutators across three
-families and measure per-tool robustness drop. Evaluating seven
-detectors across four tiers (pattern-matching SAST, whole-project
-dataflow, frontier LLMs, and a fine-tuned GraphCodeBERT), we find no
-single tool leads on every measure, and that the sink-token mutator
-family cleanly separates pattern-matching SAST (Bandit loses 0.187
+study, but no comparable resource exists for Python. We construct a
+benchmark for Python vulnerability detection covering seven sink-shaped
+MITRE Top-25 CWE classes (869 samples: 440 audit-validated real-world
+positives and 429 synthesized safe hard negatives). Labels are validated
+by a three-layer methodology: a pre-ingest sink-presence filter, a
+three-round adversarial audit by independent reviewers, and a diff-based
+filter requiring the sink line itself to change between the vulnerable and
+fixed versions. The combined pipeline cuts the audited false-positive rate
+from 52\% to 26\%. Seven semantics-preserving mutators spanning three
+families augment the benchmark and provide per-tool F1 drop as a
+robustness measure. Across seven detectors in four tiers (pattern-matching
+SAST, whole-project dataflow, frontier LLMs, and a fine-tuned
+GraphCodeBERT), no single tool leads on every measure, and the sink-token
+mutator family separates pattern-matching SAST (Bandit loses 0.187
 macro-F1 under attribute-access obfuscation) from a learned detector
-that is invariant to every mutator in the suite. All artifacts are
-released to support replication.
+invariant to every mutator in the suite. All artifacts are released to
+support replication.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -69,32 +68,30 @@ robustness, static analysis, large language models
 
 \section{Introduction}
 Automated vulnerability detection for source code is trained and
-evaluated almost entirely on C and C++. The labels most detectors learn
-from are inherited from CVE fix commits, and a fix commit typically
-touches several files for refactoring, tests, or cleanup that have
-nothing to do with the vulnerability. Each co-changed file silently
-inherits the CVE's CWE label, and manual audits put the resulting label
-noise between 25\% and 50\%~\cite{croft,cleanvul}. A benchmark built on
-raw CVE inheritance therefore measures a detector's agreement with label
-noise as much as its detection ability~\cite{primevul}.
+evaluated almost entirely on C and C++. Labels come from CVE fix commits,
+which typically touch several files for refactoring, tests, or cleanup
+unrelated to the vulnerability. Each co-changed file silently inherits the
+CVE's CWE tag, and manual audits put the resulting label noise at 25\% to
+50\%~\cite{croft,cleanvul}. A benchmark built on raw CVE inheritance
+therefore scores a detector's agreement with label noise as much as its
+detection accuracy~\cite{primevul}.
 
-The CASTLE benchmark~\cite{castle} confronted this for C/C++ with a
+The CASTLE benchmark~\cite{castle} addressed this for C/C++ with a
 hand-curated corpus and a comparative study of static analyzers against
-large language models (LLMs). No comparable substrate exists for Python,
-which is the dominant language for security tooling, machine-learning
-pipelines, and modern web applications. A second gap compounds the
-first: existing evaluations report detection accuracy on unmodified
-code only, so a reported score is an upper bound that may not survive
-trivial, behavior-preserving rewriting of the input~\cite{secllmholmes}.
+large language models (LLMs). No equivalent resource exists for Python,
+which dominates security tooling, machine-learning pipelines, and modern
+web development. A separate gap further limits existing evaluations: they
+report accuracy only on unmodified code, so any published score is an
+upper bound that may not survive behavior-preserving rewriting of the
+input~\cite{secllmholmes}.
 
-This paper introduces a Python vulnerability-detection benchmark
-covering seven sink-shaped MITRE Top-25~\cite{mitre_top25} CWE classes
+This paper describes a Python vulnerability-detection benchmark covering
+seven sink-shaped MITRE Top-25~\cite{mitre_top25} CWE classes
 (CWE-89, CWE-79, CWE-22, CWE-78, CWE-94, CWE-918, CWE-502) plus a
-\emph{safe} hard-negative class. We address the label-noise problem
-with a three-layer validation methodology that reduces the audited
-false-positive rate from 52\% to 26\%, and we add a perpendicular
-robustness axis with seven semantics-preserving mutators that each
-probe one detector shortcut.
+\emph{safe} hard-negative class. The label-noise problem is addressed with
+a three-layer validation methodology that cuts the audited false-positive
+rate from 52\% to 26\%, and a perpendicular robustness axis adds seven
+semantics-preserving mutators, each targeting one detector shortcut.
 
 \noindent\textbf{Contributions.}
 \begin{itemize}
@@ -119,48 +116,49 @@ probe one detector shortcut.
 
 \section{Background and Related Work}
 
-\textbf{Datasets.} Source-code vulnerability benchmarks are
-C/C++-dominant: BigVul~\cite{bigvul}, CVEfixes~\cite{cvefixes},
-CrossVul~\cite{crossvul}, and the deduplicated DiverseVul~\cite{diversevul}
-all contribute few per-class Python samples. Juliet~\cite{juliet} is
-synthetic and transfers poorly to natural code~\cite{reveal}; Devign and
-ReVeal~\cite{devign,reveal} are C-only. Within Python,
-\texttt{vudenc}~\cite{vudenc} is the closest labeled corpus but lacks
-paired fixed versions, which constrains the label validation it admits.
+\textbf{Datasets.} Vulnerability benchmarks are dominated by C/C++:
+BigVul~\cite{bigvul}, CVEfixes~\cite{cvefixes},
+CrossVul~\cite{crossvul}, and DiverseVul~\cite{diversevul}
+all yield few Python samples per class. Juliet~\cite{juliet} is
+fully synthetic and transfers poorly to real-world code~\cite{reveal};
+Devign and ReVeal~\cite{devign,reveal} are C-only. The closest
+Python-specific corpus, \texttt{vudenc}~\cite{vudenc}, lacks paired fixed
+versions, limiting the label validation it supports.
 
 \textbf{Label noise.} Croft et al.~\cite{croft} audited BigVul and
 reported $\approx$25\% noise; the ReVeal authors~\cite{reveal} showed
-models learn co-changed surface patterns rather than the vulnerability.
-CleanVul~\cite{cleanvul} found 40--75\% of labels inaccurate across
-widely used datasets, and PrimeVul~\cite{primevul} showed a model
-scoring 68.3\% F1 on BigVul drops to 3.1\% on a deduplicated,
-tightened-label version of the same task. D2A~\cite{d2a} uses
-differential analysis for labels but operates at program rather than
-sink granularity. Our diff-based filter (Section~\ref{sec:dataset}) is a
+that models pick up co-changed surface cues rather than actual vulnerability
+patterns. CleanVul~\cite{cleanvul} found 40\% to 75\% of labels
+inaccurate across widely used datasets, and PrimeVul~\cite{primevul}
+showed that a model scoring 68.3\% F1 on BigVul drops to 3.1\% on a
+deduplicated, tightened-label version of the same task. D2A~\cite{d2a}
+uses differential analysis for labels but operates at program rather than
+sink granularity. The diff-based filter in Section~\ref{sec:dataset} is a
 sink-anchored, line-level label-validity criterion.
 
 \textbf{Detectors.} Bandit~\cite{bandit} and Semgrep~\cite{semgrep} are
 single-file pattern matchers; CodeQL~\cite{codeql} performs richer
-dataflow but needs a built database with application entry points. LLM
-detectors~\cite{khare_llm,steenhoek} are competitive on C/C++ but lose
-accuracy on real-world code. The most relevant prior work is
-CASTLE~\cite{castle} (C/C++, no robustness axis, CVE-inherited labels),
-RealVuln~\cite{realvuln} (Python repositories, manual labels, detection
-only), IRIS~\cite{iris} (LLM+CodeQL hybrid; its CWE-Bench-Java targets
-the same sink-shaped family), and SecLLMHolmes~\cite{secllmholmes},
-which showed semantics-preserving edits flip LLM verdicts. Code-model
-robustness against such edits is established~\cite{yefet,bielik,henkel};
-our mutators differ by targeting one interpretable shortcut each so
-per-mutator drops are diagnostic rather than a single attack score.
+dataflow analysis but requires a compiled database with application entry
+points. LLM detectors~\cite{khare_llm,steenhoek} are competitive on C/C++
+but accuracy falls on real-world code. The most relevant prior work
+includes CASTLE~\cite{castle} (C/C++, no robustness axis, CVE-inherited
+labels), RealVuln~\cite{realvuln} (Python repositories, manual labels,
+detection only), IRIS~\cite{iris} (LLM+CodeQL hybrid; its CWE-Bench-Java
+targets the same sink-shaped family), and SecLLMHolmes~\cite{secllmholmes},
+which demonstrated that behavior-preserving code edits reverse LLM
+verdicts. Fragility of code models to such edits is well-documented
+\cite{yefet,bielik,henkel}; our mutators each target one interpretable
+shortcut, making per-mutator drops diagnostic rather than a single opaque
+attack score.
 
-\textbf{Positioning.} Each ingredient has precedent: large
-vulnerability datasets, identification of CVE label noise, SAST-versus-LLM
-comparison, and code-model robustness studies all exist in isolation.
-What is new here is the combination for Python: seven sink-shaped Top-25
-CWE classes, an automated sink-anchored label-validity criterion, and a
-per-mutator robustness breakdown reported alongside detection accuracy in
-a single evaluation. That integration is what surfaces which detectors
-do real reasoning and which pattern-match.
+\textbf{Positioning.} Each ingredient has precedent: large vulnerability
+datasets, CVE label-noise studies, SAST-versus-LLM comparisons, and
+code-model robustness work all exist in isolation. The contribution here
+is their combination for Python: seven sink-shaped Top-25 CWE classes, an
+automated sink-anchored label-validity criterion, and a per-mutator
+robustness breakdown reported alongside detection accuracy in one
+evaluation. That combination reveals which detectors reason about code
+structure and which rely on surface patterns.
 
 \section{Dataset Construction and Label Validation}
 \label{sec:dataset}
@@ -378,22 +376,20 @@ is the reason residual audit noise concentrates on CWE-89, the class the
 \section{Adversarial Robustness Methodology}
 \label{sec:method}
 
-To move beyond ``did the tool detect this vulnerability,'' we generate
-seven semantics-preserving variants of every test sample. Each rewrites
-the code so that its runtime behavior is unchanged but a specific
-detector shortcut is broken; a sharp F1 drop on a mutator identifies the
-shortcut the tool relied on. The mutators operate on the Python AST and
-are deterministic given a sample identifier and seed, so the evaluation
-is reproducible. Every mutator follows three design principles. It is
-\emph{semantics-preserving}: when a transformation cannot be proven safe
-(for example, a rename that might collide with an imported name) the
-mutator skips that node. It is \emph{targeted} at one specific shortcut
-rather than a generic obfuscation, so a per-mutator F1 drop is
-diagnostic. And it is \emph{realistic}: identifiers become synonyms and
-dead code reads like ordinary scaffolding, so the goal is to fool
-detectors that learned the shape of vulnerable code, not to construct
-adversarial gibberish. The mutators fall into three families
-(Figure~\ref{fig:mutator-tax}).
+Beyond binary detection accuracy, we generate seven semantics-preserving
+variants of every test sample to probe robustness. Each variant rewrites
+the code so that runtime behavior is unchanged but a specific detector
+shortcut is disabled; a sharp F1 drop on a given mutator identifies the
+shortcut that tool relied on. The mutators operate on the Python AST and
+are deterministic given a sample identifier and seed, making the
+evaluation reproducible. Each mutator satisfies three properties:
+\emph{semantics-preserving} (when a transformation cannot be proven safe,
+such as a rename that might collide with an imported name, the mutator
+skips that node); \emph{targeted} at one specific shortcut rather than
+generic obfuscation, so per-mutator F1 drops are diagnostic; and
+\emph{realistic}, meaning identifiers become synonyms and dead code reads
+like ordinary scaffolding rather than adversarial gibberish. The mutators
+fall into three families (Figure~\ref{fig:mutator-tax}).
 
 \begin{figure}[t]
 \centering
@@ -532,7 +528,7 @@ GraphCodeBERT (0.524) by 0.014, but on HCMA the gap inverts and Bandit
 (0.564) edges ahead (0.547). The mechanism is visible in the confusions:
 Bandit's errors are dominated by close-sibling mistakes inside the
 injection subtree (CWE-94 flagged as CWE-78, and the reverse), which
-Wu-Palmer credits as partial matches but macro-F1 scores as flat misses,
+Wu--Palmer credits as partial matches but macro-F1 scores as flat misses,
 whereas GraphCodeBERT's confusions are more diffuse and benefit less from
 partial credit. Weighted $\kappa$ converges on the same conclusion:
 Bandit ($+0.567$) and GraphCodeBERT ($+0.548$) are within 0.019 of each
@@ -636,12 +632,11 @@ GraphCodeBERT & 0.57 & 0.59 & 0.60 & 0.60 & 0.61 & 0.60 & 0.57 & 0.60 & 0.60 \\
 \end{table}
 
 The central robustness finding is the contrast between the three
-families: mutator design must target sink \emph{syntax} to exercise
-robustness against pattern-matching SAST; semantic features beyond the
-sink identifier are what carry the learned detector through that axis;
-and the dataflow axis is where a robustness cliff would appear in a
-future generation of dataflow-aware detectors that this work does not
-evaluate. Table~\ref{tab:drop} reports the drops grouped by family in
+families: a mutator must target sink \emph{syntax} to expose brittleness
+in pattern-matching SAST; semantic features beyond the sink identifier
+carry the learned detector through that axis; and the dataflow axis marks
+where a robustness cliff would appear for a future generation of
+dataflow-aware detectors, which the current work does not evaluate. Table~\ref{tab:drop} reports the drops grouped by family in
 both macro-F1 and severity-weighted recall; the SAST cliff is visible on
 the sink-targeted columns (Bandit loses up to 0.347 SWR) and absent
 everywhere on the learned detector.
@@ -721,10 +716,10 @@ tools; it removes samples on which a correct detector and a wrong label
 disagree.
 
 \section{Threats to Validity and Limitations}
-We organize the principal limitations along the standard
-construct, internal, external, and conclusion validity categories, and
-state the residual exposure a downstream consumer of the benchmark
-should weigh against the headline results.
+The limitations below follow the standard construct, internal, external,
+and conclusion validity categories. Each represents residual exposure that
+a downstream user of the benchmark should weigh against the headline
+results.
 
 \subsection{Construct validity}
 We do not claim a noise-free label set. An absolute score reported on
@@ -762,7 +757,7 @@ here, and the scores are not a comprehensive Python ranking. The scraped
 corpus over-represents popular projects (Django, Flask, FastAPI) and
 under-represents small or unmaintained ones; the 20 canonical samples
 only partly offset this. Finally, the single-file extract format is
-unfavourable to whole-project dataflow detectors (Section~\ref{sec:eval:shape}).
+unfavorable to whole-project dataflow detectors (Section~\ref{sec:eval:shape}).
 
 \subsection{Conclusion validity}
 The 129-sample test set is small by post-PrimeVul standards. Per-class
@@ -780,20 +775,18 @@ planned follow-up; until it is run, the robustness conclusions are
 scoped to the detectors evaluated here.
 
 \section{Conclusion}
-We presented an audit-validated Python vulnerability-detection benchmark
-of 869 samples across seven sink-shaped CWE classes, built with a
-three-layer label-validation methodology that halves the audited
-false-positive rate (52\% to 26\%) and a diff-based filter that anchors
-each positive on a modified sink line. Paired with seven
-semantics-preserving mutators, the benchmark evaluates detection and
-robustness jointly. Across seven detectors in four tiers, no single tool
-leads on every measure, and the sink-token mutator family is the axis
-that separates pattern-matching SAST (which drops up to 0.187
-macro-F1) from a learned detector invariant to every mutator. All
+This paper presented an audit-validated Python vulnerability-detection
+benchmark of 869 samples across seven sink-shaped CWE classes. A
+three-layer label-validation methodology cuts the audited false-positive
+rate from 52\% to 26\%, and a diff-based filter anchors each positive on
+a modified sink line. Seven semantics-preserving mutators extend the
+benchmark to a joint detection-and-robustness evaluation. Across seven
+detectors in four tiers, no single tool leads on every measure; the
+sink-token mutator family separates pattern-matching SAST (up to 0.187
+macro-F1 drop) from a learned detector invariant to every mutator. All
 artifacts, audit reports, rejection manifests, and tool runners are
 released to support replication and extension to additional languages,
-CWE classes, and dataflow-aware detectors under an application-level
-benchmark format.
+CWE classes, and dataflow-aware detectors at the application level.
 
 \bibliographystyle{IEEEtran}
 \bibliography{bib/references}
