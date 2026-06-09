@@ -1,0 +1,146 @@
+\chapter{Detailed Design}
+\label{ch:detailed}
+
+The detailed design decomposes the benchmark system into modules and describes
+the internal behavior of each. This chapter presents the structure chart, then
+the design of the validation modules, the negative builder, the mutator suite,
+the metrics module, and the detector runners. It closes with a summary of the
+design specifications.
+
+%----------------------------------------------------------
+
+\section{Structure Chart}
+
+The system divides into three subsystems, each a group of cooperating modules.
+The \textbf{corpus subsystem} holds the scraper, the sink-presence filter, the
+audit driver, the diff filter, the negative builder, and the splitter. The
+\textbf{mutation subsystem} holds the seven mutators and the
+semantics-preservation checker. The \textbf{evaluation subsystem} holds the
+detector runners, one per tool, and the metrics module. Control flows top down:
+the corpus subsystem produces the validated split, which the mutation subsystem
+consumes to produce variants, which the evaluation subsystem consumes alongside
+the clean split to produce scores. Data flows back up only as artifacts on
+disk, so no module holds state across runs.
+
+\section{Module Description}
+
+\subsection{Validation Modules}
+
+The \textbf{sink-presence filter} defines, for each CWE, a small set of
+high-recall regex sink patterns. It admits a sample only if at least one pattern
+matches the source after comments and docstrings are stripped, which suppresses
+documentation matches. The patterns match both safe and unsafe forms of the
+sink, leaving discrimination to the diff filter. Two CWEs use proximity gates:
+CWE-22 requires an HTTP-request reference near the sink.
+
+The \textbf{audit driver} presents CWE-stratified samples to an independent
+reviewer. For each item it supplies the identifier, source, repository, file
+path, the matched regex, and the code excerpt around the sink, and it records a
+binary correctly-labeled or mislabeled verdict with a one-sentence
+justification. Reviewers do not see each other's verdicts, so the audit is
+adversarial by construction.
+
+The \textbf{diff filter} implements the evidence-anchored criterion. It compares
+the vulnerable and fixed versions of a positive after comment stripping and
+whitespace normalization, and keeps the positive only if at least one line
+containing a sink-pattern match differs between the two versions. A positive
+whose sink line is unchanged is rejected, because the fix did not touch the
+sink and the label is therefore unsupported.
+
+\subsection{Negative Builder}
+
+The \textbf{negative builder} constructs the safe hard negatives. For each
+negative it takes a real vulnerable function and applies the canonical
+remediation for its CWE at the AST level, for example rewriting
+\texttt{yaml.load} to \texttt{yaml.safe\_load} or a string-formatted SQL query
+to a parameterized query. The remediation preserves the surface structure and
+the sink \emph{name} while neutralizing only the sink's behavior. This gives
+each negative a provable safe label and makes it a minimal-pair counterfactual:
+a detector that fires on the mere presence of a sink token is forced into a
+false positive on the twin.
+
+\subsection{Mutator Suite}
+
+The \textbf{mutator suite} generates seven semantics-preserving variants of each
+test sample. Every mutator follows three design principles. It is
+semantics-preserving: when a transformation cannot be proven safe, the mutator
+skips that node. It is targeted at one shortcut, so a per-mutator accuracy drop
+is diagnostic. And it is realistic: identifiers become synonyms and injected
+code reads like ordinary scaffolding. The mutators fall into three families,
+shown in Figure~\ref{fig:mutator-tax}.
+
+\begin{figure}[htb]
+\centering
+\resizebox{0.95\columnwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize,
+  root/.style={draw, fill=gray!18, align=center, text width=15mm, minimum height=8mm},
+  fam/.style={draw, rounded corners, fill=gray!10, align=center, text width=16mm, minimum height=6mm},
+  leaf/.style={draw, align=left, text width=44mm, minimum height=5mm, inner sep=3pt},
+  arr/.style={-{Stealth[length=1.8mm]}, gray!60},
+]
+\node[leaf] (m1) {M1\ \ dead-code injection};
+\node[leaf, below=1mm of m1] (m2) {M2\ \ string-literal split$^{\dagger}$};
+\node[leaf, below=1mm of m2] (m3) {M3\ \ identifier rename};
+\node[leaf, below=1mm of m3] (m4) {M4\ \ wrapper extraction};
+\node[leaf, below=5mm of m4] (m5) {M5\ \ sink attr obfuscation$^{\dagger}$};
+\node[leaf, below=1mm of m5] (m6) {M6\ \ sink via builtins$^{\dagger}$};
+\node[leaf, below=5mm of m6] (m7) {M7\ \ taint-through-dict$^{\dagger}$};
+\node[fam, anchor=east] (f1) at ($(m1.west)!0.5!(m4.west) + (-9mm,0)$) {sink-\\preserving};
+\node[fam, anchor=east] (f2) at ($(m5.west)!0.5!(m6.west) + (-9mm,0)$) {sink-\\targeted};
+\node[fam, anchor=east] (f3) at ($(m7.west) + (-9mm,0)$) {dataflow};
+\node[root, anchor=east] (r) at ($(f2.west) + (-10mm,0)$) {7\\mutators};
+\draw[arr] (r.east) -- (f1.west);
+\draw[arr] (r.east) -- (f2.west);
+\draw[arr] (r.east) -- (f3.west);
+\foreach \l in {m1,m2,m3,m4} \draw[arr] (f1.east) -- (\l.west);
+\foreach \l in {m5,m6} \draw[arr] (f2.east) -- (\l.west);
+\draw[arr] (f3.east) -- (m7.west);
+\end{tikzpicture}}
+\caption{The seven mutators grouped by the detector shortcut each family probes.
+Mutators marked $\dagger$ are held out of training-time augmentation and used
+only as test-time robustness probes.}
+\label{fig:mutator-tax}
+\end{figure}
+
+The \emph{sink-preserving} family (M1 to M4: dead-code injection, string
+splitting, identifier rename, wrapper extraction) alters code around the sink
+but leaves the sink identifier and its arguments intact, probing positional,
+substring, identifier-memorization, and single-function shortcuts. The
+\emph{sink-targeted} family rewrites the sink call itself: M5 turns
+\texttt{os.system(x)} into \texttt{getattr(os,"system")(x)} and M6 turns
+\texttt{eval(x)} into \texttt{\_\_import\_\_("builtins").\_\_dict\_\_["eval"](x)},
+so the sink token survives only inside a string literal. The \emph{dataflow}
+family (M7) routes the sink's first argument through a one-entry dict,
+\texttt{f(\{"a":x\}["a"])}, breaking the static lineage from parameter to sink
+argument. At evaluation time two to three mutators are applied per sample, and
+each mutator is also reported in isolation.
+
+\subsection{Metrics Module}
+
+The \textbf{metrics module} scores each detector one-versus-rest per CWE and
+computes five bounded measures: macro-F1 across the seven classes, detection MCC
+on the binary vulnerable-versus-safe collapse, Severity-Weighted Recall on the
+CVSS-scored positives, Hierarchical CWE Macro-Accuracy using Wu-Palmer partial
+credit on a hand-coded CWE subtree, and weighted Cohen's $\kappa$. It also
+computes the robustness drop as clean macro-F1 minus mutated macro-F1 over the
+same positives.
+
+\subsection{Detector Runners}
+
+Each \textbf{detector runner} adapts one tool to a common interface: it takes a
+sample, invokes the tool, and returns a per-CWE verdict. The SAST runners invoke
+Bandit and Semgrep as subprocesses and parse their findings. The whole-project
+runners invoke Snyk Code and CodeQL. The LLM runners send a fixed prompt to each
+model API at temperature zero. The trained runner loads the fine-tuned
+GraphCodeBERT checkpoint and returns its predicted class. A uniform interface
+lets the harness score every tier with the same metrics module.
+
+\section{Summary}
+
+The detailed design organizes the system into three subsystems of cooperating
+modules: validation, mutation, and evaluation. The validation modules establish
+label quality, the negative builder and mutator suite create the safe twins and
+the robustness probes, and the metrics module and detector runners produce
+comparable scores. Chapter~\ref{ch:impl} describes how these modules are
+implemented.

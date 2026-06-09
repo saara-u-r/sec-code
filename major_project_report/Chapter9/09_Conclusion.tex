@@ -1,0 +1,80 @@
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+This project presented an audit-validated benchmark for Python vulnerability
+detection of 869 samples across seven sink-shaped CWE classes, built with a
+three-layer label-validation methodology that halved the audited false-positive
+rate from 52\% to 26\% and a diff-based filter that anchors each positive on a
+modified sink line. Paired with seven semantics-preserving mutators, the
+benchmark evaluates detection and robustness jointly. Across seven detectors in
+four tiers, no single tool led on every measure, and the sink-token mutator
+family proved to be the axis that separates pattern-matching SAST, which drops
+up to 0.187 macro-F1, from a learned detector invariant to every mutator. The
+objectives stated in Chapter~\ref{ch:intro} were met: the corpus was assembled
+and validated, the mutator suite was built, and the seven detectors were
+evaluated on clean and mutated code under five bounded metrics.
+
+%----------------------------------------------------------
+
+\section{Limitations}
+
+The principal limitations follow the standard validity categories.
+
+\textbf{Construct validity.} The label set is not noise-free. An absolute score
+on this benchmark inherits the 26\% audited residual and should not be read as a
+tool's true accuracy on a hypothetical clean corpus; the between-tool comparison
+on the same labels is the robust reading. The sink-presence filter is itself a
+definition of a correct label, so a detector using the same sink regexes
+inherits a measurement advantage; the full pattern set, the audit reports, and a
+per-sample rejection manifest are released so this dependence is auditable.
+
+\textbf{Internal validity.} Single-CVE clustering is mitigated by a per-CVE
+sample cap of three and by the repo-group split, which yields zero cross-split
+leakage. The evaluation uses one splitter seed and one run per detector; this is
+sound for the deterministic SAST tools and the fixed-checkpoint model, and the
+LLMs run at temperature zero, so per-call drift is small but not bit-for-bit
+zero.
+
+\textbf{External validity.} The benchmark is Python-specific and limited to
+sink-shaped CWEs, so it does not measure structural-CWE detection and is not a
+comprehensive Python ranking. The scraped corpus over-represents popular
+projects (Django, Flask, FastAPI), which the 20 canonical samples offset only in
+part. The single-file extract format is unfavorable to whole-project dataflow
+detectors.
+
+\textbf{Conclusion validity.} The 129-sample test set is small. Per-class F1
+intervals are wide for CWE-22, CWE-78, and CWE-918, where a single prediction
+flip moves F1 by 14 to 33 points, so an absolute macro-F1 change below 0.04 lies
+near the noise floor. The learned-detector invariance is a property of one
+GraphCodeBERT checkpoint, not of learned detectors in general.
+
+%----------------------------------------------------------
+
+\section{Future Enhancement}
+
+Several extensions follow from the limitations:
+
+\begin{itemize}
+  \item An application-level benchmark format that supplies entry points to the
+    whole-project dataflow detectors, so CodeQL and Snyk Code can be measured on
+    the analysis they are built for.
+  \item A multi-seed, multi-model protocol with paired bootstrap intervals to
+    place confidence bounds on the robustness conclusions.
+  \item A dynamic-dispatch mutator axis (dispatch through a runtime-variable
+    attribute name) to test whether the learned detector's invariance holds on
+    an axis not yet exercised.
+  \item Re-deriving the sink pattern set for other languages, so the validation
+    methodology can extend beyond Python.
+  \item Expanding the corpus to under-represented and unmaintained projects to
+    reduce the popularity bias.
+\end{itemize}
+
+%----------------------------------------------------------
+
+\vspace{1cm}
+
+The benchmark, its audit reports, the rejection manifests, and the tool runners
+are released to support replication and extension to additional languages, CWE
+classes, and dataflow-aware detectors. By measuring label quality and
+robustness alongside detection accuracy, the work gives a more honest basis for
+comparing Python vulnerability detectors and a foundation for further research.

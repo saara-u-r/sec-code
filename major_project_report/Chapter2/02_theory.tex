@@ -1,0 +1,148 @@
+\chapter{Theory and Concept}
+\label{ch:theory}
+
+This chapter sets out the concepts the benchmark is built on. It defines the
+vulnerability classes in scope, the families of detectors that the benchmark
+scores, the label-noise problem that motivates the validation methodology, the
+notion of semantics-preserving robustness, and the evaluation measures used to
+report results. It closes with a review of related work across datasets, label
+noise, detectors, and robustness studies.
+
+%----------------------------------------------------------
+
+\section{Sink-Shaped Vulnerability Classes}
+
+A vulnerability class in the Common Weakness Enumeration (CWE) catalog describes
+a recurring kind of security flaw. This work targets seven \emph{sink-shaped}
+classes, where a sink is a function whose unsafe use is the vulnerability and
+whose safe use is not. SQL injection (CWE-89) occurs when untrusted input
+reaches a database query sink without parameterization. Cross-site scripting
+(CWE-79) reaches an HTML rendering sink, OS command injection (CWE-78) reaches a
+process-execution sink, code injection (CWE-94) reaches \texttt{eval} or
+\texttt{exec}, path traversal (CWE-22) reaches a filesystem sink, server-side
+request forgery (CWE-918) reaches an outbound HTTP sink, and insecure
+deserialization (CWE-502) reaches a sink such as \texttt{yaml.load} or
+\texttt{pickle.loads}.
+
+The sink-shaped property matters because it gives each positive an anchor: the
+fix for the vulnerability modifies the sink call. Structural classes, such as
+missing authorization or cross-site request forgery, encode the \emph{absence}
+of a check and require application-level context to judge. They have no single
+line that a diff can anchor on, so they are excluded from this benchmark on
+methodological grounds rather than as a statement about their importance.
+
+\section{Detector Families}
+
+The benchmark scores detectors from four tiers, each resting on a different
+principle.
+
+\begin{itemize}
+  \item \textbf{Pattern-matching SAST.} Bandit \cite{bandit} and Semgrep
+    \cite{semgrep} scan a single file for syntactic signatures of unsafe
+    constructs, in the same lexical family as general Python linters such as
+    Pylint \cite{pylint}. They are fast and need no build, but they reason about
+    the surface form of code rather than its data flow.
+  \item \textbf{Whole-project dataflow.} CodeQL \cite{codeql} and Snyk Code
+    track data from a source to a sink across an entire application. They are
+    more precise on complete programs but need a built database with
+    application entry points.
+  \item \textbf{Large language models.} LLMs reason over code in natural
+    language and are competitive on C and C++ benchmarks
+    \cite{khare_llm,steenhoek}, but their verdicts can shift under small input
+    changes, and code they generate carries security bugs of its own
+    \cite{pearce2022}.
+  \item \textbf{Learned classifiers.} A model such as GraphCodeBERT
+    \cite{graphcodebert,codebert} is fine-tuned on labeled vulnerability data
+    and learns features from both token sequence and data-flow structure,
+    following a line of deep vulnerability detectors that begins with token-level
+    \cite{vuldeepecker} and representation-learning \cite{russell2018} models.
+\end{itemize}
+
+\section{The Label-Noise Problem}
+
+Detector training and evaluation depend on labels that say which code is
+vulnerable. Most labels are inherited from CVE fix commits. A fix commit
+touches several files for refactoring, tests, or cleanup that do not relate to
+the vulnerability, and each co-changed file inherits the CWE label of
+the advisory. Croft et al. \cite{croft} audited BigVul and reported about 25\%
+noise; the ReVeal authors \cite{reveal} showed that models learn co-changed
+surface patterns rather than the vulnerability itself. CleanVul \cite{cleanvul}
+found 40\% to 75\% of labels inaccurate across common datasets, and
+PrimeVul \cite{primevul} showed that a model scoring 68.3\% F1 on BigVul drops
+to 3.1\% on a deduplicated, tightened-label version of the same task. The
+lesson is that a benchmark built on raw label inheritance measures a detector's
+agreement with label noise as much as its detection ability. The validation
+methodology in Chapter~\ref{ch:impl} addresses this with a sink-anchored,
+line-level criterion.
+
+\section{Semantics-Preserving Robustness}
+
+A reported detection score is measured on unmodified code. The robustness
+question asks whether that score survives a rewrite of the input that changes
+its surface form but not its runtime behavior. A semantics-preserving
+transformation is one that leaves the program's observable behavior unchanged,
+for example renaming a local variable or splitting a string literal. If a
+detector's verdict changes under such a transformation, the detector relied on a
+surface shortcut rather than on the program's meaning. SecLLMHolmes
+\cite{secllmholmes} showed that such edits flip LLM verdicts, and the broader
+literature on code-model robustness \cite{yefet,bielik,henkel} establishes that
+learned models are sensitive to these edits. The mutators in this work differ
+by targeting one interpretable shortcut each, so a per-mutator accuracy drop is
+diagnostic rather than a single opaque attack score.
+
+\section{Evaluation Measures}
+
+Detection quality is reported with five bounded, complementary measures rather
+than a single composite, so a reader can see where a detector is strong. Macro
+averaged F1 \cite{sokolova2009} summarizes per-class precision and recall across
+the seven classes, which matters because class sizes are unequal. The Matthews
+correlation coefficient (MCC) \cite{chicco2020mcc} scores the binary
+vulnerable-versus-safe decision and holds up when the classes are balanced.
+Severity-Weighted Recall (SWR) weights recall by CVSS severity so that missing a
+critical flaw costs more than missing a minor one. Hierarchical CWE Macro
+Accuracy (HCMA) gives Wu-Palmer \cite{wupalmer1994} partial credit for
+close-sibling confusions on a CWE subtree. Weighted Cohen's $\kappa$
+\cite{cohen1968kappa} reports chance-corrected agreement. Robustness is reported
+as the drop in macro-F1 between clean and mutated code, computed over the same
+positives so the subtraction is like-for-like.
+
+\section{Related Work}
+
+\subsection{Datasets}
+
+Source-code vulnerability benchmarks are C and C++ dominant. BigVul
+\cite{bigvul}, CVEfixes \cite{cvefixes}, CrossVul \cite{crossvul}, and the
+deduplicated DiverseVul \cite{diversevul} contribute few per-class Python
+samples. Juliet \cite{juliet} is synthetic and does not transfer to natural code
+\cite{reveal}; Devign and ReVeal \cite{devign,reveal} are C only. Within Python,
+\texttt{vudenc} \cite{vudenc} is the closest labeled corpus but ships no paired
+fixed versions, which constrains the label validation it admits.
+
+\subsection{Label Noise and Validation}
+
+Beyond the audits noted above, D2A \cite{d2a} uses differential analysis for
+labels but operates at program rather than sink granularity. The diff-based
+filter in this work is a sink-anchored, line-level label-validity criterion,
+and to our knowledge it is the first such evidence-based criterion in this
+literature.
+
+\subsection{Detectors and Robustness}
+
+The most relevant prior comparison is CASTLE \cite{castle}, which pits static
+analyzers against LLMs for C and C++ but uses CVE-inherited labels and adds no
+robustness axis. RealVuln \cite{realvuln} targets Python repositories with
+manual labels but reports detection only. IRIS \cite{iris} is an LLM and CodeQL
+hybrid whose CWE-Bench-Java targets the same sink-shaped family. LineVul
+\cite{linevul} and MoreFixes \cite{morefixes} extend the dataset and modeling
+line. SecLLMHolmes \cite{secllmholmes} established that semantics-preserving
+edits flip detector verdicts, which motivates the robustness axis here.
+
+\subsection{Positioning}
+
+Each ingredient has precedent. Large vulnerability datasets, the identification
+of CVE label noise, the SAST-versus-LLM comparison, and code-model robustness
+studies all exist on their own. This work joins them for Python: seven
+sink-shaped Top-25 CWE classes, an automated sink-anchored label-validity
+criterion, and a per-mutator robustness breakdown reported next to detection
+accuracy in one evaluation. That last step surfaces which detectors reason about
+code and which match its surface.

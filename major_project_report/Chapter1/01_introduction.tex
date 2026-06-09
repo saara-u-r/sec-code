@@ -1,0 +1,168 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+Software security depends on finding vulnerabilities in source code before an
+attacker does. Automated vulnerability detection tools aim to do this at scale,
+flagging the lines of code where an injection, a traversal, or an unsafe
+deserialization can occur. The accuracy of such a tool is only as trustworthy
+as the benchmark used to measure it, and most current benchmarks inherit their
+labels from records that were never written to mark code as vulnerable. This
+chapter introduces the project domain of automated Python vulnerability
+detection, sets out its global and societal relevance, identifies the gaps that
+motivate the work, and states the objectives, scope, methodology, and
+organization of the report.
+
+%----------------------------------------------------------
+
+\section{Overview of Project Topic}
+
+The project builds and evaluates a benchmark for Python vulnerability
+detection. A benchmark in this setting is a labeled corpus of code samples
+paired with a scoring protocol, against which detectors are run so that their
+results can be compared on common ground. The work covers two axes that prior
+benchmarks treat in isolation: the correctness of the labels, and the
+robustness of a detector when the input code is rewritten without changing what
+it does.
+
+\subsection{Automated Vulnerability Detection}
+
+A vulnerability detector reads source code and predicts whether it contains a
+security flaw, and which class of flaw. The classes follow the Common
+Weakness Enumeration (CWE) catalog, for example SQL injection (CWE-89) or
+cross-site scripting (CWE-79). Detectors fall into distinct families. Pattern
+matching static application security testing (SAST) tools such as Bandit and
+Semgrep scan a single file for known unsafe constructs. Whole-project dataflow
+tools such as CodeQL and Snyk Code trace data from an input source to a
+dangerous sink across an entire application. Large language models (LLMs)
+reason over code in natural language, and learned classifiers such as
+GraphCodeBERT are fine-tuned on labeled vulnerability data. Each family makes a
+different trade-off between coverage, precision, and the context it requires.
+
+\subsection{Global Scenario}
+
+Most research in this area is built on C and C++. The standard datasets,
+BigVul, CVEfixes, CrossVul, DiverseVul, Devign, and ReVeal, are dominated by C
+and C++ code and contribute few Python samples per CWE class. Python is the
+dominant language for security tooling, machine learning pipelines, and modern
+web applications, yet it has no curated, audit-validated detection benchmark
+comparable to the CASTLE benchmark that exists for C and C++. The result is a
+mismatch between where security-sensitive Python code is written and where
+detection methods are measured.
+
+\subsection{Societal Relevance}
+
+Web applications and data pipelines written in Python process personal data,
+financial records, and critical infrastructure traffic. A single missed
+injection or deserialization flaw can expose an entire user base. Detection
+tools shift the cost of finding these flaws from the attacker to the defender,
+but only if their reported accuracy reflects real detection ability rather than
+agreement with mislabeled data. A benchmark with validated labels and a
+robustness axis gives practitioners a more honest basis for choosing a tool,
+which raises the security floor of the software that society depends on.
+
+\subsection{Problem Area}
+
+Two problems define the gap this project addresses. First, the labels in
+existing benchmarks are noisy. They are inherited from CVE fix commits, and a
+fix commit touches several files for refactoring, tests, or cleanup that have
+nothing to do with the vulnerability. Each co-changed file inherits
+the CWE label of the advisory, and manual audits report between 25\% and 50\%
+label noise as a result \cite{croft,cleanvul}. A benchmark built on raw
+inheritance therefore measures a detector's agreement with label noise as much
+as its detection ability \cite{primevul}. Second, accuracy is reported on
+unmodified code only. A reported score is an upper bound that may not survive a
+trivial, behavior-preserving rewrite of the input \cite{secllmholmes}, so it
+says little about how a detector behaves on code it has not seen in that exact
+form.
+
+%----------------------------------------------------------
+
+\section{Specific Details of the Project Topic}
+
+The benchmark covers seven \emph{sink-shaped} CWE classes drawn from the MITRE
+Top-25 \cite{mitre_top25}: SQL injection (CWE-89), cross-site scripting
+(CWE-79), path traversal (CWE-22), OS command injection (CWE-78), code
+injection (CWE-94), server-side request forgery (CWE-918), and insecure
+deserialization (CWE-502). A sink-shaped class has a well-defined unsafe
+function, the sink, whose misuse is the vulnerability and whose fix modifies
+the sink call. Structural classes that encode the absence of a check, such as
+missing authorization, require application-level context and are excluded on
+methodological grounds.
+
+The corpus holds 869 samples: 440 real-world positives validated by audit and
+429 synthesized safe hard negatives. Labels pass through a three-layer
+validation methodology, and the corpus is paired with seven semantics-preserving
+mutators that probe detector shortcuts. Seven detectors across four tiers are
+evaluated on both clean and mutated code.
+
+\section{Literature Review}
+
+The literature divides into four threads that this project unifies. Large
+vulnerability datasets establish the supply of labeled code but are C and C++
+centric \cite{bigvul,diversevul}. Studies of label noise, by Croft et al., the
+ReVeal authors, CleanVul, and PrimeVul, quantify how inherited CVE labels
+mislead detector evaluation \cite{croft,reveal,cleanvul,primevul}. Comparative
+studies such as CASTLE pit static analyzers against LLMs but rely on
+CVE-inherited labels and add no robustness axis \cite{castle}. Robustness
+studies, including SecLLMHolmes, show that semantics-preserving edits can flip a
+detector's verdict \cite{secllmholmes}. Chapter~\ref{ch:theory} reviews these
+threads in detail.
+
+\section{Problem Statement}
+
+To construct an audit-validated benchmark for Python vulnerability detection
+across sink-shaped CWE classes, with a label-validation methodology that reduces
+inherited label noise, and to measure detector accuracy and adversarial
+robustness jointly so that the evaluation distinguishes detectors that reason
+about code from detectors that pattern-match its surface.
+
+\section{Objectives}
+
+\begin{itemize}
+  \item Assemble a Python vulnerability corpus across seven sink-shaped CWE
+    classes from advisory and CVE-fix sources, paired with constructed safe
+    hard negatives.
+  \item Design and apply a three-layer label-validation methodology that
+    lowers the audited false-positive rate of the labels.
+  \item Build a suite of semantics-preserving mutators, each targeting one
+    detector shortcut, to probe robustness.
+  \item Evaluate seven detectors across four tiers on clean and mutated code
+    under a set of bounded, complementary metrics.
+  \item Release all artifacts, audit reports, and rejection manifests to
+    support replication.
+\end{itemize}
+
+\section{Scope}
+
+The benchmark is Python-specific and limited to sink-shaped CWE classes. It does
+not cover structural CWEs, multi-language code, or whole-application analysis,
+and the scores are not a comprehensive ranking of Python security tools. The
+validation methodology is language-agnostic in design, but its sink pattern set
+would need re-deriving for another language. The trained detector is presented
+as a small-data existence proof rather than a state-of-the-art claim.
+
+\section{Methodology}
+
+The work proceeds in four stages. First, positives are scraped from five
+advisory and CVE-fix sources and passed through a sink-presence filter, an
+independent adversarial audit, and a diff-based filter that anchors each
+positive on a modified sink line. Second, safe hard negatives are constructed as
+remediated twins of real vulnerable functions. Third, seven mutators are
+implemented over the Python abstract syntax tree (AST), each deterministic and
+semantics-preserving. Fourth, seven detectors are run on the held-out test set,
+clean and mutated, and scored under five bounded metrics. Each stage is
+reproducible from the released artifacts.
+
+\section{Organization of the Report}
+
+Chapter~\ref{ch:theory} presents the theory and concepts behind vulnerability
+detection, label noise, and robustness, together with related work.
+Chapter~\ref{ch:srs} specifies the functional and non-functional requirements of
+the benchmark system. Chapter~\ref{ch:hld} gives the high-level design,
+including the system architecture and data flow. Chapter~\ref{ch:detailed}
+details the design of each module. Chapter~\ref{ch:impl} describes the
+implementation, including the dataset pipeline, mutators, and trained detector.
+Chapter~\ref{ch:testing} covers the testing of the pipeline and harness.
+Chapter~\ref{ch:results} reports the experimental results across the seven
+detectors. Chapter~\ref{ch:conclusion} concludes with limitations and future
+enhancements.

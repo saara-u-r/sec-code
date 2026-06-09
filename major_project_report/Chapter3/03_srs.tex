@@ -1,0 +1,146 @@
+\chapter{Software Requirement Specification}
+\label{ch:srs}
+
+This chapter specifies the requirements of the benchmark system: the corpus
+construction pipeline, the mutator suite, and the evaluation harness. It states
+the overall description of the system, its perspective and functions, and the
+functional, performance, software, and hardware requirements that the
+implementation satisfies. The chapter closes with a summary of the key
+specifications.
+
+%----------------------------------------------------------
+
+\section{Overall Description}
+
+The system is a research pipeline, not an interactive application. It ingests
+raw vulnerability records, validates their labels, constructs safe
+counterparts, generates adversarial variants, runs a set of detectors, and
+emits scored results. Its users are security researchers and tool authors who
+need a trustworthy substrate to measure Python vulnerability detectors.
+
+\subsection{Product Perspective}
+
+The benchmark is a standalone, reproducible pipeline with three stages that hand
+off through versioned artifacts on disk. The first stage produces a validated
+corpus of labeled samples. The second stage produces mutated variants of the
+test samples. The third stage runs detectors and computes metrics. Each stage
+reads and writes schema-versioned files, so a stage can be re-run in isolation
+and any result can be traced back to the inputs that produced it. The system
+relates to external systems only as data sources: advisory databases and CVE
+feeds upstream, and detector binaries or APIs at evaluation time.
+
+\subsection{Product Functions}
+
+The system performs the following functions:
+
+\begin{itemize}
+  \item Scrape positive samples from five advisory and CVE-fix sources.
+  \item Filter samples by sink presence, removing those without the
+    category-defining sink token.
+  \item Support an independent, CWE-stratified audit of label correctness.
+  \item Apply a diff-based filter that keeps a positive only if its sink line
+    changed between the vulnerable and fixed versions.
+  \item Construct safe hard negatives as remediated twins of real vulnerable
+    functions.
+  \item Split the corpus into train, validation, and test sets with no
+    cross-split repository leakage.
+  \item Generate seven semantics-preserving mutated variants of each test
+    sample.
+  \item Run seven detectors across four tiers and score them under five bounded
+    metrics on clean and mutated code.
+\end{itemize}
+
+\subsection{Constraints}
+
+The system operates under these constraints:
+
+\begin{itemize}
+  \item Labels must be evidence-backed: a positive is admitted only with a
+    matched sink pattern and, where a paired fix exists, a changed sink line.
+  \item Every mutator must be semantics-preserving, and every mutated sample
+    must re-parse as valid Python.
+  \item Samples sharing a repository must fall in the same split, to prevent
+    leakage.
+  \item All validation decisions must be reproducible from released artifacts.
+\end{itemize}
+
+%----------------------------------------------------------
+
+\section{Specific Requirements}
+
+\subsection{Functional Requirements}
+
+\begin{enumerate}
+  \item The scraper shall retrieve per-CWE positives with explicit fix commits
+    where the source provides them.
+  \item The sink-presence filter shall admit a sample only if at least one
+    regex sink pattern matches its source after comments and docstrings are
+    stripped.
+  \item The audit interface shall present each item with its identifier,
+    source, repository, file path, matched pattern, and code excerpt, and
+    record a binary verdict with a one-sentence justification.
+  \item The diff filter shall compare the vulnerable and fixed versions after
+    comment stripping and whitespace normalization, and reject a positive whose
+    sink lines are unchanged.
+  \item The negative builder shall apply the canonical remediation for a CWE at
+    the AST level, preserving surface structure and the sink name while
+    neutralizing the sink behavior.
+  \item Each mutator shall transform the Python AST deterministically given a
+    sample identifier and seed, and shall skip any node it cannot prove safe to
+    transform.
+  \item The harness shall score every detector one-versus-rest per CWE and
+    report macro-F1, MCC, SWR, HCMA, and weighted $\kappa$.
+\end{enumerate}
+
+\subsection{Performance Requirements}
+
+The pipeline runs offline in batch. The throughput requirement is that the full
+corpus, on the order of two thousand pre-filter samples, be processed end to
+end on a single workstation. Detector runs must complete within the rate limits
+of the hosted LLM APIs, which sets the practical bound on wall-clock time. The
+trained detector must fit and run on a single GPU. Determinism is required: the
+SAST tools and the fixed-checkpoint model produce identical output across runs,
+and the LLMs run at temperature zero to keep per-call drift small.
+
+\subsection{Software Requirements}
+
+\begin{itemize}
+  \item Python 3.11 or later for the pipeline, mutators, and harness.
+  \item The Python standard \texttt{ast} module for AST transformations.
+  \item PyTorch and the HuggingFace Transformers library for the trained
+    detector.
+  \item Bandit 1.9.4, Semgrep 1.163.0, and Snyk Code 1.1305.0 as SAST and
+    dataflow detectors.
+  \item API access to Claude Sonnet 4.6, GPT-4o, and DeepSeek R1 for the LLM
+    tier.
+  \item Git and SQLite for source retrieval (CVEfixes ships as a SQLite
+    database).
+\end{itemize}
+
+\subsection{Hardware Requirements}
+
+\begin{itemize}
+  \item A workstation with at least 16 GB of RAM for the pipeline and harness.
+  \item A CUDA-capable GPU with at least 12 GB of memory to fine-tune the
+    126.6M-parameter GraphCodeBERT detector.
+  \item Sufficient disk for the corpus, mutated variants, and per-detector
+    prediction logs.
+\end{itemize}
+
+\subsection{Design Constraints}
+
+The single-file extract format is a deliberate design constraint: each sample is
+a self-contained function, which suits SAST, LLM, and learned detectors but is
+unfavorable to whole-project dataflow tools that need application entry points.
+This trade-off is accepted so that the benchmark stays language-uniform and
+reproducible, and the whole-project tools are retained in the harness for a
+future application-level format.
+
+\section{Summary}
+
+The benchmark system is a three-stage, artifact-driven pipeline whose
+requirements center on evidence-backed labels, semantics-preserving mutation,
+leakage-free splits, and reproducible scoring. The functional requirements
+define each pipeline step, and the non-functional requirements fix the software
+and hardware needed to run it. These specifications guide the high-level design
+in Chapter~\ref{ch:hld}.

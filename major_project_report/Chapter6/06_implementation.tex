@@ -1,0 +1,312 @@
+\chapter{Implementation}
+\label{ch:impl}
+
+This chapter describes how the design is realized. It covers the programming
+language and platform, the code conventions, the difficulties met during
+development, the dataset and the implementation of each validation layer, and
+the algorithms behind the mutators and the trained detector. Core procedures are
+shown as code listings, and the full set of mutator transformations is collected
+in Appendix~\ref{apndx:code}. The chapter closes with a summary.
+
+%----------------------------------------------------------
+
+\section{Programming Language Selection}
+
+The system is implemented in Python 3.11. The choice follows the domain. The
+benchmark analyzes Python code, so the sink patterns, the AST transformations,
+and the semantics-preservation checks operate in the same language they target.
+The standard \texttt{ast} module provides a stable syntax tree that the mutators
+and the negative builder rewrite node by node, and \texttt{ast.unparse}
+regenerates source from a modified tree, which makes a round trip from source to
+tree and back the basic unit of every transformation. The machine learning stack
+the trained detector needs, PyTorch and the HuggingFace Transformers library, is
+native to Python, so the whole pipeline lives in one language and one runtime.
+Regular expressions back the sink-presence filter, and the \texttt{difflib}-style
+line comparison backs the diff filter, both from the standard library.
+
+\section{Platform Selection}
+
+The pipeline and harness run on a single Linux or macOS workstation. The SAST
+detectors (Bandit 1.9.4, Semgrep 1.163.0) and the whole-project detectors (Snyk
+Code 1.1305.0, CodeQL) run as local subprocesses, and each runner parses the
+tool's native output format into a common per-CWE verdict. The LLM detectors
+(Claude Sonnet 4.6, GPT-4o, DeepSeek R1) run through their hosted APIs at
+temperature zero. The trained detector is fine-tuned on a single CUDA-capable
+GPU. Source retrieval uses Git for fix commits and SQLite for the CVEfixes
+database.
+
+\section{Code Conventions}
+
+\subsection{Naming Convention}
+
+Modules are named for their role in the pipeline: the scraper, the sink-presence
+filter, the audit driver, the diff filter, the negative builder, the splitter,
+the mutators, the metrics module, and the detector runners. Each sample carries a
+stable identifier that threads through every stage, so a prediction in the
+evaluation logs can be traced back to the source file and the validation decision
+that admitted it. CWE classes are referred to by their numeric code throughout,
+and mutators by their family and index (M1 to M7).
+
+\subsection{Artifact Schema}
+
+Each sample is stored as a paired source file and a schema-versioned metadata
+record. The record carries the CWE label, the matched sink pattern, the label
+provenance, the CVSS base score and severity, and a label-confidence tier. The
+tier separates HIGH-provable advisory positives whose sink line the diff filter
+confirmed changed, HIGH-curated canonical samples that are correct by
+construction, and MEDIUM-curator \texttt{vudenc} samples that are human-labeled
+but carry no paired fix to diff against. Versioning the schema lets the pipeline
+evolve the record format without invalidating earlier artifacts, and it makes
+every validation decision reproducible from the released files.
+
+\section{Difficulties Encountered and Strategies Used to Tackle Them}
+
+The central difficulty was label noise that the sink filter could not catch: a
+sample where the sink is present but is not the vulnerability, because the CVE
+fix touched a co-changed file. The strategy was the three-round audit, where each
+round measured the false-positive rate on disjoint samples and its findings
+motivated the next filter. Round~1 (77 samples) measured 52\% and surfaced six
+recurring failure patterns:
+
+\begin{itemize}
+  \item \textbf{Sink too broad.} A pattern matched a safe overload of the sink,
+    for example a parameterized query counted as SQL injection.
+  \item \textbf{Co-changed-file noise.} The sink was present but the fix that
+    earned the CWE label modified a different file.
+  \item \textbf{Documentation match.} The sink token appeared only in a comment
+    or docstring.
+  \item \textbf{Pattern conflation.} One regex matched two distinct sinks, one
+    safe and one unsafe.
+  \item \textbf{Inverted operation.} The matched line was the remediation, not
+    the vulnerability.
+  \item \textbf{Wrapper abstraction.} The real sink sat behind a project helper
+    the pattern could not see.
+\end{itemize}
+
+Each pattern motivated a specific tightening, and two CWE classes with systematic
+issues were dropped: CWE-434 at 100\% false positive, and CWE-798 with a
+single-source bias. Round~2 held at 51\% because new samples surfaced
+co-changed-file noise on the untouched classes, which motivated the diff filter.
+A second difficulty was proving each mutator safe. The strategy was to skip any
+node a transformation could not prove safe, for example a rename that might
+collide with an imported name, and to require every mutated sample to re-parse.
+
+\section{Data Set}
+
+Positives are aggregated from five primary sources with differing retrieval
+methods and label quality, listed in Table~\ref{tab:sources}. GHSA Advisory DB
+dominates because it indexes per-CWE advisories with explicit fix commits. The
+\texttt{vudenc} corpus is human-labeled but ships no paired fixed version, so it
+cannot be diff-validated and is retained as a lower-confidence tier. Twenty
+hand-curated canonical samples are textbook OWASP and SANS exemplars that serve
+as calibration points: a detector that misses them is broken regardless of its
+CVE-corpus performance.
+
+\begin{table}[htb]
+\caption{Positive data sources and counts after label validation. Hard negatives
+are constructed safe twins.}
+\label{tab:sources}
+\centering
+\begin{tabular}{lr l}
+\toprule
+\textbf{Source} & \textbf{Count} & \textbf{Retrieval} \\
+\midrule
+GHSA Advisory DB    & 384 & per-advisory fix commit \\
+\texttt{vudenc}     & 209 & pre-labeled corpus \\
+OSV / GHSA GraphQL  &  54 & commit references \\
+CVEfixes            &  58 & local SQLite query \\
+NVD-targeted        &  33 & NVD API $+$ keyword filter \\
+Canonical (curated) &  20 & hand-written exemplars \\
+\midrule
+Hard negatives      & 429 & constructed safe twins \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Layer 1: Sink-Presence Filter}
+
+For each CWE the filter defines a small set of high-recall regex sink patterns,
+and it admits a sample only if at least one pattern matches the source after
+comments and docstrings are stripped. The patterns match both safe and unsafe
+forms of the sink, so discrimination is left to Layer~3. Two CWEs use proximity
+gates: CWE-22 requires an HTTP-request reference within twenty lines of the
+sink, because test fixtures with hardcoded paths are otherwise common false
+positives. Listing~\ref{lst:sinkfilter} shows the filter in simplified form.
+
+\begin{figure}[H]
+\begin{verbatim}
+def has_cwe_sink(code, cwe, file_path=None):
+    if cwe in TEST_EXCLUSION_CWES and is_test_file(file_path):
+        return False, None
+    match_code = strip_comments_and_docstrings(code)
+    for pat in SINK_PATTERNS[cwe]:
+        for m in pat.finditer(match_code):
+            if cwe in REQUIRES_REQUEST_PROXIMITY:
+                if not has_request_near(code, m.start()):
+                    continue
+            if cwe in REQUIRES_SECURITY_CONTEXT:
+                if not has_security_context_near(code, m.start()):
+                    continue
+            return True, pat.pattern
+    return False, None
+\end{verbatim}
+\caption{Layer-1 sink-presence filter (simplified). A sample is admitted only if
+a CWE sink pattern matches after comment and docstring stripping, subject to the
+per-CWE proximity gates.}
+\label{lst:sinkfilter}
+\end{figure}
+
+Applied to the 1{,}982 pre-filter samples, Layer~1 dropped 749 (38\%). The
+rejection rate varied by source from 28\% (NVD) to 68\% (CVEfixes), where
+commit-level mislabels were confirmed at scale.
+
+\subsection{Layer 2: Adversarial Audit}
+
+The audit ran three rounds on CWE-stratified samples, each sampling ten items
+per populous class and auditing rare classes in full. For each item the auditor
+received the identifier, source, repository, file path, the matched regex, and
+the code excerpt around the sink, and returned a binary verdict with a
+one-sentence justification, without seeing other auditors' verdicts. The audit
+is the mechanism that drove the pattern tightenings in the previous section.
+
+\subsection{Layer 3: Diff-Based Filter}
+
+The diff filter implements the evidence-anchored criterion: a positive is valid
+only if at least one line containing a sink-pattern match differs between
+\texttt{code\_before} and \texttt{code\_after}, after comment stripping and
+whitespace normalization. Listing~\ref{lst:difffilter} shows the procedure.
+
+\begin{figure}[H]
+\begin{verbatim}
+def sink_was_modified(code_before, code_after, cwe):
+    patterns = SINK_PATTERNS.get(cwe)
+    if not patterns or not code_after.strip():
+        return None  # cannot determine
+
+    def sink_lines(code):
+        out = set()
+        for ln in strip_comments(code).splitlines():
+            normalized = " ".join(ln.split())
+            if not normalized:
+                continue
+            for p in patterns:
+                if p.search(ln):
+                    out.add(normalized)
+                    break
+        return out
+
+    before = sink_lines(code_before)
+    after  = sink_lines(code_after)
+    return (before - after) != set()
+\end{verbatim}
+\caption{Layer-3 diff filter. A positive passes if at least one sink line in
+\texttt{code\_before} is absent from \texttt{code\_after}. Whitespace is
+normalized so that reformat-only edits do not count as real changes.}
+\label{lst:difffilter}
+\end{figure}
+
+Of the 738 positives reaching Layer~3, 316 (43\%) had unchanged sink lines and
+were rejected; the cut fell unevenly across classes (CWE-79 lost 68\%, CWE-22
+lost 71\%). Positives without a paired fixed version, the \texttt{vudenc} tier,
+cannot be diff-checked and are retained at the MEDIUM confidence tier, so the
+rejected count does not subtract directly to the final positive total. After all
+three layers the corpus holds 440 positives. The combined pipeline lowered the
+audited false-positive rate from 52\% to 26\%.
+
+\subsection{Final Composition}
+
+The final benchmark is 440 positives plus 429 safe negatives, 869 samples in
+all, split 610/127/132 with a repo-group constraint that yields zero cross-split
+repository leakage. Table~\ref{tab:composition} gives the per-CWE composition.
+Three oversized hard negatives are kept on disk but excluded from active
+evaluation, leaving a 129-sample test set (67 positives, 62 negatives).
+
+\begin{table}[htb]
+\caption{Final per-CWE composition of the benchmark.}
+\label{tab:composition}
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Label} & \textbf{Total} & \textbf{Train} & \textbf{Val} & \textbf{Test} \\
+\midrule
+CWE-89 (SQL Injection)             & 213 & 149 & 32 & 32 \\
+CWE-502 (Insecure Deserial.)       &  75 &  52 & 11 & 12 \\
+CWE-79 (XSS)                       &  54 &  40 &  7 &  7 \\
+CWE-94 (Code Injection)            &  35 &  24 &  5 &  6 \\
+CWE-78 (OS Command Injection)      &  26 &  18 &  4 &  4 \\
+CWE-918 (SSRF)                     &  22 &  17 &  2 &  3 \\
+CWE-22 (Path Traversal)            &  15 &  10 &  2 &  3 \\
+\texttt{safe} (hard negatives)     & 429 & 300 & 64 & 65 \\
+\midrule
+\textbf{Total}                     & \textbf{869} & \textbf{610} & \textbf{127} & \textbf{132} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hard-Negative Construction}
+
+The 429 safe samples are not scraped. For each negative the builder takes a real
+vulnerable function and applies the canonical remediation for its CWE at the AST
+level, for example rewriting \texttt{yaml.load} to \texttt{yaml.safe\_load} or a
+string-formatted SQL query to a parameterized query. The remediation preserves
+the surface structure and the sink name while neutralizing only the sink
+behavior. Each negative therefore carries a provable safe label and is a
+minimal-pair counterfactual: a detector that fires on the mere presence of a
+sink token is forced into a false positive on the twin.
+
+\section{Algorithms Used}
+
+\subsection{Mutator Transformations}
+
+Each mutator is an AST transformer that walks the parsed tree, rewrites the nodes
+it can prove safe, and unparses the result. The transformations are deterministic
+given a sample identifier and seed, so the evaluation reproduces. Every mutator
+follows three principles: it is semantics-preserving and skips any node it cannot
+prove safe; it targets one shortcut, so a per-mutator accuracy drop is
+diagnostic; and it is realistic, so identifiers become synonyms and injected code
+reads like ordinary scaffolding. The three families attack distinct shortcuts:
+
+\begin{itemize}
+  \item \textbf{Sink-preserving (M1 to M4).} Dead-code injection breaks
+    positional reasoning, string splitting breaks substring matching, identifier
+    rename breaks name memorization, and wrapper extraction breaks
+    single-function analysis. All four leave the sink identifier and its
+    arguments intact.
+  \item \textbf{Sink-targeted (M5, M6).} M5 rewrites an attribute sink
+    \texttt{os.system(x)} through a \texttt{getattr} lookup, and M6 rewrites a
+    builtin sink \texttt{eval(x)} through a \texttt{builtins} dictionary lookup,
+    so in both cases the sink token survives only inside a string literal
+    (Appendix~\ref{apndx:code} gives the full rewrites). Both break token-level
+    sink matching.
+  \item \textbf{Dataflow (M7).} Taint-through-dict routes the sink's first
+    argument through a one-entry dict, \texttt{f(\{"a":x\}["a"])}, breaking the
+    static lineage from parameter to sink argument while leaving the sink and its
+    value unchanged.
+\end{itemize}
+
+Three of the seven mutators are applied as online training augmentation, and the
+four marked as held-out probes (M2, M5, M6, M7) are used only at test time.
+Appendix~\ref{apndx:code} gives a before-and-after listing for each of the seven
+mutators.
+
+\subsection{Trained Detector}
+
+The 610-sample training split fine-tunes a dual-task GraphCodeBERT that predicts
+both the CWE class and the CVSS base score. Training uses a three-phase schedule.
+The first phase is a supervised-contrastive warmup that pulls together
+representations of samples sharing a CWE. The second phase applies an LDAM margin
+loss \cite{cao2019ldam} on a class-balanced sampler, which widens the decision
+margin for the rare classes. The third phase is a deferred re-weighting stage
+that switches to Effective-Number class weights \cite{cui2019cb} once the
+representation has stabilized. The model
+has 126.6M parameters and is treated as a small-data existence proof rather than
+a state-of-the-art claim.
+
+\section{Summary}
+
+The implementation realizes the three subsystems in Python: the corpus pipeline
+with its three validation layers, shown here as the Layer-1 and Layer-3 listings,
+and the constructed negatives; the AST-based mutator suite; and the evaluation
+harness with its detector runners and trained model. The dataset tables fix the
+composition the next chapters test and evaluate. Chapter~\ref{ch:testing}
+describes how the implementation is tested.

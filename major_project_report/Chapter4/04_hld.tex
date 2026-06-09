@@ -1,0 +1,224 @@
+\chapter{High Level Design}
+\label{ch:hld}
+
+The high-level design describes the architecture of the benchmark system and the
+flow of data through it. This chapter states the design considerations and
+development method, the architecture strategy and language choice, the overall
+system architecture, and the data flow at successive levels of detail. It closes
+with a summary of the design framework.
+
+%----------------------------------------------------------
+
+\section{Design Considerations}
+
+\subsection{General Considerations}
+
+Four considerations shape the design. The first is reproducibility: every
+validation decision must be traceable to the inputs that produced it, so each
+stage reads and writes schema-versioned artifacts. The second is evidence: a
+positive is kept only with a matched sink pattern and a changed sink line. The
+third is isolation, which keeps the stages independent, so the corpus, the
+mutators, and the harness can be re-run on their own. The fourth is
+auditability. The pattern set, the audit reports, and the rejection manifest are
+released, which lets a reader check the label decisions instead of trusting
+them.
+
+\subsection{Development Method}
+
+The system was built incrementally and validated by audit at each round rather
+than once at the end. The three-round audit drove the design: each round
+measured the false-positive rate of the labels on disjoint samples, and the
+findings of one round motivated the filter added in the next. This
+audit-then-tighten loop is the development method, and it is why the false
+positive rate fell across rounds rather than being asserted at the start.
+
+\section{Architecture Strategies}
+
+\subsection{Programming Language}
+
+Python is the implementation language for three reasons. The benchmark targets
+Python code, so the sink patterns, the AST transformations, and the
+semantics-preservation checks all operate in the same language they analyze. The
+standard \texttt{ast} module gives a stable, well-documented syntax tree, which
+the mutators and the negative builder transform directly. And the machine
+learning stack the trained detector needs, PyTorch and Transformers, is native
+to Python.
+
+\subsection{Future Plans}
+
+The architecture leaves room for extension. The single-file format can be
+replaced by an application-level format that supplies entry points to the
+whole-project dataflow detectors, the sink pattern set can be re-derived for
+another language, and the mutator suite can gain a dynamic-dispatch axis. Each
+extension fits the existing stage boundaries without redesign.
+
+\section{System Architecture}
+
+The system is a pipeline of three stages connected by artifacts. The corpus
+stage narrows a raw feed through three validation layers; the mutation stage
+generates semantics-preserving variants of the test samples; and the evaluation
+stage runs detectors and computes metrics. Figure~\ref{fig:pipeline} shows the
+corpus stage, which is the part that establishes label quality. A raw feed of
+1{,}982 samples is narrowed by the three layers, and the audited false-positive
+rate falls from 52\% to 26\%.
+
+\begin{figure}[htb]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=8mm and 11mm,
+  stage/.style={draw, rounded corners, align=center, fill=gray!8,
+    minimum height=13mm, text width=23mm, font=\small},
+  data/.style={draw, align=center, minimum height=13mm,
+    text width=19mm, font=\small},
+  arr/.style={-{Stealth[length=2.5mm]}, thick},
+  note/.style={font=\footnotesize, align=center}
+]
+\node[data] (raw) {raw feed\\\textbf{1{,}982}};
+\node[stage, right=of raw] (l1) {Layer 1\\sink-presence\\filter};
+\node[data, right=of l1] (d1) {\textbf{1{,}233}};
+\node[stage, right=of d1] (l2) {Layer 2\\3-round\\adversarial audit};
+\node[stage, right=of l2] (l3) {Layer 3\\diff-based\\filter};
+\node[data, right=of l3] (final) {\textbf{440} pos.\\$+$\,\textbf{429} safe\\$=$\,\textbf{869}};
+\draw[arr] (raw)--(l1);
+\draw[arr] (l1)--(d1) node[midway,above,note]{$-749$};
+\draw[arr] (d1)--(l2);
+\draw[arr] (l2)--(l3);
+\draw[arr] (l3)--(final) node[midway,above,note]{$-316$};
+\node[note, below=4mm of d1] {audit FP\\\textbf{52\%}};
+\node[note, below=4mm of l2] {$\rightarrow$ \textbf{51\%}};
+\node[note, below=4mm of l3] {$\rightarrow$ \textbf{26\%}};
+\end{tikzpicture}}
+\caption{The three-layer label-validation pipeline. Layer~1 rejects samples
+lacking the category-defining sink token; Layer~2's independent audit rounds
+drive the pattern tightenings; Layer~3 keeps a positive only if the sink line
+itself changed between the vulnerable and fixed versions.}
+\label{fig:pipeline}
+\end{figure}
+
+\section{Data Flow Diagrams}
+
+\subsection{Data Flow Diagram Level 0.0}
+
+At the context level, the system takes two external inputs and produces one
+output. The inputs are the advisory and CVE-fix feeds (GHSA, CVEfixes, NVD, OSV,
+and the \texttt{vudenc} corpus) and the detector implementations (SAST binaries,
+LLM APIs, and the trained model). The output is a set of scored results: per
+detector, per CWE, on clean and mutated code. The system is the benchmark
+pipeline that transforms the feeds into a validated, mutated corpus and scores
+the detectors against it.
+
+\begin{figure}[htb]
+\centering
+\resizebox{0.85\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  ext/.style={draw, align=center, fill=gray!4,
+    minimum height=12mm, text width=30mm},
+  proc/.style={draw, rounded corners, align=center, fill=blue!12,
+    minimum height=16mm, text width=34mm},
+  arr/.style={-{Stealth[length=2.5mm]}, thick, gray!55},
+]
+\node[ext] (feeds) {Advisory \&\\CVE-fix Feeds\\{\scriptsize GHSA, NVD, OSV}};
+\node[proc, right=24mm of feeds] (sys) {\textbf{0.0}\\Benchmark\\Pipeline};
+\node[ext, right=24mm of sys] (out) {Scored Results\\{\scriptsize per detector,\\per CWE}};
+\node[ext, below=20mm of feeds] (dets) {Detector Suite\\{\scriptsize SAST, Dataflow,\\LLM, GCB}};
+\draw[arr] (feeds) -- (sys);
+\draw[arr] (dets.east) -- ++(10mm,0) |- (sys.west);
+\draw[arr] (sys) -- (out);
+\end{tikzpicture}}
+\caption{Data Flow Diagram Level~0.0 (context diagram).}
+\label{fig:dfd0}
+\end{figure}
+
+\subsection{Data Flow Diagram Level 1.0}
+
+One level down, the pipeline is three processes connected by data stores. The
+\emph{construction} process reads the raw feeds, applies the three validation
+layers, builds the safe twins, and writes the validated corpus to a data store.
+The \emph{mutation} process reads the test split and writes seven mutated
+variants of each test sample to a variant store. The \emph{evaluation} process
+reads both the clean test set and the variant store, runs each detector, and
+writes per-sample predictions and aggregate metrics.
+
+\begin{figure}[htb]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  ext/.style={draw, align=center, fill=gray!4,
+    minimum height=12mm, text width=24mm},
+  proc/.style={draw, rounded corners, align=center, fill=blue!12,
+    minimum height=16mm, text width=28mm},
+  store/.style={draw, align=center, fill=gray!15,
+    minimum height=10mm, text width=24mm},
+  arr/.style={-{Stealth[length=2.5mm]}, thick, gray!55},
+]
+\node[ext] (feeds) {Raw\\Feeds};
+\node[proc, right=14mm of feeds] (cons) {\textbf{1.0}\\Corpus\\Construction};
+\node[store, right=12mm of cons] (corpus) {Validated\\Corpus};
+\node[proc, right=12mm of corpus] (mut) {\textbf{2.0}\\Mutation};
+\node[store, right=12mm of mut] (vars) {Variant\\Store};
+\node[proc, right=12mm of vars] (eval) {\textbf{3.0}\\Evaluation};
+\node[ext, right=14mm of eval] (metrics) {Scored\\Metrics};
+\draw[arr] (feeds) -- (cons);
+\draw[arr] (cons) -- (corpus);
+\draw[arr] (corpus) -- (mut);
+\draw[arr] (mut) -- (vars);
+\draw[arr] (vars) -- (eval);
+\draw[arr] (eval) -- (metrics);
+\draw[arr, dashed] (corpus.south) -- ++(0,-12mm) -| (eval.south)
+  node[midway, below, font=\scriptsize] {test split};
+\end{tikzpicture}}
+\caption{Data Flow Diagram Level~1.0: corpus construction, mutation, and evaluation.}
+\label{fig:dfd1}
+\end{figure}
+
+\subsection{Data Flow Diagram Level 2.0}
+
+The evaluation process expands into the harness shown in
+Figure~\ref{fig:harness}. The same 129-sample clean set and eight mutator
+variants of the 67 positives flow into seven detectors across four tiers, and
+each detector's output flows into the five bounded metrics.
+
+\begin{figure}[htb]
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners, align=center, fill=gray!8,
+    minimum height=9mm, text width=34mm},
+  src/.style={draw, align=center, fill=gray!4, minimum height=26mm,
+    text width=27mm},
+  met/.style={draw, align=center, fill=gray!4, minimum height=26mm,
+    text width=24mm},
+  arr/.style={-{Stealth[length=2.5mm]}, thick, gray!55},
+]
+\node[src] (bench) {\textbf{Benchmark}\\129 clean\\(67 pos $+$ 62 safe)\\[3pt]$+$ 8 mutator\\variants of the\\67 positives};
+\node[box, right=12mm of bench, yshift=17mm] (sast) {\textbf{SAST}\\Bandit, Semgrep};
+\node[box, below=2.5mm of sast] (wp) {\textbf{Whole-project}\\Snyk Code, CodeQL};
+\node[box, below=2.5mm of wp] (llm) {\textbf{LLM}\\Sonnet 4.6, GPT-4o,\\DeepSeek R1};
+\node[box, below=2.5mm of llm] (trained) {\textbf{Trained}\\GraphCodeBERT};
+\node[met, right=12mm of llm, yshift=8.5mm] (metrics) {\textbf{Metrics}\\macro-F1\\detection MCC\\SWR\\HCMA\\weighted $\kappa$};
+\draw[arr] (bench.east) -- (sast.west);
+\draw[arr] (bench.east) -- (wp.west);
+\draw[arr] (bench.east) -- (llm.west);
+\draw[arr] (bench.east) -- (trained.west);
+\draw[arr] (sast.east) -- (metrics.west);
+\draw[arr] (wp.east) -- (metrics.west);
+\draw[arr] (llm.east) -- (metrics.west);
+\draw[arr] (trained.east) -- (metrics.west);
+\end{tikzpicture}}
+\caption{Data Flow Diagram Level~2.0: the 129-sample benchmark and eight mutator
+variants of the 67 positives flow into seven detectors across four tiers,
+scored under five bounded metrics.}
+\label{fig:harness}
+\end{figure}
+
+\section{Summary}
+
+The high-level design is a three-stage, artifact-connected pipeline built around
+reproducibility, evidence-backed labels, stage isolation, and auditability. The
+system architecture centers on the three-layer validation funnel, and the data
+flow refines from a two-input context diagram to the detailed evaluation
+harness. Chapter~\ref{ch:detailed} details the design of each module.

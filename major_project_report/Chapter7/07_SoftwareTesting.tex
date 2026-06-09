@@ -1,0 +1,165 @@
+\chapter{Software Testing}
+\label{ch:testing}
+
+Testing the benchmark system means testing two things: that the pipeline
+produces the corpus it claims to, and that the validation and mutation logic
+behaves as specified. Because the system is a research pipeline rather than an
+interactive application, much of its testing takes the form of the audit that
+measures label quality and the semantics-preservation checks that guard the
+mutators. This chapter describes the testing strategy, component testing,
+pipeline testing, the audit as a validation procedure, and the
+semantics-preservation regime for the mutators, with representative test cases.
+
+%----------------------------------------------------------
+
+\section{Testing Strategy}
+
+The system is tested at three levels. Component testing checks each module
+against known inputs. Pipeline testing runs the stages end to end and checks the
+invariants that connect them. Validation testing measures the quality of the
+output corpus through the independent audit. The three levels answer different
+questions: component testing asks whether a module does what its specification
+says, pipeline testing asks whether the modules compose without breaking an
+invariant, and validation testing asks whether the labels the pipeline emits are
+correct. A defect at any level is caught before the corpus is released, because
+the audit re-measures label quality on fresh samples each round.
+
+\section{Component Testing}
+
+Each pipeline module is tested in isolation against known inputs.
+
+\subsection{Sink-Presence Filter}
+
+The sink-presence filter is tested for recall, for documentation suppression,
+and for the proximity gates. Recall is checked by confirming that a sample
+containing a known sink for its CWE is admitted. Documentation suppression is
+checked by confirming that a sink token appearing only in a comment or docstring
+does not cause admission, since the filter strips comments and docstrings before
+matching. The proximity gate for CWE-22 is checked by confirming that a
+filesystem sink without a nearby HTTP-request reference is rejected, which
+removes test fixtures with hardcoded paths. The filter is also tested for the
+test-file exclusion, which drops samples whose path marks them as test code for
+the CWEs where test fixtures are a known noise source.
+
+\subsection{Diff Filter}
+
+The diff filter is tested against paired vulnerable and fixed versions. A
+positive whose sink line differs between the two versions must be kept, and a
+positive whose sink line is unchanged, even when other lines in the file differ,
+must be rejected. Comment stripping and whitespace normalization are tested by
+confirming that a change limited to a comment or to whitespace does not count as
+a sink-line change, so a reformat-only commit does not pass a sample. The filter
+is also tested for the undetermined case: when no fixed version is available, the
+procedure returns a null verdict rather than a pass, which is what keeps the
+\texttt{vudenc} samples in the lower-confidence tier instead of admitting them as
+diff-validated.
+
+\subsection{Negative Builder}
+
+The negative builder is tested by confirming that a constructed safe twin
+re-parses, that it preserves the sink name, and that the remediation neutralizes
+the sink behavior. A twin produced from a \texttt{yaml.load} sink must contain
+\texttt{yaml.safe\_load} and must still parse as valid Python. A twin produced
+from a string-formatted query must use parameter binding rather than string
+concatenation. The test confirms that the surface structure around the sink is
+otherwise unchanged, which is what makes the twin a minimal pair against its
+vulnerable original.
+
+\subsection{Mutator Semantics Preservation}
+
+Every mutator is tested for the property that defines it: that the mutated sample
+re-parses and that its runtime behavior matches the original. Re-parsing is
+checked for every mutated sample in the test set, so a transformation that
+produces syntactically invalid Python is caught before evaluation. Behavior
+preservation is checked per transformation against the Python evaluation rules.
+The tests confirm the specific safety conditions each mutator depends on:
+
+\begin{itemize}
+  \item Dead-code injection inserts only side-effect-free statements
+    (\texttt{if False: pass}, an unused assignment, a zero-iteration loop), so
+    the function's return value cannot change.
+  \item String splitting skips docstrings and type-hint strings, so
+    \texttt{help()} output and runtime type introspection are unaffected, and it
+    splits only the literal text between f-string substitutions.
+  \item Identifier rename skips \texttt{self}, \texttt{cls}, builtins, imported
+    names, names declared \texttt{global} or \texttt{nonlocal}, the function's
+    own name, and any token inside a string literal, so dispatch, recursion, and
+    string data are preserved.
+  \item Wrapper extraction forwards arguments with \texttt{*\_a, **\_kw},
+    generates an \texttt{async def} wrapper for an awaited sink, and inserts the
+    helper after a docstring rather than before it.
+  \item The sink-targeted and dataflow mutators are checked to leave the runtime
+    value reaching the sink bitwise identical to the original argument.
+\end{itemize}
+
+A node a mutator cannot prove safe to transform is skipped, which is tested by
+confirming that a rename colliding with an imported name is not applied and that
+the surrounding code is left unchanged.
+
+\section{Pipeline Testing}
+
+Pipeline testing runs the stages end to end and checks the invariants. The split
+is tested for the repo-group constraint by confirming zero cross-split
+repository leakage, so no repository contributes samples to more than one split.
+The corpus is tested for schema conformance by confirming that every sample
+carries a CWE label, a matched sink pattern, a label provenance, a CVSS severity,
+and a label-confidence tier. The mutation stage is tested by confirming that each
+test sample yields the expected seven variants and that each variant re-parses.
+The per-CVE sample cap is tested by confirming that no single CVE contributes
+more than three near-identical files, which prevents one high-impact advisory
+from dominating a class.
+
+\section{Validation Testing through the Audit}
+
+The audit is the system's primary validation test, and it follows the
+controlled-measurement discipline of empirical software engineering
+\cite{wohlin}. Three rounds of independent audit measured the false-positive
+rate of the labels on disjoint CWE-stratified samples. Round~1 (77 samples) measured 52\% and surfaced six recurring failure
+patterns, each of which became a fix in the next round. Round~2 held at 51\%
+after the pattern tightenings, because new samples surfaced co-changed-file noise
+on the classes the tightenings had not touched, which motivated the diff filter.
+Round~3, on the diff-filtered data, measured 26\%. The audit is adversarial by
+construction: reviewers see only the sample and its evidence, not each other's
+verdicts, so a mislabeled sample is more likely to be caught than confirmed. The
+falling false-positive rate across rounds is the evidence that the validation
+pipeline works, and the residual 26\% is reported rather than hidden.
+
+\section{Test Cases}
+
+Table~\ref{tab:testcases} lists representative test cases and their outcomes.
+
+\begin{table}[htb]
+\caption{Representative test cases for the benchmark pipeline.}
+\label{tab:testcases}
+\centering
+\begin{tabularx}{\textwidth}{p{0.5cm} X X c}
+\toprule
+\textbf{\#} & \textbf{Test} & \textbf{Expected result} & \textbf{Status} \\
+\midrule
+1 & Sink in code only & Sample admitted & Pass \\
+2 & Sink in docstring only & Sample rejected & Pass \\
+3 & CWE-22 sink, no HTTP source nearby & Sample rejected & Pass \\
+4 & Sink in a test-file path & Sample excluded & Pass \\
+5 & Sink line changed in fix & Positive kept & Pass \\
+6 & Sink line unchanged in fix & Positive rejected & Pass \\
+7 & Comment-only change in fix & Positive rejected & Pass \\
+8 & No fixed version available & Undetermined, kept as MEDIUM tier & Pass \\
+9 & Safe twin re-parses & Valid Python, sink name kept & Pass \\
+10 & Mutated sample re-parses & Valid Python for all 7 variants & Pass \\
+11 & Rename collides with import & Node skipped, code unchanged & Pass \\
+12 & Repo-group split & Zero cross-split leakage & Pass \\
+13 & Per-CVE cap & At most 3 files per CVE & Pass \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Summary}
+
+The benchmark system is tested at the component level for each module, at the
+pipeline level for its invariants, and at the validation level through the
+three-round audit that measures label quality. The semantics-preservation checks
+guard the mutators against changing program behavior, the repo-group check guards
+the split against leakage, and the per-CVE cap guards a class against single-CVE
+domination. The test cases in Table~\ref{tab:testcases} confirm the specified
+behavior across all three levels. Chapter~\ref{ch:results} reports the
+experimental results that this validated pipeline makes possible.

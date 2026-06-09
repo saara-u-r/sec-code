@@ -1,0 +1,218 @@
+\documentclass[12pt,oneside,a4paper]{book} % This style for A4 format.
+
+\input{./AuxFiles/Packages}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Document settings
+\title{PyVulSev: A Benchmark for Adversarial Robustness in Python Vulnerability Detection}
+\subCode{CS481P}
+% Note: While using the template for IDP, the \Department cmd is not used (discarded automatically) in IDP. The Certificate page uses \guideDeptA[]{} cmd in IDP.
+\Department[CSE]{Computer Science and Engineering}
+\academicYear{2025-26}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Report Type:
+%%%%%%%%%%%%%%%%%% For Plagiarism Check %%%%%%%%%%%%%%%%%%%%%%%
+%% Uncomment \EnPlagReport line, before plagiarism check to remove Certificate, Declaration, Acknowledgement and TOC pages.
+%\EnPlagReport
+
+%%%%%%%%%%%%%%%%%%% For PG program %%%%%%%%%%%%%%%%%%%
+%% Uncomment \pgProgram command and define appropriate values for \MastersIn{} and \pgProgramName{}
+
+%\pgProgram%
+\MastersIn[M.Tech]{Master of Technology}
+\pgProgramName{VLSI Design \& Embedded Systems}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Student Details%%%
+\stuNameA{Saara Unnathi R}
+\stuUSNA{1RV22CS167}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Guide Related commands
+%% Internal Guide %%
+% Have to give both short form and long of Department Name
+\guideNameA{Dr. Manonmani S}
+\guideDesignationA{Associate Professor}
+\guideDeptA[CSE]{Computer Science and Engineering}
+\guideOrgA{RV College of Engineering}
+
+%% External Guides
+\guideNameB{Dr.~Holger~Schmidt \& Dr.~Klaus~Kaiser}
+\guideDesignationB{Professor}
+\guideDeptB{Computer Science}
+\guideOrgB{Fachhochschule Dortmund}
+
+%\guideNameC{Dr. Ramavenkateshwaran}
+%\guideDesignationC{Assistant Professor}
+%\guideDeptC{Dept. of ECE}
+%\guideOrgC{RV College of Engineering}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Esteem members related commands
+%% Pannel Members %%
+\panelMemberNameA{Dr. Kariyappa}
+\panelMemberDesigA{Professor}
+\panelMemberDeptA[ECE]{Electronics and Communication Engineering}
+\panelMemberNameB{Prof. P N Jayanthi}
+\panelMemberDesigB{Assistant Professor}
+\panelMemberDeptB[ECE]{Electronics and Communication Engineering}
+
+% Added Ver 3.6 & 3.9
+%% Project co-ordinators 
+\projectCoOrdNameA{Dr. Chethana R Murthy}
+\projectCoOrdDesigA{Associate Professor}
+\projectCoOrdDeptA[CSE]{Computer Science and Engineering}
+% Not used for IDP and Internship
+\projectCoOrdNameB{Prof. Deepika Dash}
+\projectCoOrdDesigB{Assistant Professor}
+\projectCoOrdDeptB[CSE]{Computer Science and Engineering}
+%\projectCoOrdNameC{Prof. Subramanya K N}
+%\projectCoOrdDesigC{Assistant Professor}
+
+%%%%%%%%%%%%%%%%% Esteemed Members %%%%%%%%%%%%%%%%%%
+\HOD{Dr. Shanta Rangaswamy}
+\Principal{Dr. K. N. Subramanya}
+\DeanCS{Dr. Ramakanth Kumar P}
+% For IDP only
+\DeanAcademics{Dr. M.V. Renukadevi}
+\VicePrincipal{Dr. Geetha K S}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%  QRL %%%%%%%%%%%%%%%%%%%%%%%%%%
+\QRurl{}
+%\QRurl{https://drive.google.com/open?id=1jm-POmuq-ZZ1tT5m-xAdCDRnwvLZH8q-}
+
+%%%%%%%%%%%%%%%%%%Draft report%%%%%%%%%%%%%%%%%%
+%\DraftCopy %Not yet implemented, if anyone interested, do contact me at pnarashimaraja@rvce.edu.in (or) narashimaraja@gmail.com
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%% Glossaries & Acronyms %%%%%%%%%%%%%%%%%%
+\newglossary[sym]{symbolList}{sym1}{sym2}{List of Symbols}
+\makeglossaries
+% Acronyms
+\loadglsentries{./AuxFiles/Glossaries}
+\renewcommand{\glspostdescription}{}% To remove dot at the end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%% Bibliography %%%%%%%%%%%%%%%%%%%%%
+\usepackage[backend=bibtex,style=ieee]{biblatex}
+% If backend is set to bibtex, then configure texmaker Bi(La)Tex with "bibtex %"
+\addbibresource{./AuxFiles/ProjectBib.bib}%Add bib file with extention
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%WaterMark%%%%%%%%%%%%%%%%%%%%%
+%% Use it only after Biblatex
+%% Uncomment the following lines for watermarking and run it more than 2 times for proper alignment
+\usepackage{background}
+\backgroundsetup{scale=1, angle=0, firstpage = false, opacity=0.5, contents={
+\begin{tikzpicture}[remember picture, overlay]
+\node at ([yshift=0pt, xshift=0pt]current page.center){\includegraphics[width=0.6\textwidth]{Figures/RVlogoVecW}};
+\end{tikzpicture}
+}}
+
+\usepackage{tabularx}
+\begin{document}
+	\NoBgThispage% Don't remove this command, even if you want logo on the first page.	
+	\maketitle
+	%\pagestyle{empty}
+	\newpage
+	\ifDrf
+	% Remove Certificate, Declaration, Acknowledgement and TOC
+	\else
+	\begin{spacing}{1.5}
+		\input{./CoverPages/Certificate}
+		
+		\newpage
+		\input{./CoverPages/Declaration}
+		
+		\newpage
+		\input{./CoverPages/Ack}
+		
+		\newpage
+		\pagenumbering{roman}
+		
+		\chapter*{Abstract}
+		\input{./CoverPages/Abstract}
+
+		\newpage
+		\input{./CoverPages/Publications}
+		
+	\end{spacing}
+	\newpage
+	\pagestyle{fplain}
+	\begin{spacing}{1.5}
+		\tableofcontents	
+	\end{spacing}
+	\newpage
+	\begin{spacing}{1.5}
+		\cleardoublepage
+		\addcontentsline{toc}{chapter}{\listfigurename}
+		\listoffigures	
+	\end{spacing}
+	\newpage
+	\begin{spacing}{1.5}
+		\cleardoublepage
+		\addcontentsline{toc}{chapter}{\listtablename}
+		\listoftables	
+	\end{spacing}
+
+	% Populate the Abbreviations and List of Symbols pages with every defined
+	% entry, since the report spells acronyms out in prose rather than via \gls.
+	\glsaddall
+
+	\printglossary[type=\acronymtype, title= Abbreviations, toctitle=Abbreviations]
+
+	\printglossary[type=symbolList, title= List of Symbols, toctitle=List of Symbols]
+	\fi
+	\mainmatter
+	\pagestyle{mplain}
+	\glsresetall
+	\begin{spacing}{1.5}
+		%Chapter 1 
+		% \input{./Chapter1/chapter1-Intro}
+		\input{./Chapter1/01_introduction}
+		
+		%Chapter 2
+		% \input{./Chapter2/chapter2-Funda}
+		\input{./Chapter2/02_theory}
+		
+		%Chapter 3
+		% \input{./Chapter3/chapter3-design}
+		\input{./Chapter3/03_srs}
+		
+		%Chapter 4
+		% \input{./Chapter4/chapter4-implement}
+		\input{./Chapter4/04_hld}
+		
+		%Chapter 5
+		% \input{./Chapter5/chapter5-result}
+		\input{./Chapter5/05_detailed_design}
+		
+		%Chapter 6
+		% \input{./Chapter6/chapter6-conclution}
+		\input{./Chapter6/06_implementation}
+
+		%Chapter 7
+		\input{./Chapter7/07_SoftwareTesting}
+
+		%Chapter 8
+		\input{./Chapter8/08_ExpResults}
+
+		%Chapter 9
+		\input{./Chapter9/09_Conclusion}
+		
+		%% Uncomment the following 2 commands to add Appendix chapters
+		\appendix
+		\input{./Appendix/ApndxA}%Appendix for Plagiarism
+		\input{./Appendix/ApndxB}%Appendix for Paper publication
+		\input{./Appendix/ApndxC}%Appendix for Codes 
+		
+		\backmatter
+		\ifDrf
+		\else
+		\clearpage
+		\addcontentsline{toc}{chapter}{Bibliography}
+		\printbibliography%
+		\fi
+	\end{spacing}
+\end{document}

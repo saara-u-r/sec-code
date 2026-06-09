@@ -1,0 +1,151 @@
+\chapter{Code: Adversarial Mutators}
+\label{apndx:code}
+
+This appendix gives a before-and-after listing for each of the seven
+semantics-preserving mutators described in Chapter~\ref{ch:impl}. Every
+transformation leaves runtime behavior unchanged while breaking one detector
+shortcut. The two core validation procedures, the Layer-1 sink-presence filter
+and the Layer-3 diff filter, appear as Listings~\ref{lst:sinkfilter}
+and~\ref{lst:difffilter} in Chapter~\ref{ch:impl}.
+
+\section{Sink-Preserving Family (M1 to M4)}
+
+These mutators alter the code around the sink but leave the sink identifier and
+its arguments intact.
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return cursor.execute(query)
+
+# After
+def get_user(user_id):
+    _unused_var = sum([])
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    if False:
+        pass
+    return cursor.execute(query)
+\end{verbatim}
+\caption{M1 dead-code injection. Two side-effect-free statements are added; the
+return value cannot change. Attacks positional reasoning.}
+\label{lst:m1}
+\end{figure}
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+return cursor.execute(f"SELECT * FROM users WHERE id = {uid}")
+
+# After
+return cursor.execute(
+    "SEL" + "ECT * FROM" + " users WHERE id = " + f"{uid}"
+)
+\end{verbatim}
+\caption{M2 string-literal splitting. The substring \texttt{"SELECT"} no longer
+appears in the source, but the runtime SQL string is byte-identical. Attacks
+substring matching. Held out as a test-time probe.}
+\label{lst:m2}
+\end{figure}
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return cursor.execute(query)
+
+# After
+def get_user(account_pk):
+    sql = f"SELECT * FROM users WHERE id = {account_pk}"
+    return cursor.execute(sql)
+\end{verbatim}
+\caption{M3 identifier rename. Locals and parameters are renamed to synonyms in
+all their references. Attacks identifier memorization.}
+\label{lst:m3}
+\end{figure}
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return cursor.execute(query)
+
+# After
+def get_user(user_id):
+    def _wrapped_execute_138(*_a, **_kw):
+        return cursor.execute(*_a, **_kw)
+
+    query = f"SELECT * FROM users WHERE id = {user_id}"
+    return _wrapped_execute_138(query)
+\end{verbatim}
+\caption{M4 wrapper extraction. The sink call is moved into a one-line nested
+helper that forwards arguments. Attacks single-function analysis.}
+\label{lst:m4}
+\end{figure}
+
+\section{Sink-Targeted Family (M5, M6)}
+
+These mutators rewrite the sink call itself, so the sink token survives only
+inside a string literal. Both are held out as test-time probes.
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+def run_cmd(user_arg):
+    return os.system("ls " + user_arg)
+
+# After
+def run_cmd(user_arg):
+    return getattr(os, "system")("ls " + user_arg)
+\end{verbatim}
+\caption{M5 sink attribute obfuscation. An attribute sink
+\texttt{value.attr(args)} becomes \texttt{getattr(value, "attr")(args)}. Attacks
+token-level sink matching for CWE-78, 89, 918, and 502.}
+\label{lst:m5}
+\end{figure}
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+def render_template(spec):
+    return eval(spec)
+
+# After
+def render_template(spec):
+    return __import__("builtins").__dict__["eval"](spec)
+\end{verbatim}
+\caption{M6 sink via globals. A builtin sink \texttt{eval(arg)} is rewritten
+through a \texttt{builtins} dictionary lookup, as shown above, so the sink token
+survives only as a string literal. Attacks the same token-level match on the
+CWE-94 bare-builtin position.}
+\label{lst:m6}
+\end{figure}
+
+\section{Dataflow Family (M7)}
+
+This mutator leaves the sink and its argument value unchanged and instead breaks
+the static lineage from source to sink.
+
+\begin{figure}[H]
+\begin{verbatim}
+# Before
+def get_user(user_id):
+    return cursor.execute(
+        "SELECT * FROM users WHERE id = " + user_id
+    )
+
+# After
+def get_user(user_id):
+    return cursor.execute(
+        {"_a": "SELECT * FROM users WHERE id = " + user_id}["_a"]
+    )
+\end{verbatim}
+\caption{M7 taint-through-dict. The sink's first argument is routed through a
+one-entry dict that is constructed and immediately re-extracted, so the value is
+bitwise identical. Attacks taint tracking that does not propagate through dict
+reads. Held out as a test-time probe.}
+\label{lst:m7}
+\end{figure}
