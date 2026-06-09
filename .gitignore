@@ -27,3 +27,6 @@ models/
 paper.zip
 *.spl
 logs/
+
+# Model checkpoints (too large for GitHub)
+runs/
