@@ -145,7 +145,6 @@ def _build_hardneg_meta(
             # than "CWE-other" so the model can learn the difference
             # between "wasn't a target CWE" and "was sanitized away".
             "cwe":                  "safe",
-            "vuln_type":            None,
             "label_source":         "hardneg_sanitization",
             "label_confidence":     "high",
             # Inherit traceability anchors from the parent

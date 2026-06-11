@@ -45,7 +45,6 @@ def test_build_hardneg_meta_sets_provenance_fields():
     assert meta["parent_sample_id"] == parent["id"]
     assert meta["sanitization_transform"] == "fstring_execute_to_parameterized"
     assert meta["cwe"] == "safe"
-    assert meta["vuln_type"] is None
     assert meta["label_source"] == "hardneg_sanitization"
     assert meta["label_confidence"] == "high"
     assert meta["source"] == "hardneg_ghsa_db"

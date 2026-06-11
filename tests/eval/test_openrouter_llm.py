@@ -26,7 +26,7 @@ def _sample(code: str) -> EvalSample:
 def test_deepseek_metadata():
     det = DeepSeekR1Detector()
     assert det.name == "deepseek_r1"
-    assert det.version == "deepseek/deepseek-r1:free"
+    assert det.version == "deepseek/deepseek-r1"
 
 
 def test_qwen_metadata():
